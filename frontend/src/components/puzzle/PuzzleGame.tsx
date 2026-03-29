@@ -169,7 +169,17 @@ const DraggablePiece = ({
 };
 
 // ─── PuzzleGame 메인 컴포넌트 ───────────────────────────────────────────────
-export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stockData: any[]; gridSize?: number }) => {
+export const PuzzleGame = ({ 
+  stockData, 
+  gridSize: initialGridSize = 3,
+  stockName = "",
+  stockSymbol = ""
+}: { 
+  stockData: any[]; 
+  gridSize?: number;
+  stockName?: string;
+  stockSymbol?: string;
+}) => {
   const [pieces, setPieces]           = useState<PieceState[]>([]);
   const [pieceImages, setPieceImages] = useState<string[]>([]);
   const [guideImage, setGuideImage]   = useState<string | null>(null);
@@ -181,8 +191,13 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
   const [gridSize, setGridSize]       = useState<number>(3);
   const [isQuizOpen, setIsQuizOpen]   = useState(false);
   const [timeframe, setTimeframe]     = useState<"D" | "W" | "M">("D");
+  const [quizData, setQuizData]       = useState<any[]>(stockData);
+  const [isQuizDataLoading, setIsQuizDataLoading] = useState(false);
   const [userPrediction, setUserPrediction] = useState<"up" | "down" | null>(null);
   const [showResult, setShowResult]   = useState(false);
+  const [newsResults, setNewsResults] = useState<any[]>([]);
+  const [seconds, setSeconds]         = useState(0);
+  const [moves, setMoves]             = useState(0);
   const chartRef = useRef<StockChartHandle>(null);
   const quizChartRef = useRef<StockChartHandle>(null);
 
@@ -322,6 +337,7 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
       updated[pIdx] = piece;
       return updated;
     });
+    setMoves(m => m + 1);
   };
 
   useEffect(() => {
@@ -329,6 +345,68 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
       setIsSolved(true);
     }
   }, [pieces, isPlaying]);
+
+  // 타임 워프용 데이터 통합 관리 (오픈 시 초기화 및 전환 대응)
+  useEffect(() => {
+    if (!isQuizOpen || !stockSymbol) return;
+
+    const fetchTimeframeData = async () => {
+      setIsQuizDataLoading(true);
+      const tfMap = { "D": "day", "W": "week", "M": "month" };
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/api/stock/${stockSymbol}?timeframe=${tfMap[timeframe]}`);
+        if (res.ok) {
+          const result = await res.json();
+          if (result.data) {
+            setQuizData(result.data);
+          }
+        }
+      } catch (e) {
+        console.error("Timeframe data fetch failed", e);
+        if (timeframe === "D") setQuizData(stockData);
+      } finally {
+        setIsQuizDataLoading(false);
+      }
+    };
+
+    fetchTimeframeData();
+  }, [timeframe, isQuizOpen, stockSymbol, stockData]);
+
+  // 퍼즐 시작 또는 종목 선택 시 뉴스 데이터 가져오기 (News Pulse)
+  useEffect(() => {
+    if (!stockName) return;
+
+    const fetchNews = async () => {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/api/news/${encodeURIComponent(stockName)}?t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          setNewsResults(data.news || []);
+        }
+      } catch (e) {
+        console.error("News Pulse fetch failed", e);
+      }
+    };
+
+    fetchNews();
+  }, [stockName]);
+
+  // 퍼즐 타이머
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying && !isSolved) {
+      interval = setInterval(() => {
+        setSeconds(s => s + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, isSolved]);
+
+  const formatTime = (sec: number) => {
+    const mins = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${mins.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}s`;
+  };
 
   const progress = pieces.length > 0 
     ? Math.round((pieces.filter(p => p.isPlaced).length / pieces.length) * 100) 
@@ -382,11 +460,25 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
         </div>
       ) : (
         <div className="w-full flex flex-col items-center gap-4 animate-in zoom-in-95 duration-500 relative -mt-2">
+          {/* 타이머 및 무브 카운터 */}
+          <div className="flex items-center gap-6 px-6 py-2 bg-black/40 backdrop-blur-md rounded-2xl border border-white/5 shadow-2xl animate-in slide-in-from-top-4 duration-500">
+            <div className="flex items-center gap-2">
+              <Timer size={14} className="text-yellow-500" />
+              <span className="text-sm font-black text-yellow-500 font-mono tracking-wider uppercase">Time</span>
+              <span className="text-lg font-black text-white font-mono min-w-[5ch]">{formatTime(seconds)}</span>
+            </div>
+            <div className="w-[1px] h-4 bg-white/10" />
+            <div className="flex items-center gap-2">
+              <RefreshCw size={14} className="text-blue-400" />
+              <span className="text-sm font-black text-blue-400 font-mono tracking-wider uppercase">Moves</span>
+              <span className="text-lg font-black text-white font-mono min-w-[2ch]">{moves}</span>
+            </div>
+          </div>
           
           {/* 퍼즐 진행도 바 */}
-          <div className="w-64 h-2 bg-white/5 rounded-full overflow-hidden border border-white/10 mt-2">
+          <div className="w-64 h-2 bg-white/5 rounded-full overflow-hidden border border-white/10">
             <motion.div 
-              className="h-full bg-gradient-to-r from-blue-500 to-emerald-500"
+              className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
             />
@@ -478,26 +570,29 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
                             </button>
                           </div>
                           
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-[8px] text-gray-500 font-bold tracking-widest uppercase">
-                              <span>Sentiment Pulse</span>
-                              <span className="text-emerald-600 font-black">+78.4%</span>
-                            </div>
-                            <div className="h-2 w-full bg-black/5 rounded-full overflow-hidden flex shadow-inner">
-                              <div className="h-full bg-emerald-500 w-[78%]" />
-                              <div className="h-full bg-rose-500 w-[22%]" />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-2 mt-4">
-                            {["#반도체_폭등", "#AI_대세", "#HBM3E", "#금리동결", "#수출_청신호", "#외인속점", "#나스닥_반등", "#엔비디아_실적"].map((tag) => (
-                              <span key={tag} className="text-[9px] bg-white/40 text-indigo-700 py-1.5 px-2 rounded-lg border border-white/50 text-center font-bold">
-                                {tag}
-                              </span>
-                            ))}
+                          <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1">
+                            {newsResults.length > 0 ? (
+                              newsResults.map((news, idx) => (
+                                <a 
+                                  key={idx}
+                                  href={news.link}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="block p-2 bg-black/5 hover:bg-black/10 rounded-lg border border-black/5 transition-all"
+                                >
+                                  <p className="text-[10px] font-bold text-slate-800 line-clamp-2 leading-tight">
+                                    {news.title}
+                                  </p>
+                                  <span className="text-[8px] text-blue-600 font-bold uppercase mt-1 block">Naver News</span>
+                                </a>
+                              ))
+                            ) : (
+                              <div className="py-8 text-center text-gray-400 text-[10px] italic">
+                                관련 뉴스를 불러오는 중...
+                              </div>
+                            )}
                           </div>
                         </div>
-                        
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -567,13 +662,24 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[6000] bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center p-6"
+                  className="fixed inset-0 z-[6000] bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center py-10 px-6 overflow-y-auto"
                 >
                   <motion.div 
                     initial={{ scale: 0.9, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
-                    className="w-full max-w-[420px] flex flex-col items-center gap-8"
+                    className="w-full max-w-2xl flex flex-col items-center gap-6"
                   >
+                    {/* 상단 좌측 홈으로 메뉴 - 절대 위치 고정 */}
+                    <div className="fixed top-8 left-8 z-[7000] sm:absolute sm:top-0 sm:left-[-2rem]">
+                       <Button 
+                         variant="ghost" 
+                         className="text-white/40 hover:text-white flex items-center gap-2 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-xl px-4 py-2 transition-all group"
+                         onClick={() => window.location.reload()}
+                       >
+                         <Home size={20} className="group-hover:scale-110 transition-transform" /> <span className="font-bold tracking-tight">홈으로</span>
+                       </Button>
+                    </div>
+
                     <div className="w-full flex flex-col items-center gap-2">
                        <span className="text-blue-400 font-bold text-sm tracking-tighter">레벨 12 클리어!</span>
                        <h2 className="text-4xl font-black text-white tracking-tight">퍼즐 완성!</h2>
@@ -586,35 +692,55 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
                       
                       <div className="w-full flex justify-between items-center px-2 relative z-10">
                         <div className="flex flex-col">
-                          <span className="text-white/40 text-[10px] font-bold">인사이트 분석 완료</span>
-                          <h3 className="text-xl font-black text-white flex items-center gap-2">
-                            SK하이닉스 <span className="text-white/20 text-sm font-medium">(000660)</span>
+                          <span className="text-white/40 text-[10px] font-bold uppercase tracking-wider">Analysis Complete</span>
+                          <h3 className="text-3xl font-black text-white flex items-center gap-2">
+                            {stockName} <span className="text-white/20 text-lg font-medium">({stockSymbol})</span>
                           </h3>
                         </div>
-                        
-                        {/* 일/주/월 전환 탭 */}
-                        <div className="flex p-0.5 bg-black/40 rounded-lg border border-white/5 h-8">
+                        <div className="flex gap-8">
+                          <div className="flex flex-col items-center">
+                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Time</span>
+                            <span className="text-xl font-black text-white font-mono">{formatTime(seconds)}</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Moves</span>
+                            <span className="text-xl font-black text-white font-mono">{moves}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원 - 높이 확대) */}
+                      <div className="w-full h-[55vh] min-h-[400px] bg-black/40 rounded-3xl overflow-hidden border border-white/10 relative z-10 mt-2 shadow-inner">
+                        {/* 네이티브 스타일 일/주/월 메뉴 (차트 상단 부착) */}
+                        <div className="absolute top-4 right-4 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl">
                           {(["D", "W", "M"] as const).map((tf) => (
                             <button
                               key={tf}
-                              onClick={() => setTimeframe(tf)}
+                              onClick={() => {
+                                setTimeframe(tf);
+                                setShowResult(false);
+                                setUserPrediction(null);
+                              }}
+                              disabled={isQuizDataLoading}
                               className={`
-                                w-8 h-full rounded-md text-[10px] font-black transition-all
-                                ${timeframe === tf ? "bg-white/10 text-white" : "text-white/30 hover:text-white/50"}
+                                w-14 h-12 rounded-lg text-lg font-black transition-all flex items-center justify-center
+                                ${timeframe === tf ? "bg-white text-slate-900 shadow-xl" : "text-white/40 hover:text-white hover:bg-white/5"}
+                                ${isQuizDataLoading ? "opacity-50 cursor-wait" : ""}
                               `}
                             >
                               {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
                             </button>
                           ))}
                         </div>
-                      </div>
-
-                      {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원 - 높이 확대) */}
-                      <div className="w-full h-80 bg-black/20 rounded-2xl overflow-hidden border border-white/5 relative z-10 mt-2">
+                        {isQuizDataLoading ? (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-20">
+                            <span className="text-blue-400 font-bold animate-pulse">데이터 로딩 중...</span>
+                          </div>
+                        ) : null}
                         {/* 퀴즈 차트: 결과 공개 전에는 마지막 5일치를 가림 (Phase 5 정통성 확보) */}
                         <StockChart 
                           ref={quizChartRef} 
-                          data={showResult ? stockData : stockData.slice(0, -5)} 
+                          data={showResult ? quizData : quizData.slice(0, -5)} 
                         />
                       </div>
                     </div>
@@ -625,14 +751,14 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
                         {showResult ? (
                           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
                             <h4 className={`text-4xl font-black mb-1 ${
-                              ((stockData[stockData.length-1].close >= stockData[stockData.length-6].close) === (userPrediction === "up")) 
+                              ((quizData[quizData.length-1].close >= quizData[quizData.length-6].close) === (userPrediction === "up")) 
                               ? "text-emerald-400" : "text-rose-400"
                             }`}>
-                              {((stockData[stockData.length-1].close >= stockData[stockData.length-6].close) === (userPrediction === "up")) 
+                              {((quizData[quizData.length-1].close >= quizData[quizData.length-6].close) === (userPrediction === "up")) 
                               ? "정답입니다!" : "틀렸습니다!"}
                             </h4>
-                            <p className="text-white/60 text-sm">실제 결과: 5일간 <span className={stockData[stockData.length-1].close >= stockData[stockData.length-6].close ? "text-blue-400" : "text-rose-400"}>
-                              {stockData[stockData.length-1].close >= stockData[stockData.length-6].close ? "상승" : "하락"}
+                            <p className="text-white/60 text-sm">실제 결과: 다음 5개 봉 기준 <span className={quizData[quizData.length-1].close >= quizData[quizData.length-6].close ? "text-blue-400" : "text-rose-400"}>
+                              {quizData[quizData.length-1].close >= quizData[quizData.length-6].close ? "상승" : "하락"}
                             </span></p>
                           </motion.div>
                         ) : (
@@ -685,48 +811,57 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
                           </button>
                         </div>
                       )}
+                    </div>
 
-                      <div className="text-white/20 text-[10px] font-bold flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-white/20" /> 힌트 사용 (50점 소모)
+                    {/* 뉴스 펄스 섹션 */}
+                    <div className="w-full bg-slate-900/50 rounded-3xl p-6 border border-white/5 space-y-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                        <span className="text-xs font-black text-white/40 uppercase tracking-widest">Real-time News Pulse</span>
+                      </div>
+                      <div className="space-y-3">
+                        {newsResults.length > 0 ? (
+                          newsResults.map((news, idx) => (
+                            <a 
+                              key={idx}
+                              href={news.link}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="block p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all group"
+                            >
+                              <p className="text-sm font-medium text-white/80 group-hover:text-white transition-colors line-clamp-1">
+                                {news.title}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] text-blue-500/60 font-bold uppercase">Naver News</span>
+                                <span className="text-[10px] text-white/10 font-mono">•</span>
+                                <span className="text-[10px] text-white/20">최신 뉴스</span>
+                              </div>
+                            </a>
+                          ))
+                        ) : (
+                          <div className="py-4 text-center text-white/20 text-xs italic">
+                            {stockName} 관련 뉴스를 불러오는 중...
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {/* 통계 섹션 */}
-                    <div className="w-full grid grid-cols-2 gap-4">
-                      <div className="bg-white/5 rounded-3xl p-6 flex items-center gap-4 border border-white/5">
-                        <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-blue-400">
-                          <Timer size={20} />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[9px] text-white/30 font-bold tracking-widest uppercase">해결 시간</span>
-                          <span className="text-xl font-black text-white tracking-tight">01:42s</span>
-                        </div>
-                      </div>
-                      <div className="bg-white/5 rounded-3xl p-6 flex items-center gap-4 border border-white/5">
-                        <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-yellow-400">
-                          <Settings size={20} />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[9px] text-white/30 font-bold tracking-widest uppercase">정확도</span>
-                          <span className="text-xl font-black text-white tracking-tight">92%</span>
-                        </div>
-                      </div>
+                    <div className="w-full flex flex-col gap-3 mt-4">
+                      <Button 
+                        onClick={() => window.location.reload()}
+                        className="w-full h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white text-xl font-black rounded-3xl shadow-2xl shadow-[#F08080]/20 transition-all flex items-center justify-center gap-2"
+                      >
+                         <Home size={24} /> 메인으로 돌아가기
+                      </Button>
+                      
+                      <Button 
+                        onClick={() => setIsQuizOpen(false)}
+                        className="w-full h-14 bg-white/5 hover:bg-white/10 text-white/60 text-sm font-bold rounded-2xl transition-all"
+                      >
+                        계속 구경하기 (닫기)
+                      </Button>
                     </div>
-
-                    {/* 나중에 구현될 하단 내비게이션 형태 (샘플용) */}
-                    <div className="w-full flex justify-between px-4 mt-4 opacity-50">
-                       <Home size={20} className="text-white" />
-                       <Search size={20} className="text-white" />
-                       <BarChart2 size={20} className="text-blue-500" />
-                       <Settings size={20} className="text-white" />
-                    </div>
-
-                    <Button 
-                      onClick={() => setIsQuizOpen(false)}
-                      className="mt-4 text-white/40 hover:text-white transition-colors text-xs font-bold"
-                    >
-                      다음에 하기 (닫기)
-                    </Button>
                   </motion.div>
                 </motion.div>
               )}

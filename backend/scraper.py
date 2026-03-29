@@ -92,14 +92,17 @@ def _parse_naver_xml(xml_text):
     return parsed_data
 
 @lru_cache(maxsize=100)
-def fetch_stock_ohlcv(symbol, days=100):
+def fetch_stock_ohlcv(symbol, timeframe="day", days=100):
     """
     Naver Finance를 통한 주가 데이터 수집 및 파싱
+    - timeframe: day, week, month
     - 캐싱 및 타임아웃(5초) 적용
     """
     _apply_rate_limit()
     
-    url = f"https://fchart.stock.naver.com/sise.nhn?symbol={symbol}&timeframe=day&count={days}&requestType=0"
+    # Naver fchart API timeframe mapping
+    # day, week, month -> day, week, month (동일하게 사용 가능)
+    url = f"https://fchart.stock.naver.com/sise.nhn?symbol={symbol}&timeframe={timeframe}&count={days}&requestType=0"
     try:
         response = requests.get(url, headers=HEADERS, timeout=5)
         response.raise_for_status()
@@ -110,17 +113,63 @@ def fetch_stock_ohlcv(symbol, days=100):
         print(f"Error fetching stock data for {symbol}: {e}")
         return None
 
+def search_stock(query):
+    """
+    네이버 자동완성 API를 사용하여 종목명/코드 검색
+    """
+    if not query: return []
+    try:
+        url = f"https://ac.stock.naver.com/ac?q={query}&target=stock"
+        response = requests.get(url, headers=HEADERS, timeout=3)
+        response.raise_for_status()
+        
+        # 네이버 자동완성 API 응답 예시: {"items": [{"code":"005930", "name":"삼성전자", ...}, ...]}
+        data = response.json()
+        items = data.get("items", [])
+        
+        results = []
+        for item in items:
+            name = item.get("name")
+            code = item.get("code")
+            if name and code:
+                results.append({
+                    "name": name,
+                    "symbol": code
+                })
+        return results
+    except Exception as e:
+        print(f"Search error: {e}")
+        return []
+
 def fetch_news_keywords(stock_name):
     """
-    Naver News 검색 결과 크롤링 및 필터링
+    네이버 뉴스 검색 크롤링 및 필터링
     """
-    # 실제 구현 시 Naver Search API(Client ID/Secret) 필요
-    # 현재는 비로그인 크롤링 또는 Mock 데이터 처리
-    news_list = [
-        {"title": f"{stock_name} 기록적인 실적 발표", "content": "..."},
-        {"title": "[AD] 이번주 급등 예상 종목 공개", "content": "..."}, # 광고
-        {"title": f"{stock_name} 반도체 대규모 투자 공고", "content": "..."},
-    ]
+    _apply_rate_limit()
     
-    filtered_news = [n for n in news_list if clean_news_filter(n['title'])]
-    return filtered_news
+    # Naver Search News URL
+    url = f"https://search.naver.com/search.naver?where=news&query={stock_name}&sort=1" # 최신순
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=5)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, "html.parser")
+        title_tags = soup.select(".news_tit")
+        
+        results = []
+        for title_tag in title_tags:
+            title = title_tag.get_text(strip=True)
+            link = title_tag.get("href")
+            
+            # 광고 및 노이즈 필터링
+            if clean_news_filter(title):
+                results.append({
+                    "title": title,
+                    "link": link
+                })
+        
+        # 최대 5개 반환
+        return results[:5]
+    except Exception as e:
+        print(f"News fetch error for {stock_name}: {e}")
+        return []

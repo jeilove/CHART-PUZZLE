@@ -38,9 +38,10 @@ const STOCK_LIST = [
 
 export default function Home() {
   const [view, setView] = useState<"HOME" | "GAME" | "RESULT">("HOME");
-  const [selectedStock, setSelectedStock] = useState<string | null>(null);
+  const [selectedStock, setSelectedStock] = useState<{name: string, symbol: string} | null>(null);
   const [stockData, setStockData] = useState<any[]>(MOCK_STOCK_DATA);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiResults, setApiResults] = useState<any[]>([]);
 
   const startBlindChallenge = async () => {
     // 블라인드 모드는 상위 10개 중 랜덤 하나를 선택 및 코드 기반 데이터 호출
@@ -64,16 +65,53 @@ export default function Home() {
       console.error("실데이터 로딩 실패, Mock 데이터 사용:", e);
       setStockData(MOCK_STOCK_DATA);
     } finally {
-      setSelectedStock(name);
+      setSelectedStock({ name, symbol });
       setView("GAME");
       setIsLoading(false);
     }
   };
 
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredStocks = STOCK_LIST
-    .filter(s => s.name.includes(searchTerm))
-    .slice(0, 5);
+  
+  // 실시간 API 검색 (디바운싱 생략하고 바로 요청)
+  React.useEffect(() => {
+    if (searchTerm.length >= 2) {
+      const fetchApiSearch = async () => {
+        try {
+          const res = await fetch(`http://127.0.0.1:8000/api/search?q=${encodeURIComponent(searchTerm)}`);
+          if (res.ok) {
+            const data = await res.json();
+            setApiResults(data.results || []);
+          }
+        } catch (e) {
+          console.error("API Search failed", e);
+        }
+      };
+      fetchApiSearch();
+    } else {
+      setApiResults([]);
+    }
+  }, [searchTerm]);
+
+  const allStocks = [
+    ...STOCK_LIST.filter(s => s.name.includes(searchTerm) || s.symbol.includes(searchTerm)),
+    ...apiResults.filter(apiS => !STOCK_LIST.find(s => s.symbol === apiS.symbol))
+  ];
+
+  // 중복 심볼 제거 및 최대 8개 제한
+  const filteredStocks = Array.from(new Map(allStocks.map(s => [s.symbol, s])).values()).slice(0, 8);
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      if (filteredStocks.length > 0) {
+        const top = filteredStocks[0];
+        selectStock(top.name, top.symbol);
+      } else if (/^\d{6}$/.test(searchTerm)) {
+        // 6자리 숫자라면 다이렉트 심볼 검색 시도
+        selectStock(searchTerm, searchTerm);
+      }
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#0d1117] text-slate-200 flex flex-col items-center justify-center p-4 overflow-hidden relative font-sans transition-colors">
@@ -115,29 +153,33 @@ export default function Home() {
                 <div className="relative group">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-400 transition-colors" size={20} />
                   <Input 
-                    placeholder="종목 검색" 
+                    placeholder="종목명 또는 코드(6자리) 검색" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className="w-full h-14 bg-black/40 border-white/10 focus:border-blue-500/50 rounded-2xl pl-12 text-lg focus-visible:ring-0 transition-all placeholder:text-gray-600"
                   />
-                  
-                  {searchTerm && (
-                    <div className="absolute top-16 left-0 w-full bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                      {filteredStocks.length > 0 ? (
-                        filteredStocks.map((stock) => (
-                          <button 
-                            key={stock.symbol}
-                            onClick={() => selectStock(stock.name, stock.symbol)}
-                            className="w-full px-6 py-4 text-left hover:bg-blue-600/20 transition-colors border-b border-white/5 last:border-0"
-                          >
-                            <span className="font-medium">{stock.name}</span>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="px-6 py-4 text-gray-500 text-sm italic">결과가 없습니다.</div>
+                                       {searchTerm && (
+                        <div className="absolute top-16 left-0 w-full bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                          {filteredStocks.length > 0 ? (
+                            filteredStocks.map((stock, idx) => {
+                              if (!stock || typeof stock === 'string') return null;
+                              return (
+                                <button 
+                                  key={`${stock.symbol || 'none'}-${idx}`}
+                                  onClick={() => selectStock(stock.name, stock.symbol)}
+                                  className="w-full px-6 py-4 text-left hover:bg-blue-600/20 transition-colors border-b border-white/5 last:border-0 flex items-center justify-between group/item"
+                                >
+                                  <span className="font-medium text-slate-200 group-hover/item:text-blue-400 transition-colors">{stock.name}</span>
+                                  <span className="text-xs text-slate-500 font-mono">{stock.symbol}</span>
+                                </button>
+                              );
+                            })
+                          ) : (
+                            <div className="px-6 py-4 text-gray-500 text-sm italic">결과가 없습니다.</div>
+                          )}
+                        </div>
                       )}
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -176,17 +218,21 @@ export default function Home() {
             {/* 상단 바 */}
             <div className="w-full flex items-center justify-between mb-8 px-4">
               <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => setView("HOME")}>
-                <ChevronLeft className="mr-2" /> 나가기
+                <ChevronLeft className="mr-2" /> 홈으로
               </Button>
               <div className="text-center flex-1">
-                <h2 className="text-xl font-bold">{selectedStock || "???"}</h2>
-                <p className="text-xs text-yellow-500 font-mono">TIME 00:00 • MOVES 0</p>
+                <h2 className="text-xl font-bold">{selectedStock?.name || "???"}</h2>
               </div>
               <div className="w-20" /> {/* 밸런싱용 */}
             </div>
 
             {/* 퍼즐 영역 */}
-            <PuzzleGame stockData={stockData} gridSize={4} />
+            <PuzzleGame 
+              stockData={stockData} 
+              gridSize={4} 
+              stockName={selectedStock?.name || ""} 
+              stockSymbol={selectedStock?.symbol || ""}
+            />
           </motion.div>
         ) : null}
       </AnimatePresence>

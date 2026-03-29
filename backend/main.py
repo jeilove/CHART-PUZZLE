@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
 
-from scraper import fetch_stock_ohlcv, fetch_news_keywords, clean_news_filter
+from scraper import fetch_stock_ohlcv, fetch_news_keywords, clean_news_filter, search_stock
 
 app = FastAPI(title="Stock Chart Puzzle Backend")
 
@@ -29,11 +29,16 @@ async def root():
     return {"message": "Stock Chart Puzzle API is running!"}
 
 @app.get("/api/stock/{symbol}")
-async def get_stock_data(symbol: str):
-    data = fetch_stock_ohlcv(symbol)
+async def get_stock_data(symbol: str, timeframe: str = "day"):
+    data = fetch_stock_ohlcv(symbol, timeframe=timeframe)
     if not data:
         raise HTTPException(status_code=404, detail="Stock data not found")
     return {"symbol": symbol, "data": data}
+
+@app.get("/api/search")
+async def search_stocks(q: str):
+    results = search_stock(q)
+    return {"results": results}
 
 @app.get("/api/news/{stock_name}")
 async def get_news_keywords(stock_name: str):
