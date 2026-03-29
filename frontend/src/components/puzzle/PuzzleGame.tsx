@@ -4,7 +4,7 @@ import React, { useState, useRef, useMemo, useEffect } from "react";
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay } from "@dnd-kit/core";
 import { StockChart, StockChartHandle } from "../charts/StockChart";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings } from "lucide-react";
+import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // TAB 비율: 렌더링과 표시에서 동일하게 사용 (핵심: 반드시 일치해야 함)
@@ -379,16 +379,24 @@ export const PuzzleGame = ({
   useEffect(() => {
     if (!stockName) return;
 
+    const abortController = new AbortController();
+
     const fetchNews = async () => {
       setIsNewsLoading(true);
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/news/${encodeURIComponent(stockName)}?t=${Date.now()}`);
+        const res = await fetch(`http://127.0.0.1:8000/api/news/${encodeURIComponent(stockName)}?t=${Date.now()}`, {
+          signal: abortController.signal
+        });
         if (res.ok) {
           const data = await res.json();
           setNewsResults(data.news || []);
         }
-      } catch (e) {
-        console.error("News Pulse fetch failed", e);
+      } catch (e: any) {
+        if (e.name === "AbortError") {
+          console.log("News fetch aborted due to timeout");
+        } else {
+          console.error("News Pulse fetch failed", e);
+        }
         setNewsResults([]);
       } finally {
         setIsNewsLoading(false);
@@ -396,6 +404,14 @@ export const PuzzleGame = ({
     };
 
     fetchNews();
+
+    // 5초 강제 타임아웃
+    const timeoutId = setTimeout(() => abortController.abort(), 5000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      abortController.abort();
+    };
   }, [stockName]);
 
   // 퍼즐 타이머

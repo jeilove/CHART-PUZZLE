@@ -147,10 +147,10 @@ def fetch_news_keywords(stock_name):
     """
     _apply_rate_limit()
     
-    # Naver Search News URL
-    url = f"https://search.naver.com/search.naver?where=news&query={stock_name}&sort=1" # 최신순
+    # Naver Search News URL (최신순, 1일 이내 한정 '&pd=4' 추가로 부하 최소화)
+    url = f"https://search.naver.com/search.naver?where=news&query={stock_name}&sort=1&pd=4"
     try:
-        response = requests.get(url, headers=HEADERS, timeout=5)
+        response = requests.get(url, headers=HEADERS, timeout=3)
         response.raise_for_status()
         
         soup = BeautifulSoup(response.text, "html.parser")

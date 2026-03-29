@@ -43,3 +43,5 @@
 | 2026-03-29 | 다시 섞기 클릭 시 타이머/무브 0으로 초기화 | #기능추가 | [v] | resetPiecesPositions()에 setSeconds(0) 추가 |
 | 2026-03-29 | 정답 확인 버튼 클릭 시 조각 자동 안착 | #기능추가 | [v] | isPlaced를 true로 바꾸고 position을 정답 위치로 강제 스냅 로직 추가 |
 | 2026-03-29 | 뉴스 펄스 무반응 로딩 처리 | #기능추가 | [v] | isNewsLoading 로딩 상태 추가 및 응답 없을 시 예외 처리 |
+
+| 2026-03-29 | ReferenceError: ChevronLeft is not defined 보완 | #에이전트실수 | [v] | PuzzleGame.tsx 모듈 상단에 누락된 ChevronLeft 아이콘 패키지 임포트 추가 |

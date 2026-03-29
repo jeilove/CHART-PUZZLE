@@ -29,19 +29,19 @@ async def root():
     return {"message": "Stock Chart Puzzle API is running!"}
 
 @app.get("/api/stock/{symbol}")
-async def get_stock_data(symbol: str, timeframe: str = "day"):
+def get_stock_data(symbol: str, timeframe: str = "day"):
     data = fetch_stock_ohlcv(symbol, timeframe=timeframe)
     if not data:
         raise HTTPException(status_code=404, detail="Stock data not found")
     return {"symbol": symbol, "data": data}
 
 @app.get("/api/search")
-async def search_stocks(q: str):
+def search_stocks(q: str):
     results = search_stock(q)
     return {"results": results}
 
 @app.get("/api/news/{stock_name}")
-async def get_news_keywords(stock_name: str):
+def get_news_keywords(stock_name: str):
     news = fetch_news_keywords(stock_name)
     return {"stock_name": stock_name, "news": news}
 
