@@ -154,8 +154,14 @@ def fetch_news_keywords(stock_name):
         response.raise_for_status()
         
         soup = BeautifulSoup(response.text, "html.parser")
-        title_tags = soup.select(".news_tit")
         
+        # 여러 선택자를 시도하여 뉴스 제목 추출
+        title_tags = soup.select(".news_tit")
+        if not title_tags:
+            title_tags = soup.select("a.api_txt_lines.tit")
+        if not title_tags:
+            title_tags = soup.select(".news_area a.api_txt_lines")
+            
         results = []
         for title_tag in title_tags:
             title = title_tag.get_text(strip=True)

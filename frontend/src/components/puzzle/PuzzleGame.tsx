@@ -196,6 +196,7 @@ export const PuzzleGame = ({
   const [userPrediction, setUserPrediction] = useState<"up" | "down" | null>(null);
   const [showResult, setShowResult]   = useState(false);
   const [newsResults, setNewsResults] = useState<any[]>([]);
+  const [isNewsLoading, setIsNewsLoading] = useState(false);
   const [seconds, setSeconds]         = useState(0);
   const [moves, setMoves]             = useState(0);
   const chartRef = useRef<StockChartHandle>(null);
@@ -298,6 +299,8 @@ export const PuzzleGame = ({
       };
     }));
     if (isSolved) setIsSolved(false);
+    setSeconds(0);
+    setMoves(0);
   };
 
   const handleDragStart = (event: any) => {
@@ -377,6 +380,7 @@ export const PuzzleGame = ({
     if (!stockName) return;
 
     const fetchNews = async () => {
+      setIsNewsLoading(true);
       try {
         const res = await fetch(`http://127.0.0.1:8000/api/news/${encodeURIComponent(stockName)}?t=${Date.now()}`);
         if (res.ok) {
@@ -385,6 +389,9 @@ export const PuzzleGame = ({
         }
       } catch (e) {
         console.error("News Pulse fetch failed", e);
+        setNewsResults([]);
+      } finally {
+        setIsNewsLoading(false);
       }
     };
 
@@ -629,7 +636,20 @@ export const PuzzleGame = ({
                 다시 섞기
               </Button>
               <Button
-                onClick={() => setIsSolved(true)}
+                onClick={() => {
+                  setPieces((prev) => prev.map((p) => {
+                    const row = Math.floor(p.pieceIdx / gridSize);
+                    const col = p.pieceIdx % gridSize;
+                    const cellSize = 512 / gridSize;
+                    return {
+                      ...p,
+                      isPlaced: true,
+                      position: { x: col * cellSize, y: row * cellSize },
+                      rotation: 0,
+                    };
+                  }));
+                  setIsSolved(true);
+                }}
                 className="px-10 h-12 text-sm font-black bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-xl shadow-rose-900/20 transition-all rounded-xl"
               >
                 정답 확인
@@ -669,14 +689,14 @@ export const PuzzleGame = ({
                     animate={{ scale: 1, y: 0 }}
                     className="w-full max-w-2xl flex flex-col items-center gap-6"
                   >
-                    {/* 상단 좌측 홈으로 메뉴 - 절대 위치 고정 */}
-                    <div className="fixed top-8 left-8 z-[7000] sm:absolute sm:top-0 sm:left-[-2rem]">
+                    {/* 상단 바 (홈으로) - 퍼즐 메인 화면과 통일 */}
+                    <div className="w-full flex justify-start mb-2">
                        <Button 
                          variant="ghost" 
-                         className="text-white/40 hover:text-white flex items-center gap-2 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-xl px-4 py-2 transition-all group"
+                         className="text-gray-400 hover:text-white flex items-center"
                          onClick={() => window.location.reload()}
                        >
-                         <Home size={20} className="group-hover:scale-110 transition-transform" /> <span className="font-bold tracking-tight">홈으로</span>
+                         <ChevronLeft className="mr-2" size={20} /> <span className="font-bold">홈으로</span>
                        </Button>
                     </div>
 
@@ -696,16 +716,6 @@ export const PuzzleGame = ({
                           <h3 className="text-3xl font-black text-white flex items-center gap-2">
                             {stockName} <span className="text-white/20 text-lg font-medium">({stockSymbol})</span>
                           </h3>
-                        </div>
-                        <div className="flex gap-8">
-                          <div className="flex flex-col items-center">
-                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Time</span>
-                            <span className="text-xl font-black text-white font-mono">{formatTime(seconds)}</span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Moves</span>
-                            <span className="text-xl font-black text-white font-mono">{moves}</span>
-                          </div>
                         </div>
                       </div>
 
@@ -820,7 +830,11 @@ export const PuzzleGame = ({
                         <span className="text-xs font-black text-white/40 uppercase tracking-widest">Real-time News Pulse</span>
                       </div>
                       <div className="space-y-3">
-                        {newsResults.length > 0 ? (
+                        {isNewsLoading ? (
+                          <div className="py-4 text-center text-white/20 text-xs italic">
+                            {stockName} 관련 뉴스를 불러오는 중...
+                          </div>
+                        ) : newsResults.length > 0 ? (
                           newsResults.map((news, idx) => (
                             <a 
                               key={idx}
@@ -841,7 +855,7 @@ export const PuzzleGame = ({
                           ))
                         ) : (
                           <div className="py-4 text-center text-white/20 text-xs italic">
-                            {stockName} 관련 뉴스를 불러오는 중...
+                            최근 뉴스가 없습니다.
                           </div>
                         )}
                       </div>
