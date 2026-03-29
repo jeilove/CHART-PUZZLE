@@ -366,13 +366,27 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
             </div>
           </div>
 
-          <Button
-            onClick={startPuzzle}
-            disabled={isCapturing}
-            className="h-12 px-10 text-base font-bold bg-gradient-to-r from-[#F08080] to-rose-500 hover:from-rose-500 hover:to-[#F08080] text-white rounded-xl shadow-xl shadow-rose-900/20 transition-all font-sans"
-          >
-            {isCapturing ? "이미지 분할 중..." : "퍼즐 시작하기"}
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={startPuzzle}
+              disabled={isCapturing}
+              className="h-14 px-10 text-lg font-black bg-gradient-to-r from-[#F08080] to-rose-500 hover:from-rose-500 hover:to-[#F08080] text-white rounded-2xl shadow-xl shadow-rose-900/20 transition-all font-sans"
+            >
+              {isCapturing ? "분할 중..." : "퍼즐 시작하기"}
+            </Button>
+
+            <Button
+              onClick={() => {
+                setIsPlaying(true);
+                setIsSolved(true);
+                setIsQuizOpen(true);
+              }}
+              className="h-14 px-10 text-lg font-black bg-white/5 hover:bg-white/10 text-blue-400 border border-blue-500/30 rounded-2xl shadow-xl transition-all font-sans flex items-center gap-2"
+            >
+              <Timer size={20} />
+              타임 워프 퀴즈
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="w-full flex flex-col items-center gap-10 animate-in zoom-in-95 duration-500 relative">
@@ -615,24 +629,18 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
                         </div>
                       </div>
 
-                      {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원) */}
-                      <div className="w-full h-40 bg-black/20 rounded-2xl overflow-hidden border border-white/5 relative z-10">
+                      {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원 - 높이 확대) */}
+                      <div className="w-full h-80 bg-black/20 rounded-2xl overflow-hidden border border-white/5 relative z-10 mt-2">
                         <StockChart ref={quizChartRef} data={stockData} />
                       </div>
                     </div>
 
-                    {/* 퀴즈 메인 카드 */}
-                    <div className="w-full bg-slate-900/50 border border-white/5 rounded-[3rem] p-10 flex flex-col items-center gap-10 shadow-3xl backdrop-blur-2xl">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 bg-yellow-400/20 rounded-full flex items-center justify-center text-yellow-400 border border-yellow-400/30">
-                          <Timer size={32} />
-                        </div>
-                        <div className="text-center">
-                          <h4 className="text-3xl font-black text-white mb-2">타임 워프 예측</h4>
-                          <p className="text-gray-400 text-sm font-medium leading-relaxed">
-                            이 패턴 이후, 다음 <span className="text-blue-400 font-bold">5거래일 동안</span> 주가는<br />어떻게 되었을까요?
-                          </p>
-                        </div>
+                    {/* 퀴즈 메인 카드 (차트 강화형) */}
+                    <div className="w-full bg-slate-900/50 border border-white/5 rounded-[3rem] p-8 flex flex-col items-center gap-8 shadow-3xl backdrop-blur-2xl">
+                      <div className="flex flex-col items-center gap-2">
+                        <p className="text-gray-400 text-sm font-medium leading-relaxed text-center">
+                          이 패턴 이후, 다음 <span className="text-blue-400 font-bold">5거래일 동안</span> 주가는<br />어떻게 되었을까요?
+                        </p>
                       </div>
 
                       <div className="w-full grid grid-cols-2 gap-6">
