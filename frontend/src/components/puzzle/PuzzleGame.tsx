@@ -180,9 +180,11 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
   const [activeId, setActiveId]       = useState<string | null>(null);
   const [gridSize, setGridSize]       = useState(initialGridSize);
   const [isQuizOpen, setIsQuizOpen]   = useState(false);
+  const [timeframe, setTimeframe]     = useState<"D" | "W" | "M">("D");
   const [userPrediction, setUserPrediction] = useState<"up" | "down" | null>(null);
   const [showResult, setShowResult]   = useState(false);
   const chartRef = useRef<StockChartHandle>(null);
+  const quizChartRef = useRef<StockChartHandle>(null);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
@@ -585,13 +587,38 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
                     </div>
 
                     {/* 종목 확인 카드 */}
-                    <div className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex flex-col items-center gap-2 shadow-2xl relative overflow-hidden group">
+                    <div className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-6 flex flex-col items-center gap-4 shadow-2xl relative overflow-hidden group">
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-50" />
-                      <span className="text-white/40 text-xs font-bold relative z-10">종목 확인</span>
-                      <h3 className="text-3xl font-black text-white relative z-10 flex items-center gap-3">
-                        SK하이닉스 <span className="text-white/30 text-xl font-medium">(000660)</span>
-                      </h3>
-                      <div className="w-12 h-1 bg-blue-500 rounded-full mt-2 relative z-10" />
+                      
+                      <div className="w-full flex justify-between items-center px-2 relative z-10">
+                        <div className="flex flex-col">
+                          <span className="text-white/40 text-[10px] font-bold">인사이트 분석 완료</span>
+                          <h3 className="text-xl font-black text-white flex items-center gap-2">
+                            SK하이닉스 <span className="text-white/20 text-sm font-medium">(000660)</span>
+                          </h3>
+                        </div>
+                        
+                        {/* 일/주/월 전환 탭 */}
+                        <div className="flex p-0.5 bg-black/40 rounded-lg border border-white/5 h-8">
+                          {(["D", "W", "M"] as const).map((tf) => (
+                            <button
+                              key={tf}
+                              onClick={() => setTimeframe(tf)}
+                              className={`
+                                w-8 h-full rounded-md text-[10px] font-black transition-all
+                                ${timeframe === tf ? "bg-white/10 text-white" : "text-white/30 hover:text-white/50"}
+                              `}
+                            >
+                              {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원) */}
+                      <div className="w-full h-40 bg-black/20 rounded-2xl overflow-hidden border border-white/5 relative z-10">
+                        <StockChart ref={quizChartRef} data={stockData} />
+                      </div>
                     </div>
 
                     {/* 퀴즈 메인 카드 */}

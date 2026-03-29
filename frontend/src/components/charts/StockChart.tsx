@@ -110,9 +110,9 @@ export const StockChart = forwardRef<StockChartHandle, StockChartProps>(({
     // 3. 이동평균선 (5, 20, 60, 120)
     const maConfigs = [
       { period: 5, color: "#4caf50" }, // Green
+      { period: 10, color: "#2196f3" }, // Blue (10일선 추가)
       { period: 20, color: "#f44336" }, // Red
       { period: 60, color: "#ff9800" }, // Orange
-      { period: 120, color: "#9c27b0" }, // Purple
     ];
 
     maConfigs.forEach(conf => {
