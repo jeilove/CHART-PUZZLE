@@ -58,20 +58,54 @@ def _apply_rate_limit():
         time.sleep(MIN_DELAY_BETWEEN_REQUESTS - elapsed)
     last_request_time = time.time()
 
-@lru_cache(maxsize=100)
-def fetch_stock_ohlcv(symbol, days=70):
+def _parse_naver_xml(xml_text):
     """
-    Naver Finance를 통한 주가 데이터 수집 (일봉 차트용)
+    네이버 fchart XML 데이터를 OHLCV JSON 리스트로 파싱
+    포맷: <item data="20240101|73000|74000|72000|73500|15000000"/>
+    """
+    if not xml_text: return []
+    
+    soup = BeautifulSoup(xml_text, "xml")
+    items = soup.find_all("item")
+    
+    parsed_data = []
+    for item in items:
+        data_str = item.get("data", "")
+        if not data_str: continue
+        
+        parts = data_str.split("|")
+        if len(parts) < 6: continue
+        
+        # 날짜 포맷팅: 20240101 -> 2024-01-01
+        dt_str = parts[0]
+        formatted_date = f"{dt_str[:4]}-{dt_str[4:6]}-{dt_str[6:]}"
+        
+        parsed_data.append({
+            "time": formatted_date,
+            "open": float(parts[1]),
+            "high": float(parts[2]),
+            "low": float(parts[3]),
+            "close": float(parts[4]),
+            "volume": int(parts[5])
+        })
+        
+    return parsed_data
+
+@lru_cache(maxsize=100)
+def fetch_stock_ohlcv(symbol, days=100):
+    """
+    Naver Finance를 통한 주가 데이터 수집 및 파싱
     - 캐싱 및 타임아웃(5초) 적용
     """
-    _apply_rate_limit() # 속도 제한 적용
+    _apply_rate_limit()
     
-    url = f"https://fchart.naver.com/sise.nhn?symbol={symbol}&timeframe=day&count={days}&requestType=0"
+    url = f"https://fchart.stock.naver.com/sise.nhn?symbol={symbol}&timeframe=day&count={days}&requestType=0"
     try:
-        # 타임아웃과 헤더 추가 (필수)
         response = requests.get(url, headers=HEADERS, timeout=5)
         response.raise_for_status()
-        return response.text
+        
+        # XML 파싱 후 JSON 반환
+        return _parse_naver_xml(response.text)
     except Exception as e:
         print(f"Error fetching stock data for {symbol}: {e}")
         return None

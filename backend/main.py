@@ -7,14 +7,22 @@ from scraper import fetch_stock_ohlcv, fetch_news_keywords, clean_news_filter
 
 app = FastAPI(title="Stock Chart Puzzle Backend")
 
-# CORS 설정
+# CORS 및 PNA(Private Network Access) 보안 고도화
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+@app.middleware("http")
+async def add_pna_header(request, call_next):
+    response = await call_next(request)
+    if request.method == "OPTIONS":
+        response.headers["Access-Control-Allow-Private-Network"] = "true"
+    return response
 
 @app.get("/")
 async def root():

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Play, Trophy, Settings, ChevronLeft } from "lucide-react";
+import { Search, Play, Trophy, Settings, ChevronLeft, Loader2 } from "lucide-react";
 import { PuzzleGame } from "@/components/puzzle/PuzzleGame";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -24,23 +24,55 @@ const MOCK_STOCK_DATA = Array.from({ length: 60 }, (_, i) => {
   };
 });
 
+// 실제 KOSPI 상장 종목 리스트 (샘플)
+const STOCK_LIST = [
+  { name: "삼성전자", symbol: "005930" },
+  { name: "SK하이닉스", symbol: "000660" },
+  { name: "LG에너지솔루션", symbol: "373220" },
+  { name: "삼성바이오로직스", symbol: "207940" },
+  { name: "현대차", symbol: "005380" },
+  { name: "기아", symbol: "000270" },
+  { name: "셀트리온", symbol: "068270" },
+  { name: "POSCO홀딩스", symbol: "005490" },
+];
+
 export default function Home() {
   const [view, setView] = useState<"HOME" | "GAME" | "RESULT">("HOME");
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
+  const [stockData, setStockData] = useState<any[]>(MOCK_STOCK_DATA);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const startBlindChallenge = () => {
-    setSelectedStock("삼성전자 (BLIND)");
-    setView("GAME");
+  const startBlindChallenge = async () => {
+    // 블라인드 모드는 상위 10개 중 랜덤 하나를 선택 및 코드 기반 데이터 호출
+    const randomIndex = Math.floor(Math.random() * STOCK_LIST.length);
+    const target = STOCK_LIST[randomIndex];
+    await selectStock(target.name, target.symbol);
   };
 
-  const selectStock = (name: string) => {
-    setSelectedStock(name);
-    setView("GAME");
+  const selectStock = async (name: string, symbol: string) => {
+    setIsLoading(true);
+    try {
+      // 로컬 백엔드 API 호출 (Phase 6 실데이터 연동 - IPv4 정적 주소 사용)
+      const response = await fetch(`http://127.0.0.1:8000/api/stock/${symbol}`);
+      if (!response.ok) throw new Error("API 연결 실패");
+      
+      const result = await response.json();
+      if (result.data && result.data.length > 0) {
+        setStockData(result.data);
+      }
+    } catch (e) {
+      console.error("실데이터 로딩 실패, Mock 데이터 사용:", e);
+      setStockData(MOCK_STOCK_DATA);
+    } finally {
+      setSelectedStock(name);
+      setView("GAME");
+      setIsLoading(false);
+    }
   };
 
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredStocks = ["삼성전자", "SK하이닉스", "LG에너지솔루션", "삼성바이오로직스", "현대차"]
-    .filter(s => s.includes(searchTerm))
+  const filteredStocks = STOCK_LIST
+    .filter(s => s.name.includes(searchTerm))
     .slice(0, 5);
 
   return (
@@ -70,10 +102,11 @@ export default function Home() {
               <div className="space-y-4">
                 <Button 
                   onClick={startBlindChallenge}
+                  disabled={isLoading}
                   className="w-full h-16 text-xl font-bold bg-[#F08080] hover:bg-[#F08080]/90 text-white transition-all rounded-2xl group flex items-center justify-between px-6 shadow-lg shadow-[#F08080]/20"
                 >
                   <span className="flex items-center gap-3">
-                    <Play className="fill-current" />
+                    {isLoading ? <Loader2 className="animate-spin" /> : <Play className="fill-current" />}
                     블라인드 챌린지
                   </span>
                   <span className="text-sm bg-white/10 px-3 py-1 rounded-full font-normal">START</span>
@@ -93,11 +126,11 @@ export default function Home() {
                       {filteredStocks.length > 0 ? (
                         filteredStocks.map((stock) => (
                           <button 
-                            key={stock}
-                            onClick={() => selectStock(stock)}
+                            key={stock.symbol}
+                            onClick={() => selectStock(stock.name, stock.symbol)}
                             className="w-full px-6 py-4 text-left hover:bg-blue-600/20 transition-colors border-b border-white/5 last:border-0"
                           >
-                            <span className="font-medium">{stock}</span>
+                            <span className="font-medium">{stock.name}</span>
                           </button>
                         ))
                       ) : (
@@ -153,7 +186,7 @@ export default function Home() {
             </div>
 
             {/* 퍼즐 영역 */}
-            <PuzzleGame stockData={MOCK_STOCK_DATA} gridSize={4} />
+            <PuzzleGame stockData={stockData} gridSize={4} />
           </motion.div>
         ) : null}
       </AnimatePresence>

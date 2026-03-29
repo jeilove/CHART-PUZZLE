@@ -611,57 +611,84 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
 
                       {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원 - 높이 확대) */}
                       <div className="w-full h-80 bg-black/20 rounded-2xl overflow-hidden border border-white/5 relative z-10 mt-2">
-                        <StockChart ref={quizChartRef} data={stockData} />
+                        {/* 퀴즈 차트: 결과 공개 전에는 마지막 5일치를 가림 (Phase 5 정통성 확보) */}
+                        <StockChart 
+                          ref={quizChartRef} 
+                          data={showResult ? stockData : stockData.slice(0, -5)} 
+                        />
                       </div>
                     </div>
 
                     {/* 퀴즈 메인 카드 (차트 강화형) */}
                     <div className="w-full bg-slate-900/50 border border-white/5 rounded-[3rem] p-8 flex flex-col items-center gap-8 shadow-3xl backdrop-blur-2xl">
                       <div className="flex flex-col items-center gap-2">
-                        <p className="text-gray-400 text-sm font-medium leading-relaxed text-center">
-                          이 패턴 이후, 다음 <span className="text-blue-400 font-bold">5거래일 동안</span> 주가는<br />어떻게 되었을까요?
-                        </p>
+                        {showResult ? (
+                          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
+                            <h4 className={`text-4xl font-black mb-1 ${
+                              ((stockData[stockData.length-1].close >= stockData[stockData.length-6].close) === (userPrediction === "up")) 
+                              ? "text-emerald-400" : "text-rose-400"
+                            }`}>
+                              {((stockData[stockData.length-1].close >= stockData[stockData.length-6].close) === (userPrediction === "up")) 
+                              ? "정답입니다!" : "틀렸습니다!"}
+                            </h4>
+                            <p className="text-white/60 text-sm">실제 결과: 5일간 <span className={stockData[stockData.length-1].close >= stockData[stockData.length-6].close ? "text-blue-400" : "text-rose-400"}>
+                              {stockData[stockData.length-1].close >= stockData[stockData.length-6].close ? "상승" : "하락"}
+                            </span></p>
+                          </motion.div>
+                        ) : (
+                          <p className="text-gray-400 text-sm font-medium leading-relaxed text-center">
+                            이 패턴 이후, 다음 <span className="text-blue-400 font-bold">5거래일 동안</span> 주가는<br />어떻게 되었을까요?
+                          </p>
+                        )}
                       </div>
 
-                      <div className="w-full grid grid-cols-2 gap-6">
-                        <button
-                          onClick={() => setUserPrediction("up")}
-                          className={`group relative flex flex-col items-center gap-4 p-8 rounded-[2.5rem] transition-all border
-                            ${userPrediction === "up" 
-                              ? "bg-blue-600/20 border-blue-500 scale-105 shadow-2xl shadow-blue-500/20" 
-                              : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
-                        >
-                          <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all
-                            ${userPrediction === "up" ? "bg-blue-500 text-white" : "bg-slate-800 text-blue-400"}`}>
-                            <TrendingUp size={40} />
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-xl font-black text-white">상승</span>
-                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">BULLISH</span>
-                          </div>
-                        </button>
+                      {!showResult && (
+                        <div className="w-full grid grid-cols-2 gap-6">
+                          <button
+                            onClick={() => {
+                              setUserPrediction("up");
+                              setShowResult(true);
+                            }}
+                            className={`group relative flex flex-col items-center gap-4 p-8 rounded-[2.5rem] transition-all border
+                              ${userPrediction === "up" 
+                                ? "bg-blue-600/20 border-blue-500 scale-105 shadow-2xl shadow-blue-500/20" 
+                                : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
+                          >
+                            <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all
+                              ${userPrediction === "up" ? "bg-blue-500 text-white" : "bg-slate-800 text-blue-400"}`}>
+                              <TrendingUp size={40} />
+                            </div>
+                            <div className="flex flex-col items-center">
+                              <span className="text-xl font-black text-white">상승</span>
+                              <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">BULLISH</span>
+                            </div>
+                          </button>
 
-                        <button
-                          onClick={() => setUserPrediction("down")}
-                          className={`group relative flex flex-col items-center gap-4 p-8 rounded-[2.5rem] transition-all border
-                            ${userPrediction === "down" 
-                              ? "bg-rose-600/20 border-rose-500 scale-105 shadow-2xl shadow-rose-500/20" 
-                              : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
-                        >
-                          <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all
-                            ${userPrediction === "down" ? "bg-rose-500 text-white" : "bg-slate-800 text-rose-400"}`}>
-                            <TrendingDown size={40} />
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-xl font-black text-white">하락</span>
-                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">BEARISH</span>
-                          </div>
-                        </button>
-                      </div>
+                          <button
+                            onClick={() => {
+                              setUserPrediction("down");
+                              setShowResult(true);
+                            }}
+                            className={`group relative flex flex-col items-center gap-4 p-8 rounded-[2.5rem] transition-all border
+                              ${userPrediction === "down" 
+                                ? "bg-rose-600/20 border-rose-500 scale-105 shadow-2xl shadow-rose-500/20" 
+                                : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
+                          >
+                            <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all
+                              ${userPrediction === "down" ? "bg-rose-500 text-white" : "bg-slate-800 text-rose-400"}`}>
+                              <TrendingDown size={40} />
+                            </div>
+                            <div className="flex flex-col items-center">
+                              <span className="text-xl font-black text-white">하락</span>
+                              <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">BEARISH</span>
+                            </div>
+                          </button>
+                        </div>
+                      )}
 
-                      <p className="text-white/20 text-[10px] font-bold flex items-center gap-2">
+                      <div className="text-white/20 text-[10px] font-bold flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-white/20" /> 힌트 사용 (50점 소모)
-                      </p>
+                      </div>
                     </div>
 
                     {/* 통계 섹션 */}
