@@ -60,7 +60,7 @@ export const StockChart = forwardRef<StockChartHandle, StockChartProps>(({
         textColor,
       },
       width: chartContainerRef.current.clientWidth,
-      height: 600, // 높이는 그대로 유지
+      height: chartContainerRef.current.clientHeight || 400, 
       grid: {
         vertLines: { color: "rgba(197, 203, 206, 0.05)" },
         horzLines: { color: "rgba(197, 203, 206, 0.05)" },
@@ -133,7 +133,10 @@ export const StockChart = forwardRef<StockChartHandle, StockChartProps>(({
 
     const handleResize = () => {
       if (chartInstanceRef.current && chartContainerRef.current) {
-        chartInstanceRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
+        chartInstanceRef.current.applyOptions({ 
+          width: chartContainerRef.current.clientWidth,
+          height: chartContainerRef.current.clientHeight
+        });
       }
     };
     window.addEventListener("resize", handleResize);
