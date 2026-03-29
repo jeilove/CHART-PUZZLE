@@ -337,40 +337,33 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
   const cellSize = 512 / gridSize;
 
   return (
-    <div className="w-full flex flex-col items-center gap-6 pb-20 relative">
+    <div className="w-full flex flex-col items-center gap-4 pb-10 relative overflow-x-hidden">
       {!isPlaying ? (
-        <div className="w-full flex flex-col items-center gap-6 animate-in fade-in duration-700">
-          <div className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md">
-            <StockChart ref={chartRef} data={stockData} />
-          </div>
-          
-          <div className="flex flex-col items-center gap-3 bg-[#4B4646]/80 p-4 rounded-2xl border border-white/10 backdrop-blur-xl shadow-2xl">
-            <span className="text-gray-300 font-bold text-xs tracking-widest uppercase mb-1">그림조각 개수 선택</span>
-            <div className="flex items-center p-1 bg-black/40 rounded-xl border border-white/5">
-              {[3, 4, 5].map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setGridSize(size)}
-                  className={`
-                    flex flex-col items-center justify-center w-14 h-12 rounded-lg transition-all duration-300
-                    ${gridSize === size 
-                      ? "bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-lg shadow-rose-900/40 scale-105" 
-                      : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
-                    }
-                  `}
-                >
-                  <span className="text-sm font-black">{size * size}</span>
-                  <span className="text-[8px] font-bold opacity-60">{size}x{size}</span>
-                </button>
-              ))}
+        <div className="w-full flex flex-col items-center gap-4 animate-in fade-in duration-700 max-w-2xl px-4">
+          <div className="w-full p-2 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md">
+            <div className="h-[300px] sm:h-[400px]">
+              <StockChart ref={chartRef} data={stockData} />
             </div>
           </div>
+          
+          <div className="w-full flex flex-wrap items-center justify-between gap-4 bg-[#4B4646]/80 p-3 px-5 rounded-2xl border border-white/10 backdrop-blur-xl shadow-2xl min-h-[64px]">
+            <span className="text-gray-300 font-bold text-xs tracking-widest uppercase">그림조각 개수</span>
+            <select 
+              value={gridSize}
+              onChange={(e) => setGridSize(Number(e.target.value))}
+              className="bg-black/40 text-white text-sm font-black py-2 px-4 rounded-xl border border-white/10 outline-none focus:border-rose-500/50 transition-all cursor-pointer appearance-none text-center min-w-[100px]"
+            >
+              <option value={3}>9개 (3x3)</option>
+              <option value={4}>16개 (4x4)</option>
+              <option value={5}>25개 (5x5)</option>
+            </select>
+          </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <Button
               onClick={startPuzzle}
               disabled={isCapturing}
-              className="h-14 px-10 text-lg font-black bg-gradient-to-r from-[#F08080] to-rose-500 hover:from-rose-500 hover:to-[#F08080] text-white rounded-2xl shadow-xl shadow-rose-900/20 transition-all font-sans"
+              className="flex-1 sm:flex-none h-14 px-8 text-lg font-black bg-gradient-to-r from-[#F08080] to-rose-500 hover:from-rose-500 hover:to-[#F08080] text-white rounded-2xl shadow-xl shadow-rose-900/20 transition-all font-sans"
             >
               {isCapturing ? "분할 중..." : "퍼즐 시작하기"}
             </Button>
@@ -381,10 +374,10 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
                 setIsSolved(true);
                 setIsQuizOpen(true);
               }}
-              className="h-14 px-10 text-lg font-black bg-white/5 hover:bg-white/10 text-blue-400 border border-blue-500/30 rounded-2xl shadow-xl transition-all font-sans flex items-center gap-2"
+              className="flex-1 sm:flex-none h-14 px-6 text-base font-black bg-white/5 hover:bg-white/10 text-blue-400 border border-blue-500/30 rounded-2xl transition-all font-sans flex items-center justify-center gap-2"
             >
-              <Timer size={20} />
-              타임 워프 퀴즈
+              <Timer size={18} />
+              타임 워프
             </Button>
           </div>
         </div>
