@@ -341,25 +341,25 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
       {!isPlaying ? (
         <div className="w-full flex flex-col items-center gap-4 animate-in fade-in duration-700 max-w-2xl px-4">
           <div className="w-full p-2 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md">
-            <div className="h-[300px] sm:h-[400px]">
+            <div className="h-[240px] sm:h-[350px]">
               <StockChart ref={chartRef} data={stockData} />
             </div>
           </div>
           
-          <div className="w-full flex flex-wrap items-center justify-between gap-4 bg-[#4B4646]/80 p-3 px-5 rounded-2xl border border-white/10 backdrop-blur-xl shadow-2xl min-h-[64px]">
-            <span className="text-gray-300 font-bold text-xs tracking-widest uppercase">그림조각 개수</span>
+          <div className="w-full flex items-center justify-center gap-6 py-2">
+            <span className="text-gray-300 font-bold text-base tracking-widest uppercase scale-125">그림조각 개수</span>
             <select 
               value={gridSize}
               onChange={(e) => setGridSize(Number(e.target.value))}
-              className="bg-black/40 text-white text-sm font-black py-2 px-4 rounded-xl border border-white/10 outline-none focus:border-rose-500/50 transition-all cursor-pointer appearance-none text-center min-w-[100px]"
+              className="bg-transparent text-white text-base font-black py-2 px-2 border-b-2 border-rose-500/50 outline-none transition-all cursor-pointer appearance-none text-center min-w-[120px] scale-125"
             >
-              <option value={3}>9개 (3x3)</option>
-              <option value={4}>16개 (4x4)</option>
-              <option value={5}>25개 (5x5)</option>
+              <option value={3} className="bg-slate-900">9개 (3x3)</option>
+              <option value={4} className="bg-slate-900">16개 (4x4)</option>
+              <option value={5} className="bg-slate-900">25개 (5x5)</option>
             </select>
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-4 w-full sm:w-auto mt-6">
             <Button
               onClick={startPuzzle}
               disabled={isCapturing}
