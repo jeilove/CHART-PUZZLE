@@ -178,7 +178,7 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
   const [isSolved, setIsSolved]       = useState(false);
   const [isNewsOpen, setIsNewsOpen]   = useState(false);
   const [activeId, setActiveId]       = useState<string | null>(null);
-  const [gridSize, setGridSize]       = useState(initialGridSize);
+  const [gridSize, setGridSize]       = useState<number>(3);
   const [isQuizOpen, setIsQuizOpen]   = useState(false);
   const [timeframe, setTimeframe]     = useState<"D" | "W" | "M">("D");
   const [userPrediction, setUserPrediction] = useState<"up" | "down" | null>(null);
@@ -346,11 +346,11 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
           </div>
           
           {/* 하단 메뉴 영역: mt-10으로 위치 조정 */}
-          <div className="w-full mt-10 flex items-center justify-between gap-2 p-1.5 bg-black/60 rounded-2xl border border-white/10 shadow-[0_-10px_50px_-15px_rgba(0,0,0,0.8)] backdrop-blur-3xl z-10 sm:max-w-md mx-auto">
+          <div className="w-full mt-4 flex items-center justify-between gap-2 p-1.5 bg-black/60 rounded-2xl border border-white/10 shadow-[0_-10px_50px_-15px_rgba(0,0,0,0.8)] backdrop-blur-3xl z-10 sm:max-w-md mx-auto">
             <Button
               onClick={startPuzzle}
               disabled={isCapturing}
-              className="flex-1 h-12 text-xs font-black bg-gradient-to-r from-rose-400 to-rose-600 hover:from-rose-500 hover:to-rose-700 text-white rounded-xl shadow-2xl transition-all font-sans whitespace-nowrap active:scale-95"
+              className="w-28 h-12 text-[13px] font-black bg-gradient-to-r from-rose-400 to-rose-600 hover:from-rose-500 hover:to-rose-700 text-white rounded-xl shadow-2xl transition-all font-sans whitespace-nowrap active:scale-95 px-1"
             >
               {isCapturing ? "분할.." : "퍼즐 시작"}
             </Button>
@@ -373,18 +373,18 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
                 setIsSolved(true);
                 setIsQuizOpen(true);
               }}
-              className="flex-1 h-12 text-[11px] font-black bg-white/5 hover:bg-white/10 text-blue-400 border border-blue-500/20 rounded-xl transition-all font-sans flex items-center justify-center gap-1 whitespace-nowrap active:scale-95"
+              className="flex-1 h-12 text-[13px] font-black bg-white/5 hover:bg-white/10 text-blue-400 border border-blue-500/20 rounded-xl transition-all font-sans flex items-center justify-center gap-1 whitespace-nowrap active:scale-95"
             >
-              <Timer size={14} />
+              <Timer size={16} />
               타임 워프
             </Button>
           </div>
         </div>
       ) : (
-        <div className="w-full flex flex-col items-center gap-10 animate-in zoom-in-95 duration-500 relative">
+        <div className="w-full flex flex-col items-center gap-4 animate-in zoom-in-95 duration-500 relative -mt-2">
           
           {/* 퍼즐 진행도 바 */}
-          <div className="w-64 h-2 bg-white/5 rounded-full overflow-hidden border border-white/10 mt-4">
+          <div className="w-64 h-2 bg-white/5 rounded-full overflow-hidden border border-white/10 mt-2">
             <motion.div 
               className="h-full bg-gradient-to-r from-blue-500 to-emerald-500"
               initial={{ width: 0 }}
@@ -524,27 +524,19 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
           </DndContext>
 
           {/* 컨트롤 영역 */}
-          <div className="flex flex-col items-center gap-8 mt-10">
-            <div className="flex items-center gap-4">
-              <Button onClick={resetPiecesPositions} className="h-14 px-8 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-2xl flex items-center gap-3 group transition-all backdrop-blur-md">
-                <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-500" />
+          <div className="mt-2 mb-6 flex flex-col items-center gap-4 relative z-[6000]">
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                variant="outline"
+                onClick={resetPiecesPositions}
+                className="px-8 h-12 text-sm font-black border-[#4B4646] text-[#4B4646] hover:bg-[#4B4646] hover:text-white transition-all rounded-xl"
+              >
                 다시 섞기
               </Button>
-              <Button 
-                onClick={() => setPieces(prev => prev.map((p, i) => {
-                  const row = Math.floor(i / gridSize);
-                  const col = i % gridSize;
-                  return { 
-                    ...p, 
-                    isPlaced: true, 
-                    position: { x: col * cellSize, y: row * cellSize }, 
-                    rotation: 0 
-                  };
-                }))} 
-                disabled={isSolved} 
-                className="h-11 px-7 bg-[#F08080] hover:bg-[#F08080]/90 text-white rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-rose-900/20 font-sans font-bold text-sm"
+              <Button
+                onClick={() => setIsSolved(true)}
+                className="px-10 h-12 text-sm font-black bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-xl shadow-rose-900/20 transition-all rounded-xl"
               >
-                <CheckCircle2 size={16} />
                 정답 확인
               </Button>
             </div>
@@ -553,19 +545,15 @@ export const PuzzleGame = ({ stockData, gridSize: initialGridSize = 3 }: { stock
               {isSolved && !isQuizOpen && (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9, y: 10 }} 
-                  animate={{ opacity: 1, scale: 1, y: 0 }} 
-                  className="flex flex-col items-center gap-6"
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                  className="mt-2"
                 >
-                  <motion.div className="text-center p-8 rounded-[2.5rem] bg-slate-900/60 border border-emerald-500/30 backdrop-blur-3xl shadow-2xl shadow-emerald-500/10 max-w-lg">
-                    <h3 className="text-4xl font-black text-emerald-400 italic mb-2 tracking-widest">UNBELIEVABLE!</h3>
-                    <p className="text-gray-400 font-medium text-lg leading-relaxed">완벽하게 분석하셨습니다. 이제 주가의 다음 흐름을 예측해볼까요?</p>
-                  </motion.div>
-                  
                   <Button 
                     onClick={() => setIsQuizOpen(true)}
-                    className="h-16 px-12 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xl font-black shadow-2xl shadow-blue-900/40 transition-all flex items-center gap-3 animate-bounce"
+                    className="h-14 px-8 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-lg font-black shadow-2xl shadow-blue-900/40 transition-all flex items-center gap-2 animate-bounce scale-90"
                   >
-                    <Timer size={24} />
+                    <Timer size={20} />
                     타임 워프 퀴즈 시작
                   </Button>
                 </motion.div>
