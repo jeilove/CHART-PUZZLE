@@ -41,7 +41,7 @@ TRIGGER_KEYWORDS = {
         "컨센서스 부합", "실적 전망", "수익성 안정화", "일회성 비용", "가동률 회복", "재고 조정", "기저 효과",
         "수주 잔고", "레퍼런스 확보", "차세대 모델", "상용화 준비", "가이던스 제시", "진출 검토", "전략적 제휴", "신작",
         "자사주 매입", "유상증자(운영자금)", "담보 대출", "지분 구조 재편", "인수 검토", "유동성 확보",
-        "업황 회복 기대", "벨류체인 편입", "시장 점유율 유지", "경기 민감도", "규제 리스크", "변동성 확대", "긍정적", "가시성", "시너지"
+        "업황 회복 기대", "벨류체인 편입", "시장 점유율 유지", "경기 민감도", "규제 리스크", "변동성 확대", "긍정적", "가시성", "신작", "시너지"
     ]
 }
 
@@ -249,13 +249,18 @@ def analysis_trigger_cloud(symbol, stock_name):
         news = fetch_news_keywords(stock_name)
         report_text = " ".join([n["title"] for n in news])
 
-    cloud_data = []
-    sentiment_score = 0
+    # 특정 종목에 대한 내용만 분리 (심볼 'AXXXXXX' 기준)
+    lines = report_text.split("\n")
+    filtered_text = " ".join([line for line in lines if f"A{symbol}" in line])
     
-    # 키워드 매칭 및 카운팅
+    # 만약 필터링 결과가 너무 적으면 전체 검색 (Fallback - 단 주식 이름이 포함되어야 함)
+    if len(filtered_text) < 50:
+        filtered_text = " ".join([line for line in lines if stock_name in line or f"A{symbol}" in line])
+
+    # 키워드 매칭 및 카운팅 (필터링된 텍스트 기준)
     for sentiment, keywords in TRIGGER_KEYWORDS.items():
         for kw in keywords:
-            count = report_text.count(kw)
+            count = filtered_text.count(kw)
             if count > 0:
                 cloud_data.append({
                     "text": kw,
