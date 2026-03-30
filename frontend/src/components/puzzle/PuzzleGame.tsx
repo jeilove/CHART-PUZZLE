@@ -104,9 +104,23 @@ interface FlipCardProps {
   triggerResults: any;
   stockSymbol?: string;
   stockName?: string;
+  hideName?: boolean; // 이름 중복 방지를 위한 옵션
+  timeframe?: "D" | "W" | "M";
+  setTimeframe?: (tf: "D" | "W" | "M") => void;
 }
 
-const UnifiedFlipCard = ({ isFlipped, setIsFlipped, chartContent, triggerLoading, triggerResults, stockSymbol, stockName }: FlipCardProps) => {
+const UnifiedFlipCard = ({ 
+  isFlipped, 
+  setIsFlipped, 
+  chartContent, 
+  triggerLoading, 
+  triggerResults, 
+  stockSymbol, 
+  stockName, 
+  hideName, 
+  timeframe, 
+  setTimeframe 
+}: FlipCardProps) => {
   return (
     <div className="w-full perspect-2000 relative z-10" style={{ perspective: "2000px" }}>
       <motion.div 
@@ -119,13 +133,21 @@ const UnifiedFlipCard = ({ isFlipped, setIsFlipped, chartContent, triggerLoading
           className="w-full bg-slate-900 border border-white/10 rounded-[3rem] p-4 sm:p-6 shadow-3xl relative overflow-hidden" 
           style={{ backfaceVisibility: "hidden", pointerEvents: isFlipped ? "none" : "auto", visibility: isFlipped ? "hidden" : "visible" }}
         >
-          {/* [통일] 종목명 옆에 종목 코드가 나오도록 레이웃 단일화 및 중앙 정렬 */}
-          {stockName && (
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-100 whitespace-nowrap">
+          {stockName && !hideName && (
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[200] whitespace-nowrap pointer-events-none">
               <h3 className="text-2xl font-black text-white flex items-baseline gap-2">
                 {stockName}
                 <span className="text-sm font-bold text-white/40 tracking-wider">({stockSymbol})</span>
               </h3>
+            </div>
+          )}
+          {setTimeframe && (
+            <div className="absolute top-6 left-8 z-[200] flex p-1 bg-black/40 rounded-xl border border-white/10 backdrop-blur-md">
+              {(["D", "W", "M"] as const).map((tf) => (
+                <button key={tf} onClick={() => setTimeframe(tf)} className={`w-8 h-8 rounded-lg text-[10px] font-black transition-all flex items-center justify-center ${timeframe === tf ? "bg-white text-slate-900 shadow-lg" : "text-white/40 hover:text-white"}`}>
+                  {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
+                </button>
+              ))}
             </div>
           )}
           <div className="absolute inset-x-0 bottom-6 flex justify-center z-500">
@@ -146,9 +168,9 @@ const UnifiedFlipCard = ({ isFlipped, setIsFlipped, chartContent, triggerLoading
           className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center justify-center shadow-3xl" 
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
-          <div className="absolute top-10 right-14 flex flex-col items-end gap-0.5 pointer-events-none select-none opacity-40">
+          <div className="absolute top-22 right-10 flex flex-col items-end gap-1 pointer-events-none select-none">
             {triggerResults?.report_dates?.map((d: string, i: number) => (
-              <span key={i} className="text-[9px] font-bold text-white/50 tracking-tighter leading-none">{d}</span>
+              <span key={i} className="text-[10px] font-bold text-white/40 tracking-tighter bg-white/5 px-2 py-0.5 rounded-md border border-white/5">{d}</span>
             ))}
           </div>
           <button 
@@ -168,11 +190,17 @@ const UnifiedFlipCard = ({ isFlipped, setIsFlipped, chartContent, triggerLoading
           </div>
           <div className="w-full flex-1 flex items-center justify-center">
             {triggerLoading ? (
-              <Loader2 className="animate-spin text-rose-500" size={48} />
+              <div className="flex flex-col items-center gap-4">
+                <Loader2 className="animate-spin text-rose-500" size={48} />
+                <span className="text-rose-500/60 font-black text-xs uppercase tracking-widest animate-pulse">Analyzing...</span>
+              </div>
             ) : triggerResults ? (
               <TriggerCloud data={triggerResults.cloud} />
             ) : (
-              <div className="text-white/10 italic text-sm">트리거 데이터 수집 중...</div>
+              <div className="text-white/40 font-bold italic text-sm flex items-center gap-3 bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
+                <Search size={18} className="text-rose-500 animate-pulse" />
+                트리거 데이터 수집 중...
+              </div>
             )}
           </div>
           <GapComponent comment={triggerResults?.gap_comment} />
@@ -428,6 +456,9 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
           triggerResults={triggerResults}
           stockSymbol={stockSymbol}
           stockName={stockName}
+          hideName={true} // 이미 app/page.tsx에서 헤더를 그리므로 숨김
+          timeframe={timeframe}
+          setTimeframe={setTimeframe}
         />
       </div>
     );
@@ -464,6 +495,9 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
                 triggerResults={triggerResults}
                 stockSymbol={stockSymbol}
                 stockName={stockName}
+                hideName={true} // 상단 app/page.tsx 헤더와 중복되므로 삭제
+                timeframe={timeframe}
+                setTimeframe={setTimeframe}
               />
             </div>
             <div className="w-full max-w-sm flex flex-col gap-3">
@@ -524,6 +558,9 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
                 triggerResults={triggerResults}
                 stockSymbol={stockSymbol}
                 stockName={stockName}
+                hideName={true}
+                timeframe={timeframe}
+                setTimeframe={setTimeframe}
               />
 
               {!showResult && (
