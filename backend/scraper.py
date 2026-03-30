@@ -143,39 +143,48 @@ def search_stock(query):
 
 def fetch_news_keywords(stock_name):
     """
-    네이버 뉴스 검색 크롤링 및 필터링
+    구글 뉴스 RSS를 사용한 뉴스 기사 수집 (네이버 방화벽 이슈 등 우회)
     """
     _apply_rate_limit()
     
-    # Naver Search News URL (최신순, 1일 이내 한정 '&pd=4' 추가로 부하 최소화)
-    url = f"https://search.naver.com/search.naver?where=news&query={stock_name}&sort=1&pd=4"
+    # Google News RSS URL
+    url = f"https://news.google.com/rss/search?q={stock_name}&hl=ko&gl=KR&ceid=KR:ko"
     try:
-        response = requests.get(url, headers=HEADERS, timeout=3)
+        response = requests.get(url, headers=HEADERS, timeout=5)
         response.raise_for_status()
         
-        soup = BeautifulSoup(response.text, "html.parser")
-        
-        # 여러 선택자를 시도하여 뉴스 제목 추출
-        title_tags = soup.select(".news_tit")
-        if not title_tags:
-            title_tags = soup.select("a.api_txt_lines.tit")
-        if not title_tags:
-            title_tags = soup.select(".news_area a.api_txt_lines")
+        # XML 파싱
+        # lxml 또는 내장 xml 파서 사용 (lxml이 설치되어 있다면 lxml 사용 권장)
+        try:
+            soup = BeautifulSoup(response.content, "xml")
+        except Exception:
+            soup = BeautifulSoup(response.content, "html.parser")
+            
+        items = soup.find_all("item")
             
         results = []
-        for title_tag in title_tags:
-            title = title_tag.get_text(strip=True)
-            link = title_tag.get("href")
+        for item in items:
+            title = item.title.text if item.title else ""
+            link = item.link.text if item.link else ""
             
+            # 구글 뉴스 제목 끝부분의 ' - 언론사명' 제거
+            if " - " in title:
+                title = " - ".join(title.split(" - ")[:-1])
+                
+            if not title or not link:
+                continue
+                
             # 광고 및 노이즈 필터링
             if clean_news_filter(title):
                 results.append({
-                    "title": title,
-                    "link": link
+                    "title": title.strip(),
+                    "link": link.strip()
                 })
-        
-        # 최대 5개 반환
-        return results[:5]
+                
+            if len(results) >= 5:
+                break
+                
+        return results
     except Exception as e:
         print(f"News fetch error for {stock_name}: {e}")
         return []
