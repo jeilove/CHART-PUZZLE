@@ -199,6 +199,7 @@ export const PuzzleGame = ({
   const [isNewsLoading, setIsNewsLoading] = useState(false);
   const [seconds, setSeconds]         = useState(0);
   const [moves, setMoves]             = useState(0);
+  const [isTimeWarpNewsOpen, setIsTimeWarpNewsOpen] = useState(false);
   const chartRef = useRef<StockChartHandle>(null);
   const quizChartRef = useRef<StockChartHandle>(null);
 
@@ -705,14 +706,21 @@ export const PuzzleGame = ({
                     animate={{ scale: 1, y: 0 }}
                     className="w-full max-w-2xl flex flex-col items-center gap-6"
                   >
-                    {/* 상단 바 (홈으로) - 퍼즐 메인 화면과 통일 */}
-                    <div className="w-full flex justify-start mb-2">
+                    {/* 상단 바 (홈으로/이전으로) - 퍼즐 메인 화면과 통일 */}
+                    <div className="w-full flex justify-between mb-2">
                        <Button 
                          variant="ghost" 
                          className="text-gray-400 hover:text-white flex items-center"
                          onClick={() => window.location.reload()}
                        >
                          <ChevronLeft className="mr-2" size={20} /> <span className="font-bold">홈으로</span>
+                       </Button>
+                       <Button 
+                         variant="ghost" 
+                         className="text-gray-400 hover:text-white flex items-center"
+                         onClick={() => setIsQuizOpen(false)}
+                       >
+                         <span className="font-bold">이전으로</span>
                        </Button>
                     </div>
 
@@ -839,42 +847,67 @@ export const PuzzleGame = ({
                       )}
                     </div>
 
-                    {/* 뉴스 펄스 섹션 */}
-                    <div className="w-full bg-slate-900/50 rounded-3xl p-6 border border-white/5 space-y-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                        <span className="text-xs font-black text-white/40 uppercase tracking-widest">Real-time News Pulse</span>
-                      </div>
-                      <div className="space-y-3">
-                        {isNewsLoading ? (
-                          <div className="py-4 text-center text-white/20 text-xs italic">
-                            {stockName} 관련 뉴스를 불러오는 중...
-                          </div>
-                        ) : newsResults.length > 0 ? (
-                          newsResults.map((news, idx) => (
-                            <a 
-                              key={idx}
-                              href={news.link}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="block p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all group"
-                            >
-                              <p className="text-sm font-medium text-white/80 group-hover:text-white transition-colors line-clamp-1">
-                                {news.title}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[10px] text-blue-500/60 font-bold uppercase">Naver News</span>
-                                <span className="text-[10px] text-white/10 font-mono">•</span>
-                                <span className="text-[10px] text-white/20">최신 뉴스</span>
-                              </div>
-                            </a>
-                          ))
-                        ) : (
-                          <div className="py-4 text-center text-white/20 text-xs italic">
-                            최근 뉴스가 없습니다.
-                          </div>
+                    {/* 뉴스 펄스 아코디언 섹션 */}
+                    <div className="w-full bg-slate-900/50 rounded-3xl border border-white/5 overflow-hidden">
+                      <button 
+                        onClick={() => setIsTimeWarpNewsOpen(!isTimeWarpNewsOpen)}
+                        className="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-all text-left"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full animate-pulse ${isTimeWarpNewsOpen ? "bg-blue-400" : "bg-blue-500"}`} />
+                          <span className="text-xs font-black text-white/40 uppercase tracking-widest">Real-time News Pulse</span>
+                        </div>
+                        <motion.div
+                          animate={{ rotate: isTimeWarpNewsOpen ? 180 : 0 }}
+                          className="text-white/40"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </motion.div>
+                      </button>
+                      
+                      <AnimatePresence>
+                        {isTimeWarpNewsOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <div className="px-6 pb-6 space-y-3">
+                              {isNewsLoading ? (
+                                <div className="py-4 text-center text-white/20 text-xs italic">
+                                  {stockName} 관련 뉴스를 불러오는 중...
+                                </div>
+                              ) : newsResults.length > 0 ? (
+                                newsResults.map((news, idx) => (
+                                  <a 
+                                    key={idx}
+                                    href={news.link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="block p-4 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all group"
+                                  >
+                                    <p className="text-sm font-medium text-white/80 group-hover:text-white transition-colors line-clamp-1">
+                                      {news.title}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <span className="text-[10px] text-blue-500/60 font-bold uppercase">Google News</span>
+                                      <span className="text-[10px] text-white/10 font-mono">•</span>
+                                      <span className="text-[10px] text-white/20">최신 뉴스</span>
+                                    </div>
+                                  </a>
+                                ))
+                              ) : (
+                                <div className="py-4 text-center text-white/20 text-xs italic">
+                                  최근 뉴스가 없습니다.
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
                         )}
-                      </div>
+                      </AnimatePresence>
                     </div>
 
                     <div className="w-full flex flex-col gap-3 mt-4">
@@ -883,13 +916,6 @@ export const PuzzleGame = ({
                         className="w-full h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white text-xl font-black rounded-3xl shadow-2xl shadow-[#F08080]/20 transition-all flex items-center justify-center gap-2"
                       >
                          <Home size={24} /> 메인으로 돌아가기
-                      </Button>
-                      
-                      <Button 
-                        onClick={() => setIsQuizOpen(false)}
-                        className="w-full h-14 bg-white/5 hover:bg-white/10 text-white/60 text-sm font-bold rounded-2xl transition-all"
-                      >
-                        계속 구경하기 (닫기)
                       </Button>
                     </div>
                   </motion.div>
