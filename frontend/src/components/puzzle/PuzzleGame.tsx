@@ -731,22 +731,22 @@ export const PuzzleGame = ({
                     </div>
 
                     {/* 종목 확인 카드 */}
-                    <div className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-6 flex flex-col items-center gap-4 shadow-2xl relative overflow-hidden group">
+                    <div className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-4 sm:p-6 flex flex-col items-center gap-4 shadow-2xl relative overflow-hidden group">
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-50" />
                       
-                      <div className="w-full flex justify-between items-center px-2 relative z-10">
+                      <div className="w-full flex justify-between items-center px-4 relative z-10">
                         <div className="flex flex-col">
                           <span className="text-white/40 text-[10px] font-bold uppercase tracking-wider">Analysis Complete</span>
-                          <h3 className="text-3xl font-black text-white flex items-center gap-2">
-                            {stockName} <span className="text-white/20 text-lg font-medium">({stockSymbol})</span>
+                          <h3 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
+                             {stockName} <span className="text-white/20 text-base sm:text-lg font-medium">({stockSymbol})</span>
                           </h3>
                         </div>
                       </div>
 
                       {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원 - 높이 확대) */}
-                      <div className="w-full h-[55vh] min-h-[400px] bg-black/40 rounded-3xl overflow-hidden border border-white/10 relative z-10 mt-2 shadow-inner">
-                        {/* 네이티브 스타일 일/주/월 메뉴 (차트 상단 부착) */}
-                        <div className="absolute top-4 right-4 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl">
+                      <div className="w-full h-[55vh] min-h-[400px] bg-black/40 rounded-3xl overflow-hidden border border-white/10 relative z-10 mt-6 shadow-inner">
+                        {/* 네이티브 스타일 일/주/월 메뉴 (차트 상단 부착 - 가격 축과 겹치지 않게 좌측으로 이동) */}
+                        <div className="absolute top-4 left-4 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl">
                           {(["D", "W", "M"] as const).map((tf) => (
                             <button
                               key={tf}
@@ -780,7 +780,7 @@ export const PuzzleGame = ({
                     </div>
 
                     {/* 퀴즈 메인 카드 (차트 강화형) */}
-                    <div className="w-full bg-slate-900/50 border border-white/5 rounded-[3rem] p-8 flex flex-col items-center gap-8 shadow-3xl backdrop-blur-2xl">
+                    <div className="w-full bg-slate-900/50 border border-white/5 rounded-[3rem] p-8 flex flex-col items-center gap-8 shadow-3xl backdrop-blur-2xl mt-4">
                       <div className="flex flex-col items-center gap-2">
                         {showResult ? (
                           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
@@ -796,7 +796,7 @@ export const PuzzleGame = ({
                             </span></p>
                           </motion.div>
                         ) : (
-                          <p className="text-gray-400 text-sm font-medium leading-relaxed text-center">
+                          <p className="text-gray-400 text-sm font-medium leading-relaxed text-center mt-4">
                             이 패턴 이후, 다음 <span className="text-blue-400 font-bold">5거래일 동안</span> 주가는<br />어떻게 되었을까요?
                           </p>
                         )}
