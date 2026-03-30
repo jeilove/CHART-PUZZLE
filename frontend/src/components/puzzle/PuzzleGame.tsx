@@ -180,7 +180,7 @@ const UnifiedFlipCard = ({
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
           <div 
-            className="absolute top-8 right-10 flex flex-col items-end gap-1 pointer-events-none select-none z-50"
+            className="absolute bottom-28 right-12 flex flex-col items-end gap-1 pointer-events-none select-none z-50 text-right"
           >
             {triggerResults?.total_report_count && triggerResults.total_report_count > 0 ? (
               <div 
