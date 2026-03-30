@@ -135,32 +135,36 @@ const UnifiedFlipCard = ({
           className="w-full bg-slate-900 border border-white/10 rounded-[3rem] p-4 sm:p-6 shadow-3xl relative overflow-hidden" 
           style={{ backfaceVisibility: "hidden", pointerEvents: isFlipped ? "none" : "auto", visibility: isFlipped ? "hidden" : "visible" }}
         >
-          {stockName && !hideName && (
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[200] whitespace-nowrap">
+          {/* Header Section: Integrated for better spacing */}
+          <div className="absolute top-4 inset-x-0 z-[200] flex flex-col items-center gap-4 px-4 sm:px-8">
+            {stockName && !hideName && (
               <h3 
-                className="text-2xl font-black text-white flex items-baseline gap-2 cursor-pointer hover:text-rose-400 transition-colors group"
+                className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2 cursor-pointer hover:text-rose-400 transition-colors group text-center"
                 onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
                 title="클릭하여 데이터 강제 갱신"
               >
-                {stockName}
-                <span className="text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
-                <RefreshCw size={14} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex flex-wrap items-center justify-center gap-x-2">
+                  <span>{stockName}</span>
+                  <span className="text-[11px] sm:text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
+                  <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
               </h3>
-            </div>
-          )}
-          {setTimeframe && (
-            <div className="absolute top-6 left-8 z-[200] flex p-1.5 bg-black/40 rounded-2xl border border-white/10 backdrop-blur-md">
-              {(["D", "W", "M"] as const).map((tf) => (
-                <button 
-                  key={tf} 
-                  onClick={() => setTimeframe(tf)} 
-                  className={`w-14 h-12 rounded-xl text-base font-black transition-all flex items-center justify-center ${timeframe === tf ? "bg-white text-slate-900 shadow-lg scale-105" : "text-white/40 hover:text-white"}`}
-                >
-                  {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
-                </button>
-              ))}
-            </div>
-          )}
+            )}
+
+            {setTimeframe && (
+              <div className="flex p-1.5 bg-black/40 rounded-2xl border border-white/10 backdrop-blur-md shadow-2xl">
+                {(["D", "W", "M"] as const).map((tf) => (
+                  <button 
+                    key={tf} 
+                    onClick={() => setTimeframe(tf)} 
+                    className={`w-14 h-12 rounded-xl text-base font-black transition-all flex items-center justify-center ${timeframe === tf ? "bg-white text-slate-900 shadow-lg scale-105" : "text-white/40 hover:text-white"}`}
+                  >
+                    {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="absolute inset-x-0 bottom-6 flex justify-center z-500">
             <button 
               onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }} 
@@ -179,19 +183,22 @@ const UnifiedFlipCard = ({
           className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center justify-center shadow-3xl" 
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
-          {stockName && !hideName && (
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[200] whitespace-nowrap">
+          {/* Back Header Section */}
+          <div className="absolute top-4 inset-x-0 z-[200] flex flex-col items-center gap-4 px-4 sm:px-8">
+            {stockName && !hideName && (
               <h3 
-                className="text-2xl font-black text-white flex items-baseline gap-2 cursor-pointer hover:text-rose-400 transition-colors group"
+                className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2 cursor-pointer hover:text-rose-400 transition-colors group text-center"
                 onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
                 title="클릭하여 데이터 강제 갱신"
               >
-                {stockName}
-                <span className="text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
-                <RefreshCw size={14} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex flex-wrap items-center justify-center gap-x-2">
+                  <span>{stockName}</span>
+                  <span className="text-[11px] sm:text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
+                  <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
               </h3>
-            </div>
-          )}
+            )}
+          </div>
           <div 
             className="absolute bottom-28 right-12 flex flex-col items-end gap-1.5 pointer-events-none select-none z-50 text-right"
           >
@@ -523,6 +530,17 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
     <div className="w-full flex flex-col items-center pb-6 relative overflow-x-hidden min-h-[85vh]">
       {!isPlaying ? (
         <div className="w-full flex flex-col items-center animate-in fade-in duration-700 max-w-2xl px-4 grow h-full">
+          {stockName && (
+            <h3 
+              className="text-2xl font-black text-white flex items-center gap-2 mb-6 cursor-pointer hover:text-rose-400 transition-colors group"
+              onClick={() => fetchTrigger(true)}
+              title="클릭하여 데이터 강제 갱신"
+            >
+              {stockName}
+              <span className="text-sm font-bold text-white/40 tracking-wider">({stockSymbol})</span>
+              <RefreshCw size={14} className="ml-1 opacity-60 group-hover:opacity-100 transition-opacity" />
+            </h3>
+          )}
           <div className="w-full p-2 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md mb-4 h-[60vh] min-h-[400px]">
              <StockChart ref={chartRef} data={stockData} />
           </div>
