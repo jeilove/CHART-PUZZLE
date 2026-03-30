@@ -176,6 +176,11 @@ const UnifiedFlipCard = ({
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
           <div className="absolute top-22 right-10 flex flex-col items-end gap-1 pointer-events-none select-none">
+            {triggerResults?.total_report_count && triggerResults.total_report_count > 0 && (
+              <span className="text-[10px] font-black text-rose-400 mb-1 border-b border-rose-500/30 pb-1">
+                총 {triggerResults.total_report_count}건 + 뉴스 분석
+              </span>
+            )}
             {triggerResults?.report_dates?.map((d: string, i: number) => (
               <span key={i} className="text-[10px] font-bold text-white/40 tracking-tighter bg-white/5 px-2 py-0.5 rounded-md border border-white/5">{d}</span>
             ))}

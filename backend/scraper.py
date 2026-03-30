@@ -355,7 +355,8 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
         "sentiment_score": sentiment_score,
         "price_change_20d": round(price_change, 2),
         "gap_comment": gap_comment,
-        "report_dates": sorted_dates[:3]
+        "report_dates": sorted_dates[:3],
+        "total_report_count": len(sorted_dates)
     }
     
     # 결과가 존재할 때만 24시간 캐싱 (실패 시 캐싱 안함)
