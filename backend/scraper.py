@@ -213,44 +213,65 @@ def fetch_news_keywords(stock_name):
         return []
 
 @lru_cache(maxsize=100)
-def fetch_research_reports(symbol):
+def fetch_reports_combined(symbol, stock_name):
     """
-    네이버 금융 리서치 메뉴에서 해당 종목의 최근 리포트 제목과 날짜를 스크래핑.
-    직접 스크래핑하므로 타 종목(베스트 리포트 등)이 섞이지 않아 100% 해당 종목 키워드만 추출 가능.
+    네이버 리서치(제목)와 FnGuide(요약)를 결합하여 풍부한 키워드 소스 확보.
+    60일 이내의 데이터를 충분히 가져오기 위해 여러 페이지 스캔.
     """
     _apply_rate_limit()
+    combined_text = ""
+    latest_dates = []
     
-    report_text = ""
-    dates = []
-    
+    # 1. 네이버 리서치 제목 수집 (광범위한 커버리지, 최근 3페이지)
     try:
-        # 최근 2페이지 분량(약 60개 리포트)의 제목 수집
-        for page in range(1, 3):
+        for page in range(1, 4):
             url = f"https://finance.naver.com/research/company_list.naver?searchType=itemCode&itemCode={symbol}&page={page}"
             resp = requests.get(url, headers=HEADERS, timeout=5)
             soup = BeautifulSoup(resp.content, 'html.parser')
-            
             for row in soup.select('table.type_1 tr'):
                 tds = row.find_all('td')
                 if len(tds) >= 4:
                     title_tag = tds[1].find('a')
-                    date_node = tds[4] # 날짜 컬럼
+                    date_node = tds[4]
                     if title_tag and date_node.text.strip():
-                        report_text += title_tag.text.strip() + " "
-                        dates.append(date_node.text.strip())
-                        
-        return report_text, dates
+                        combined_text += title_tag.text.strip() + " "
+                        latest_dates.append(date_node.text.strip())
     except Exception as e:
-        print(f"Naver Research fetch error for {symbol}: {e}")
-        return "", []
+        print(f"Naver fetch error: {e}")
+
+    # 2. FnGuide 요약 내용 수집 (심층 키워드, Jina Reader 경유)
+    # 특정 종목용 페이지와 전체 리포트 페이지 모두 검토하여 60일 데이터 확보 시도
+    target_urls = [
+        f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701",
+        f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701" # 전체 최신
+    ]
+    
+    for base_url in target_urls:
+        try:
+            jina_url = f"https://r.jina.ai/{base_url}"
+            resp = requests.get(jina_url, headers=HEADERS, timeout=10)
+            if resp.status_code == 200:
+                lines = resp.text.split('\n')
+                for line in lines:
+                    # 해당 종목심볼(A000000) 또는 종목명이 포함된 줄만 유효 텍스트로 인정
+                    if f"A{symbol}" in line or stock_name in line:
+                        # 요약 상세 내용이 포함된 라인 전체를 본문에 추가
+                        combined_text += line + " "
+                        # 날짜 추출 시도 (YY/MM/DD)
+                        date_match = re.search(r'\d{2}/\d{2}/\d{2}', line)
+                        if date_match:
+                            latest_dates.append(date_match.group())
+        except Exception as e:
+            print(f"FnGuide fetch error: {e}")
+            
+    return combined_text, latest_dates
 
 def analysis_trigger_cloud(symbol, stock_name):
     """
     리포트 텍스트 분석 및 트리거 클라우드 데이터 생성
     """
-    report_text, report_dates = fetch_research_reports(symbol)
+    report_text, report_dates = fetch_reports_combined(symbol, stock_name)
     if not report_text:
-        # 리포트가 없으면 구글 뉴스 RSS 제목 활용 (Fallback)
         news = fetch_news_keywords(stock_name)
         report_text = " ".join([n["title"] for n in news])
         report_dates = []
@@ -258,9 +279,10 @@ def analysis_trigger_cloud(symbol, stock_name):
     cloud_data = []
     sentiment_score = 0
     
-    # 텍스트는 100% 해당 종목의 리포트/뉴스이므로 전체 매칭 수행
+    # 키워드 매칭 및 카운팅
     for sentiment, keywords in TRIGGER_KEYWORDS.items():
         for kw in keywords:
+            # 텍스트에 키워드가 정확히 포함되었는지 확인 (FnGuide 요약문 포함)
             count = report_text.count(kw)
             if count > 0:
                 cloud_data.append({
