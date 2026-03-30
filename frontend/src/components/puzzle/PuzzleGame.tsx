@@ -184,21 +184,21 @@ const UnifiedFlipCard = ({
           >
             {(triggerResults?.total_report_count || (triggerResults?.report_dates?.length || 0) > 0) ? (
               <div 
-                className="flex items-center gap-2 text-[13px] font-black text-white mb-2 border-b border-rose-500/40 pb-1.5 animate-in fade-in slide-in-from-right duration-500"
+                className="flex items-center gap-1.5 text-[9px] font-black text-white/90 mb-2 border-b border-rose-500/30 pb-1.5 animate-in fade-in slide-in-from-right duration-500"
                 title={`총 ${triggerResults?.total_report_count || triggerResults?.report_dates?.length}건의 리포트 및 뉴스를 수집해 분석했습니다.`}
               >
-                <Search size={18} className="text-rose-400 animate-pulse" />
+                <Search size={12} className="text-rose-400 animate-pulse" />
                 분석 리포트 {triggerResults?.total_report_count || triggerResults?.report_dates?.length}건
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-[11px] font-bold text-white/30 mb-2 italic">
+              <div className="flex items-center gap-1.5 text-[8px] font-bold text-white/20 mb-2 italic">
                 분석 소스 데이터 확인 중...
               </div>
             )}
             {triggerResults?.report_dates?.map((d: string, i: number) => (
               <span 
                 key={i} 
-                className="text-[10px] font-bold text-white/40 tracking-tighter bg-white/5 px-2 py-0.5 rounded-md border border-white/5 hover:border-rose-500/30 transition-colors"
+                className="text-[9px] font-bold text-white/30 tracking-tighter bg-white/5 px-2 py-0.5 rounded-md border border-white/5 hover:border-rose-500/30 transition-colors"
                 title={`${d} 발행 리포트 포함`}
               >
                 {d}
