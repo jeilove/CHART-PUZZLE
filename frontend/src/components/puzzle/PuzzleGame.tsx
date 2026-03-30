@@ -171,24 +171,26 @@ const DraggablePiece = ({
 // ─── PuzzleGame 메인 컴포넌트 ───────────────────────────────────────────────
 export const PuzzleGame = ({ 
   stockData, 
-  gridSize: initialGridSize = 3,
+  gridSize: initialGridSize = 2,
   stockName = "",
-  stockSymbol = ""
+  stockSymbol = "",
+  isOnlyChart = false
 }: { 
   stockData: any[]; 
   gridSize?: number;
   stockName?: string;
   stockSymbol?: string;
+  isOnlyChart?: boolean;
 }) => {
   const [pieces, setPieces]           = useState<PieceState[]>([]);
   const [pieceImages, setPieceImages] = useState<string[]>([]);
   const [guideImage, setGuideImage]   = useState<string | null>(null);
-  const [isPlaying, setIsPlaying]     = useState(false);
+  const [isPlaying, setIsPlaying]     = useState(isOnlyChart);
   const [isCapturing, setIsCapturing] = useState(false);
-  const [isSolved, setIsSolved]       = useState(false);
+  const [isSolved, setIsSolved]       = useState(isOnlyChart);
   const [isNewsOpen, setIsNewsOpen]   = useState(false);
   const [activeId, setActiveId]       = useState<string | null>(null);
-  const [gridSize, setGridSize]       = useState<number>(3);
+  const [gridSize, setGridSize]       = useState<number>(2);
   const [isQuizOpen, setIsQuizOpen]   = useState(false);
   const [timeframe, setTimeframe]     = useState<"D" | "W" | "M">("D");
   const [quizData, setQuizData]       = useState<any[]>(stockData);
@@ -438,6 +440,16 @@ export const PuzzleGame = ({
 
   const cellSize = 512 / gridSize;
 
+  if (isOnlyChart) {
+    return (
+      <div className="w-full flex flex-col items-center max-w-4xl px-4 h-full">
+        <div className="w-full p-2 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md mb-4 h-[60vh] min-h-[400px]">
+          <StockChart ref={chartRef} data={stockData} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full flex flex-col items-center pb-6 relative overflow-x-hidden min-h-[85vh]">
       {!isPlaying ? (
@@ -463,9 +475,9 @@ export const PuzzleGame = ({
                 onChange={(e) => setGridSize(Number(e.target.value))}
                 className="w-24 h-12 bg-white/5 text-white text-[11px] font-black py-1 px-1 rounded-xl border border-white/20 outline-none transition-all cursor-pointer appearance-none text-center hover:bg-white/10 focus:border-rose-500/50 active:scale-95"
               >
+                <option value={2} className="bg-slate-900">조각 2x2</option>
                 <option value={3} className="bg-slate-900">조각 3x3</option>
                 <option value={4} className="bg-slate-900">조각 4x4</option>
-                <option value={5} className="bg-slate-900">조각 5x5</option>
               </select>
             </div>
 
@@ -725,7 +737,6 @@ export const PuzzleGame = ({
                     </div>
 
                     <div className="w-full flex flex-col items-center gap-1">
-                       <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">퍼즐 완성!</h2>
                     </div>
 
                     {/* 종목 확인 카드 */}

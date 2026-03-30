@@ -37,43 +37,48 @@ const STOCK_LIST = [
 ];
 
 export default function Home() {
-  const [view, setView] = useState<"HOME" | "GAME" | "RESULT">("HOME");
+  const [view, setView] = useState<"HOME" | "GAME" | "CHART">("HOME");
   const [selectedStock, setSelectedStock] = useState<{name: string, symbol: string} | null>(null);
   const [stockData, setStockData] = useState<any[]>(MOCK_STOCK_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [apiResults, setApiResults] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<{name: string, symbol: string}[]>([]);
 
-  const startBlindChallenge = async () => {
-    // 블라인드 모드는 상위 10개 중 랜덤 하나를 선택 및 코드 기반 데이터 호출
-    const randomIndex = Math.floor(Math.random() * STOCK_LIST.length);
-    const target = STOCK_LIST[randomIndex];
-    await selectStock(target.name, target.symbol);
+  // 로컬 스토리지에서 즐겨찾기 불러오기
+  React.useEffect(() => {
+    const saved = localStorage.getItem("puzzle-favorites");
+    if (saved) setFavorites(JSON.parse(saved));
+  }, []);
+
+  const toggleFavorite = (stock: {name: string, symbol: string}, e: React.MouseEvent) => {
+    e.stopPropagation();
+    let newFavs;
+    if (favorites.find(f => f.symbol === stock.symbol)) {
+      newFavs = favorites.filter(f => f.symbol !== stock.symbol);
+    } else {
+      newFavs = [...favorites, stock];
+    }
+    setFavorites(newFavs);
+    localStorage.setItem("puzzle-favorites", JSON.stringify(newFavs));
   };
 
-  const selectStock = async (name: string, symbol: string) => {
+  const selectStock = async (name: string, symbol: string, mode: "GAME" | "CHART" = "GAME") => {
     setIsLoading(true);
     try {
-      // 로컬 백엔드 API 호출 (Phase 6 실데이터 연동 - IPv4 정적 주소 사용)
       const response = await fetch(`http://127.0.0.1:8000/api/stock/${symbol}`);
       if (!response.ok) throw new Error("API 연결 실패");
-      
       const result = await response.json();
-      if (result.data && result.data.length > 0) {
-        setStockData(result.data);
-      }
+      if (result.data && result.data.length > 0) setStockData(result.data);
     } catch (e) {
-      console.error("실데이터 로딩 실패, Mock 데이터 사용:", e);
       setStockData(MOCK_STOCK_DATA);
     } finally {
       setSelectedStock({ name, symbol });
-      setView("GAME");
+      setView(mode);
       setIsLoading(false);
     }
   };
 
   const [searchTerm, setSearchTerm] = useState("");
-  
-  // 실시간 API 검색 (디바운싱 생략하고 바로 요청)
   React.useEffect(() => {
     if (searchTerm.length >= 2) {
       const fetchApiSearch = async () => {
@@ -83,9 +88,7 @@ export default function Home() {
             const data = await res.json();
             setApiResults(data.results || []);
           }
-        } catch (e) {
-          console.error("API Search failed", e);
-        }
+        } catch (e) {}
       };
       fetchApiSearch();
     } else {
@@ -93,154 +96,111 @@ export default function Home() {
     }
   }, [searchTerm]);
 
-  const allStocks = [
+  const filteredStocks = Array.from(new Map([
     ...STOCK_LIST.filter(s => s.name.includes(searchTerm) || s.symbol.includes(searchTerm)),
-    ...apiResults.filter(apiS => !STOCK_LIST.find(s => s.symbol === apiS.symbol))
-  ];
-
-  // 중복 심볼 제거 및 최대 8개 제한
-  const filteredStocks = Array.from(new Map(allStocks.map(s => [s.symbol, s])).values()).slice(0, 8);
+    ...apiResults
+  ].map(s => [s.symbol, s])).values()).slice(0, 8);
   
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      if (filteredStocks.length > 0) {
-        const top = filteredStocks[0];
-        selectStock(top.name, top.symbol);
-      } else if (/^\d{6}$/.test(searchTerm)) {
-        // 6자리 숫자라면 다이렉트 심볼 검색 시도
-        selectStock(searchTerm, searchTerm);
-      }
+    if (e.key === "Enter" && filteredStocks.length > 0) {
+      selectStock(filteredStocks[0].name, filteredStocks[0].symbol);
     }
   };
 
   return (
-    <main className="min-h-screen bg-[#0d1117] text-slate-200 flex flex-col items-center justify-center p-4 overflow-hidden relative font-sans transition-colors">
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-500/10 rounded-full blur-[140px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/10 rounded-full blur-[140px]" />
-
+    <main className="min-h-screen bg-[#0d1117] text-slate-200 flex flex-col items-center justify-center p-4 overflow-hidden relative font-sans">
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#F08080]/5 rounded-full blur-[140px]" />
+      
       <AnimatePresence mode="wait">
         {view === "HOME" ? (
-          <motion.div 
-            key="home"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="z-10 w-full max-w-md flex flex-col items-center"
-          >
-            {/* 브랜딩 로고 영역 */}
-            <div className="text-center mb-12">
-              <h1 className="text-5xl font-extrabold tracking-tighter bg-gradient-to-r from-[#F08080] to-rose-400 bg-clip-text text-transparent mb-2">
-                CHART PUZZLE
-              </h1>
-              <p className="text-slate-400 text-lg font-medium">차트 조각을 맞춰 주가를 예측하세요</p>
+          <motion.div key="home" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="z-10 w-full max-w-md flex flex-col items-center">
+            <div className="text-center mb-10">
+              <h1 className="text-5xl font-extrabold tracking-tighter bg-gradient-to-r from-[#F08080] to-rose-400 bg-clip-text text-transparent mb-2">CHART PUZZLE</h1>
+              <p className="text-slate-500 text-sm font-medium">실시간 차트 데이터 기반 블라인드 챌린지</p>
             </div>
 
-            {/* 메인 액션 영역 */}
-            <div className="w-full bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl space-y-8">
-              <div className="space-y-4">
-                <Button 
-                  onClick={startBlindChallenge}
-                  disabled={isLoading}
-                  className="w-full h-16 text-xl font-bold bg-[#F08080] hover:bg-[#F08080]/90 text-white transition-all rounded-2xl group flex items-center justify-between px-6 shadow-lg shadow-[#F08080]/20"
-                >
-                  <span className="flex items-center gap-3">
-                    {isLoading ? <Loader2 className="animate-spin" /> : <Play className="fill-current" />}
-                    블라인드 챌린지
-                  </span>
-                  <span className="text-sm bg-white/10 px-3 py-1 rounded-full font-normal">START</span>
+            <div className="w-full bg-white/5 border border-white/10 backdrop-blur-2xl rounded-[2.5rem] p-6 sm:p-8 shadow-2xl space-y-6">
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                <Input 
+                  placeholder="종목 검색 (삼성전자, 005930...)" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="w-full h-14 bg-black/20 border-white/10 rounded-2xl pl-12 focus-visible:ring-0"
+                />
+                <AnimatePresence>
+                  {searchTerm && (
+                    <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-16 left-0 w-full bg-[#161b22] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50">
+                      {filteredStocks.map((stock) => (
+                        <div key={stock.symbol} className="w-full flex items-center hover:bg-white/5 border-b border-white/5">
+                          <button onClick={() => selectStock(stock.name, stock.symbol, "CHART")} className="flex-1 px-6 py-4 text-left flex items-center justify-between">
+                            <span className="font-bold text-slate-200">{stock.name}</span>
+                            <span className="text-xs text-slate-500 font-mono">{stock.symbol}</span>
+                          </button>
+                          <button onClick={(e) => toggleFavorite(stock, e)} className="p-4 text-gray-500 hover:text-yellow-500 transition-colors">
+                            <Star className={favorites.find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : ""} size={18} />
+                          </button>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                <Button onClick={() => selectStock(STOCK_LIST[Math.floor(Math.random()*STOCK_LIST.length)].name, STOCK_LIST[Math.floor(Math.random()*STOCK_LIST.length)].symbol)} className="w-full h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white rounded-2xl text-lg font-black flex items-center justify-center gap-2">
+                  <Play size={20} fill="currentColor" /> 블라인드 챌린지 시작
                 </Button>
                 
-                <div className="relative group">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-400 transition-colors" size={20} />
-                  <Input 
-                    placeholder="종목명 또는 코드(6자리) 검색" 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full h-14 bg-black/40 border-white/10 focus:border-blue-500/50 rounded-2xl pl-12 text-lg focus-visible:ring-0 transition-all placeholder:text-gray-600"
-                  />
-                                       {searchTerm && (
-                        <div className="absolute top-16 left-0 w-full bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                          {filteredStocks.length > 0 ? (
-                            filteredStocks.map((stock, idx) => {
-                              if (!stock || typeof stock === 'string') return null;
-                              return (
-                                <button 
-                                  key={`${stock.symbol || 'none'}-${idx}`}
-                                  onClick={() => selectStock(stock.name, stock.symbol)}
-                                  className="w-full px-6 py-4 text-left hover:bg-blue-600/20 transition-colors border-b border-white/5 last:border-0 flex items-center justify-between group/item"
-                                >
-                                  <span className="font-medium text-slate-200 group-hover/item:text-blue-400 transition-colors">{stock.name}</span>
-                                  <span className="text-xs text-slate-500 font-mono">{stock.symbol}</span>
-                                </button>
-                              );
-                            })
-                          ) : (
-                            <div className="px-6 py-4 text-gray-500 text-sm italic">결과가 없습니다.</div>
-                          )}
-                        </div>
-                      )}
-                </div>
+                {favorites.length > 0 && (
+                  <div className="pt-2">
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-2 px-1">My Favorites</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {favorites.slice(0, 4).map(fav => (
+                        <button key={fav.symbol} onClick={() => selectStock(fav.name, fav.symbol, "CHART")} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 text-left transition-all group">
+                          <div className="flex justify-between items-start">
+                            <span className="text-xs font-bold truncate pr-2">{fav.name}</span>
+                            <Star size={10} className="fill-yellow-500 text-yellow-500" />
+                          </div>
+                          <span className="text-[9px] text-white/30 font-mono">{fav.symbol}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
-                <div className="text-center p-4 rounded-2xl bg-white/5 border border-white/5">
-                  <p className="text-xs text-gray-500 mb-1">최고 기록</p>
-                  <p className="text-2xl font-bold font-mono">01:24</p>
-                </div>
-                <div className="text-center p-4 rounded-2xl bg-white/5 border border-white/5">
-                  <p className="text-xs text-gray-500 mb-1">예측 성공률</p>
-                  <p className="text-2xl font-bold text-[#F08080] font-mono">68%</p>
-                </div>
-              </div>
-            </div>
-
-            {/* 하위 메뉴 */}
-            <div className="flex justify-center gap-6 mt-8 text-gray-400">
-              <button className="flex items-center gap-2 hover:text-white transition-colors">
-                <Trophy size={18} />
-                <span className="text-sm">랭킹</span>
-              </button>
-              <button className="flex items-center gap-2 hover:text-white transition-colors">
-                <Settings size={18} />
-                <span className="text-sm">설정</span>
-              </button>
             </div>
           </motion.div>
         ) : view === "GAME" ? (
-          <motion.div 
-            key="game"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            className="z-10 w-full max-w-4xl flex flex-col items-center"
-          >
-            {/* 상단 바 */}
-            <div className="w-full flex items-center justify-between mb-8 px-4">
-              <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => setView("HOME")}>
-                <ChevronLeft className="mr-2" /> 홈으로
-              </Button>
-              <div className="text-center flex-1">
-                <h2 className="text-xl font-bold">{selectedStock?.name || "???"}</h2>
-              </div>
-              <div className="w-20" /> {/* 밸런싱용 */}
+          <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
+            <div className="w-full flex items-center justify-between mb-6 px-4">
+              <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
+              <h2 className="text-xl font-black">{selectedStock?.name}</h2>
+              <div className="w-20" />
             </div>
-
-            {/* 퍼즐 영역 */}
-            <PuzzleGame 
-              stockData={stockData} 
-              gridSize={4} 
-              stockName={selectedStock?.name || ""} 
-              stockSymbol={selectedStock?.symbol || ""}
-            />
+            <PuzzleGame stockData={stockData} gridSize={2} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
           </motion.div>
-        ) : null}
+        ) : (
+          <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
+            <div className="w-full flex items-center justify-between mb-6 px-4">
+              <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
+              <div className="flex flex-col items-center">
+                <h2 className="text-xl font-black">{selectedStock?.name}</h2>
+                <span className="text-[10px] text-white/40 font-mono">{selectedStock?.symbol}</span>
+              </div>
+              <Button onClick={() => setView("GAME")} className="bg-[#F08080] hover:bg-[#F08080]/90 text-white font-black rounded-xl">챌린지 시작</Button>
+            </div>
+            <div className="w-full h-[70vh] bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl">
+              <PuzzleGame stockData={stockData} isOnlyChart={true} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
-
-      {/* 푸터 버전 정보 */}
-      <footer className="fixed bottom-6 text-[10px] text-gray-800 tracking-widest font-mono select-none">
-        VIBE CODING • CHART PUZZLE v0.1.0-alpha
-      </footer>
+      <footer className="fixed bottom-6 text-[10px] text-white/10 tracking-widest font-mono uppercase">VIBE CODING • CHART PUZZLE v0.2.0</footer>
     </main>
   );
 }
+
+// Star 아이콘 추가 (lucide-react에서 가져옴)
+import { Star } from "lucide-react";
