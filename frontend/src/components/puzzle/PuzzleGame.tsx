@@ -139,14 +139,14 @@ const UnifiedFlipCard = ({
           <div className="absolute top-4 inset-x-0 z-[200] flex flex-col items-center gap-4 px-4 sm:px-8">
             {stockName && !hideName && (
               <h3 
-                className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2 cursor-pointer hover:text-rose-400 transition-colors group text-center"
+                className={`text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2 cursor-pointer hover:text-rose-400 transition-colors group text-center ${triggerLoading ? "animate-pulse opacity-60" : ""}`}
                 onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
                 title="클릭하여 데이터 강제 갱신"
               >
                 <div className="flex flex-wrap items-center justify-center gap-x-2">
                   <span>{stockName}</span>
                   <span className="text-[11px] sm:text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
-                  <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  {triggerLoading ? <Loader2 size={14} className="animate-spin text-rose-500" /> : <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />}
                 </div>
               </h3>
             )}
@@ -187,14 +187,14 @@ const UnifiedFlipCard = ({
           <div className="absolute top-4 inset-x-0 z-[200] flex flex-col items-center gap-4 px-4 sm:px-8">
             {stockName && !hideName && (
               <h3 
-                className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2 cursor-pointer hover:text-rose-400 transition-colors group text-center"
+                className={`text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2 cursor-pointer hover:text-rose-400 transition-colors group text-center ${triggerLoading ? "animate-pulse opacity-60" : ""}`}
                 onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
                 title="클릭하여 데이터 강제 갱신"
               >
                 <div className="flex flex-wrap items-center justify-center gap-x-2">
                   <span>{stockName}</span>
                   <span className="text-[11px] sm:text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
-                  <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  {triggerLoading ? <Loader2 size={14} className="animate-spin text-rose-500" /> : <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />}
                 </div>
               </h3>
             )}

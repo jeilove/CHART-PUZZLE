@@ -300,9 +300,12 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
             # 유효한 키워드가 있는 캐시만 즉시 반환
             if len(cached.get("cloud", [])) > 0:
                 print(f"[{symbol}] Returning valid cached results.")
+                cached["is_fresh"] = False
                 return cached
             else:
                 print(f"[{symbol}] Cached result was empty. Re-fetching...")
+    else:
+        print(f"[{symbol}] Force Refresh requested. Bypassing cache.")
 
     # 2. 데이터 직접 수집 (타임아웃 강화)
     print(f"[{symbol}] Fetching multi-source data (Force={force_refresh})...")
@@ -355,8 +358,9 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
         "sentiment_score": sentiment_score,
         "price_change_20d": round(price_change, 2),
         "gap_comment": gap_comment,
-        "report_dates": sorted_dates[:3],
-        "total_report_count": len(sorted_dates)
+        "report_dates": sorted_dates[:10],
+        "total_report_count": len(sorted_dates),
+        "is_fresh": True
     }
     
     # 결과가 존재할 때만 24시간 캐싱 (실패 시 캐싱 안함)
