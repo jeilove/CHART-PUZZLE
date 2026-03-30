@@ -285,9 +285,15 @@ def analysis_trigger_cloud(symbol, stock_name):
     elif sentiment_score <= -2 and price_change >= -5:
         gap_comment = "악재 키워드 출현 중이나 하락 미반영 (리스크 관리 주의)"
 
+    # 리포트 날짜 추출 (Regex 활용: 2024.03.25 또는 24/03/25 형태)
+    dates = sorted(list(set(re.findall(r'\d{4}\.\d{2}\.\d{2}', report_text))), reverse=True)
+    if not dates: 
+        dates = sorted(list(set(re.findall(r'\d{2}/\d{2}/\d{2}', report_text))), reverse=True)
+
     return {
         "cloud": cloud_data[:20], # 상위 20개만
         "sentiment_score": sentiment_score,
         "price_change_20d": round(price_change, 2),
-        "gap_comment": gap_comment
+        "gap_comment": gap_comment,
+        "report_dates": dates[:3] # 상위 3개 날짜만
     }

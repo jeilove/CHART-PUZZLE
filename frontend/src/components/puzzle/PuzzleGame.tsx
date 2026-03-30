@@ -4,30 +4,22 @@ import React, { useState, useRef, useMemo, useEffect } from "react";
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay } from "@dnd-kit/core";
 import { StockChart, StockChartHandle } from "../charts/StockChart";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings, ChevronLeft, CloudLightning } from "lucide-react";
+import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings, ChevronLeft, ChevronDown, CloudLightning, Loader2, Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TriggerCloud } from "./TriggerCloud";
 
-// TAB 비율: 렌더링과 표시에서 동일하게 사용 (핵심: 반드시 일치해야 함)
 const TAB_RATIO = 0.30; 
-const TAB_PCT = TAB_RATIO * 100; // 30%
-const IMG_SIZE_PCT = "160%"; // 100 + 30*2
-const IMG_OFFSET_PCT = "-30%"; // -30
 
-// 직소 퍼즐 엣지 정보 (0: Flat, 1: Tab Out, -1: Slot In)
 interface Edge { top: number; right: number; bottom: number; left: number; }
 
 interface PieceState {
   id: string;
   pieceIdx: number;
-  position: { x: number; y: number }; // 풀 내에서의 자유 위치 (px)
+  position: { x: number; y: number };
   isPlaced: boolean;
   rotation: number;
 }
 
-/**
- * Canvas API를 이용해 직소 퍼즐 조각을 실제 이미지로 미리 렌더링
- */
 function renderPieceToDataURL(
   sourceCanvas: HTMLCanvasElement,
   pieceIndex: number,
@@ -37,22 +29,17 @@ function renderPieceToDataURL(
   const size = sourceCanvas.width;
   const cellSize = size / gridSize;
   const TAB = cellSize * TAB_RATIO;
-
   const row = Math.floor(pieceIndex / gridSize);
   const col = pieceIndex % gridSize;
-
   const pc = document.createElement("canvas");
   const pcSize = cellSize + TAB * 2;
   pc.width  = pcSize;
   pc.height = pcSize;
   const ctx = pc.getContext("2d")!;
-
   const L = TAB, R = TAB + cellSize, T = TAB, B = TAB + cellSize;
   const cx = TAB + cellSize / 2, cy = TAB + cellSize / 2;
-
   ctx.beginPath();
   ctx.moveTo(L, T);
-
   if (edge.top === 0) ctx.lineTo(R, T);
   else {
     const d = edge.top;
@@ -61,7 +48,6 @@ function renderPieceToDataURL(
     ctx.bezierCurveTo(cx + TAB * 0.15, T - d * TAB, cx + TAB * 0.4,  T - d * TAB * 0.6, cx + TAB * 0.4, T);
     ctx.lineTo(R, T);
   }
-
   if (edge.right === 0) ctx.lineTo(R, B);
   else {
     const d = edge.right;
@@ -70,7 +56,6 @@ function renderPieceToDataURL(
     ctx.bezierCurveTo(R + d * TAB, cy + TAB * 0.15, R + d * TAB * 0.6, cy + TAB * 0.4, R, cy + TAB * 0.4);
     ctx.lineTo(R, B);
   }
-
   if (edge.bottom === 0) ctx.lineTo(L, B);
   else {
     const d = edge.bottom;
@@ -79,7 +64,6 @@ function renderPieceToDataURL(
     ctx.bezierCurveTo(cx - TAB * 0.15, B + d * TAB, cx - TAB * 0.4, B + d * TAB * 0.6, cx - TAB * 0.4, B);
     ctx.lineTo(L, B);
   }
-
   if (edge.left === 0) ctx.lineTo(L, T);
   else {
     const d = edge.left;
@@ -88,101 +72,153 @@ function renderPieceToDataURL(
     ctx.bezierCurveTo(L - d * TAB, cy - TAB * 0.15, L - d * TAB * 0.6, cy - TAB * 0.4, L, cy - TAB * 0.4);
     ctx.lineTo(L, T);
   }
-
   ctx.closePath();
   ctx.clip();
-
   ctx.fillStyle = "#4B4646";
   ctx.fill();
-
-  ctx.drawImage(
-    sourceCanvas,
-    col * cellSize - TAB,
-    row * cellSize - TAB,
-    cellSize + TAB * 2,
-    cellSize + TAB * 2,
-    0, 0,
-    pc.width, pc.height
-  );
-
+  ctx.drawImage(sourceCanvas, col * cellSize - TAB, row * cellSize - TAB, cellSize + TAB * 2, cellSize + TAB * 2, 0, 0, pc.width, pc.height);
   return pc.toDataURL("image/png");
 }
 
-// ─── DroppableSlot: 정답 조각이 들어갈 슬롯 ────────────────────────────
-const DroppableSlot = ({
-  id, index, children, isCorrect
-}: { id: string; index: number; children?: React.ReactNode; isCorrect: boolean }) => {
-  const { setNodeRef, isOver } = useDroppable({ id });
-  
+/* -------------------------------------------------------------------------- */
+/*                            표준화된 공통 컴포넌트                             */
+/* -------------------------------------------------------------------------- */
+
+const GapComponent = ({ comment }: { comment?: string }) => {
+  if (!comment) return null;
   return (
-    <div 
-      ref={setNodeRef}
-      className={`relative w-full h-full border border-white/5 transition-colors duration-300
-        ${isOver ? "bg-white/10" : "bg-transparent"}
-      `}
-      data-slot-index={index}
-    >
+    <div className="w-full p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <p className="text-[11px] font-black text-emerald-400 uppercase mb-2 tracking-widest flex items-center gap-2">
+        <TrendingUp size={14} /> Gap Index Analysis
+      </p>
+      <p className="text-[15px] font-bold text-white/90 leading-relaxed italic">"{comment}"</p>
+    </div>
+  );
+};
+
+interface FlipCardProps {
+  isFlipped: boolean;
+  setIsFlipped: (f: boolean) => void;
+  chartContent: React.ReactNode;
+  triggerLoading: boolean;
+  triggerResults: any;
+  stockSymbol?: string;
+  stockName?: string;
+}
+
+const UnifiedFlipCard = ({ isFlipped, setIsFlipped, chartContent, triggerLoading, triggerResults, stockSymbol, stockName }: FlipCardProps) => {
+  return (
+    <div className="w-full perspect-2000 relative z-10" style={{ perspective: "2000px" }}>
+      <motion.div 
+        className="w-full relative preserve-3d transition-all duration-700" 
+        style={{ transformStyle: "preserve-3d" }} 
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+      >
+        {/* Front */}
+        <div 
+          className="w-full bg-slate-900 border border-white/10 rounded-[3rem] p-4 sm:p-6 shadow-3xl relative overflow-hidden" 
+          style={{ backfaceVisibility: "hidden", pointerEvents: isFlipped ? "none" : "auto", visibility: isFlipped ? "hidden" : "visible" }}
+        >
+          {/* [통일] 종목명 옆에 종목 코드가 나오도록 레이웃 단일화 및 중앙 정렬 */}
+          {stockName && (
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-100 whitespace-nowrap">
+              <h3 className="text-2xl font-black text-white flex items-baseline gap-2">
+                {stockName}
+                <span className="text-sm font-bold text-white/40 tracking-wider">({stockSymbol})</span>
+              </h3>
+            </div>
+          )}
+          <div className="absolute inset-x-0 bottom-6 flex justify-center z-500">
+            <button 
+              onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }} 
+              className="px-8 py-4 bg-[#F08080] text-white text-[13px] font-black rounded-full shadow-2xl active:scale-95 flex items-center gap-3 border border-white/10"
+            >
+              <CloudLightning size={16} /> 트리거 정보 확인 (FLIP)
+            </button>
+          </div>
+          <div className="w-full h-[55vh] min-h-[400px] bg-black/40 rounded-[2.5rem] overflow-hidden pt-12">
+            {chartContent}
+          </div>
+        </div>
+
+        {/* Back */}
+        <div 
+          className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center justify-center shadow-3xl" 
+          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
+        >
+          <div className="absolute top-10 right-14 flex flex-col items-end gap-0.5 pointer-events-none select-none opacity-40">
+            {triggerResults?.report_dates?.map((d: string, i: number) => (
+              <span key={i} className="text-[9px] font-bold text-white/50 tracking-tighter leading-none">{d}</span>
+            ))}
+          </div>
+          <button 
+            onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }} 
+            className="absolute top-8 right-10 flex items-center gap-2 px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-2xl border border-white/20 transition-all z-[9999] active:scale-95 group shadow-2xl cursor-pointer"
+            style={{ transform: "translateZ(100px)" }}
+          >
+            <BarChart2 size={20} className="text-blue-400 group-hover:rotate-12 transition-transform" />
+            <span className="text-[11px] font-black uppercase tracking-widest text-white">차트로 돌아가기</span>
+          </button>
+          <div className="absolute top-10 left-12 flex items-center gap-3">
+            <CloudLightning className="text-rose-500" size={24} />
+            <div>
+              <span className="text-[10px] font-black text-rose-500/60 uppercase tracking-tighter">Intelligence</span>
+              <h4 className="text-lg font-black text-white">Trigger Analysis</h4>
+            </div>
+          </div>
+          <div className="w-full flex-1 flex items-center justify-center">
+            {triggerLoading ? (
+              <Loader2 className="animate-spin text-rose-500" size={48} />
+            ) : triggerResults ? (
+              <TriggerCloud data={triggerResults.cloud} />
+            ) : (
+              <div className="text-white/10 italic text-sm">트리거 데이터 수집 중...</div>
+            )}
+          </div>
+          <GapComponent comment={triggerResults?.gap_comment} />
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const DroppableSlot = ({ id, index, children, isCorrect }: { id: string; index: number; children?: React.ReactNode; isCorrect: boolean }) => {
+  const { setNodeRef, isOver } = useDroppable({ id });
+  return (
+    <div ref={setNodeRef} className={`relative w-full h-full border border-white/5 transition-colors duration-300 ${isOver ? "bg-white/10" : "bg-transparent"}`} data-slot-index={index}>
       {children}
     </div>
   );
 };
 
-// ─── DraggablePiece: 드래그 가능한 퍼즐 조각 ──────────────────────────
-const DraggablePiece = ({
-  piece, pieceImg, gridSize, isDragOverlay = false
-}: { piece: PieceState; pieceImg: string; gridSize: number; isDragOverlay?: boolean }) => {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: piece.id,
-    disabled: piece.isPlaced,
-  });
-
-  const cellSize = 512 / gridSize;
-
+const DraggablePiece = ({ piece, pieceImg, gridSize }: { piece: PieceState; pieceImg: string; gridSize: number }) => {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: piece.id, disabled: piece.isPlaced });
+  const cellSize = 480 / gridSize;
   const style: React.CSSProperties = {
     position: "absolute",
     left: piece.position.x,
     top: piece.position.y,
     width: `${cellSize}px`,
     height: `${cellSize}px`,
-    transform: undefined,
     zIndex: piece.isPlaced ? 5 : 10,
     cursor: piece.isPlaced ? "default" : isDragging ? "grabbing" : "grab",
-    opacity: isDragging ? 0 : 1, // 드래그 시 원본 숨김 (잔상 제거 완벽 해결)
+    opacity: isDragging ? 0 : 1,
     filter: piece.isPlaced ? "none" : "drop-shadow(0 4px 12px rgba(0,0,0,0.5))",
     touchAction: "none",
-    transition: isDragging ? "none" : "left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), top 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)", // 다시 섞기 스무스 애니메이션
+    transition: isDragging ? "none" : "left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), top 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)",
   };
-
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <img
-        src={pieceImg}
-        alt=""
-        draggable={false}
-        className="absolute w-[160%] h-[160%] left-[-30%] top-[-30%] block pointer-events-none"
-        style={{
-          maxWidth: "none",
-          imageRendering: "pixelated",
-        }}
-      />
+      <img src={pieceImg} alt="" draggable={false} className="absolute w-[160%] h-[160%] left-[-30%] top-[-30%] block pointer-events-none" style={{ maxWidth: "none", imageRendering: "pixelated" }} />
     </div>
   );
 };
 
-// ─── PuzzleGame 메인 컴포넌트 ───────────────────────────────────────────────
-export const PuzzleGame = ({ 
-  stockData, 
-  gridSize: initialGridSize = 2,
-  stockName = "",
-  stockSymbol = "",
-  isOnlyChart = false
-}: { 
-  stockData: any[]; 
-  gridSize?: number;
-  stockName?: string;
-  stockSymbol?: string;
-  isOnlyChart?: boolean;
-}) => {
+/* -------------------------------------------------------------------------- */
+/*                            메인 PuzzleGame 컴포넌트                           */
+/* -------------------------------------------------------------------------- */
+
+export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnlyChart = false }: { stockData: any[]; stockName?: string; stockSymbol?: string; isOnlyChart?: boolean; }) => {
   const [pieces, setPieces]           = useState<PieceState[]>([]);
   const [pieceImages, setPieceImages] = useState<string[]>([]);
   const [guideImage, setGuideImage]   = useState<string | null>(null);
@@ -191,25 +227,25 @@ export const PuzzleGame = ({
   const [isSolved, setIsSolved]       = useState(isOnlyChart);
   const [isNewsOpen, setIsNewsOpen]   = useState(false);
   const [activeId, setActiveId]       = useState<string | null>(null);
-  const [gridSize, setGridSize]       = useState<number>(2);
+  const [gridSize, setGridSize]       = useState<number>(3);
   const [isQuizOpen, setIsQuizOpen]   = useState(false);
   const [timeframe, setTimeframe]     = useState<"D" | "W" | "M">("D");
   const [quizData, setQuizData]       = useState<any[]>(stockData);
   const [isQuizDataLoading, setIsQuizDataLoading] = useState(false);
-  const [userPrediction, setUserPrediction] = useState<"up" | "down" | null>(null);
-  const [showResult, setShowResult]   = useState(false);
   const [newsResults, setNewsResults] = useState<any[]>([]);
   const [isNewsLoading, setIsNewsLoading] = useState(false);
   const [seconds, setSeconds]         = useState(0);
   const [moves, setMoves]             = useState(0);
   const [isTimeWarpNewsOpen, setIsTimeWarpNewsOpen] = useState(false);
+  const [triggerResults, setTriggerResults] = useState<any>(null);
+  const [isTriggerLoading, setIsTriggerLoading] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [quizFeedback, setQuizFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
   const chartRef = useRef<StockChartHandle>(null);
   const quizChartRef = useRef<StockChartHandle>(null);
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 5 } })
-  );
+  const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 5 } }), useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 5 } }));
 
   const pieceEdges = useMemo(() => {
     const edges: Edge[] = [];
@@ -221,12 +257,7 @@ export const PuzzleGame = ({
     }
     for (let r = 0; r < gridSize; r++) {
       for (let c = 0; c < gridSize; c++) {
-        edges.push({
-          top: hEdges[r][c],
-          right: vEdges[r][c + 1],
-          bottom: -hEdges[r + 1][c],
-          left: -vEdges[r][c],
-        });
+        edges.push({ top: hEdges[r][c], right: vEdges[r][c + 1], bottom: -hEdges[r + 1][c], left: -vEdges[r][c] });
       }
     }
     return edges;
@@ -238,7 +269,6 @@ export const PuzzleGame = ({
     try {
       const sourceCanvas = chartRef.current.getCanvas();
       if (!sourceCanvas) throw new Error("Canvas capture failed");
-      
       const SQUARE_SIZE = 512;
       const squareCanvas = document.createElement("canvas");
       squareCanvas.width = SQUARE_SIZE;
@@ -247,8 +277,6 @@ export const PuzzleGame = ({
       sqCtx.fillStyle = "#4B4646";
       sqCtx.fillRect(0, 0, SQUARE_SIZE, SQUARE_SIZE);
       sqCtx.drawImage(sourceCanvas, 0, 0, SQUARE_SIZE, SQUARE_SIZE);
-
-      // 가이드 이미지 (흑백)
       const guideCanvas = document.createElement("canvas");
       guideCanvas.width = SQUARE_SIZE;
       guideCanvas.height = SQUARE_SIZE;
@@ -256,107 +284,52 @@ export const PuzzleGame = ({
       guideCtx.filter = "grayscale(100%) opacity(30%)";
       guideCtx.drawImage(squareCanvas, 0, 0);
       setGuideImage(guideCanvas.toDataURL());
-
-      const rendered = pieceEdges.map((edge, i) =>
-        renderPieceToDataURL(squareCanvas, i, gridSize, edge)
-      );
+      const rendered = pieceEdges.map((edge, i) => renderPieceToDataURL(squareCanvas, i, gridSize, edge));
       setPieceImages(rendered);
-
-      // 조각들을 512x512 영역 내부에 랜덤으로 겹쳐서 배치
-      const cellSize = 512 / gridSize;
-      const initialPieces: PieceState[] = Array.from({ length: gridSize * gridSize }, (_, i) => {
-        return {
-          id: `piece-${i}`,
-          pieceIdx: i,
-          position: {
-            x: Math.random() * (512 - cellSize),
-            y: Math.random() * (512 - cellSize),
-          },
-          isPlaced: false,
-          rotation: 0,
-        };
-      });
-      
+      const cellSize = 480 / gridSize;
+      const initialPieces: PieceState[] = Array.from({ length: gridSize * gridSize }, (_, i) => ({
+        id: `piece-${i}`, pieceIdx: i, position: { x: Math.random() * (480 - cellSize), y: Math.random() * (480 - cellSize) }, isPlaced: false, rotation: 0
+      }));
       setPieces(initialPieces);
-      setIsSolved(false);
-      setIsPlaying(true);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsCapturing(false);
-    }
+      setIsSolved(false); setIsPlaying(true);
+    } catch (e) { console.error(e); } finally { setIsCapturing(false); }
   };
 
   const resetPiecesPositions = () => {
-    const cellSize = 512 / gridSize;
-    setPieces(prev => prev.map((p) => {
-      // 정답 확인(치트키) 상태이거나 수동으로 완성되어 모든 조각이 맞춰진 경우(isSolved=true), 다시 섞기 시 전체 리셋
-      if (p.isPlaced && !isSolved) return p;
-      return {
-        ...p,
-        isPlaced: false,
-        position: {
-          x: Math.random() * (512 - cellSize),
-          y: Math.random() * (512 - cellSize),
-        },
-        rotation: 0,
-      };
-    }));
+    const cellSize = 480 / gridSize;
+    setPieces(prev => prev.map((p) => (p.isPlaced && !isSolved) ? p : { ...p, isPlaced: false, position: { x: Math.random() * (480 - cellSize), y: Math.random() * (480 - cellSize) }, rotation: 0 }));
     if (isSolved) setIsSolved(false);
-    setSeconds(0);
-    setMoves(0);
+    setSeconds(0); setMoves(0);
   };
 
-  const handleDragStart = (event: any) => {
-    setActiveId(event.active.id);
-  };
-
+  const handleDragStart = (event: any) => setActiveId(event.active.id);
   const handleDragEnd = (event: any) => {
     const { active, over, delta } = event;
     setActiveId(null);
-
     setPieces((prev) => {
       const updated = [...prev];
       const pIdx = prev.findIndex((p) => p.id === active.id);
       if (pIdx === -1) return prev;
-
       const piece = { ...updated[pIdx] };
-      
-      // 위치 업데이트
-      piece.position = {
-        x: piece.position.x + delta.x,
-        y: piece.position.y + delta.y,
-      };
-
-      // 스내핑 로직 (정답 슬롯 근처 64px 이내면 흡착)
+      piece.position = { x: piece.position.x + delta.x, y: piece.position.y + delta.y };
       if (over) {
         const slotIdx = parseInt(over.id.replace("slot-", ""));
         if (slotIdx === piece.pieceIdx) {
-          const row = Math.floor(slotIdx / gridSize);
-          const col = slotIdx % gridSize;
-          const cellSize = 512 / gridSize;
-          piece.position = { x: col * cellSize, y: row * cellSize };
-          piece.isPlaced = true;
-          piece.rotation = 0;
+          const cellSize = 480 / gridSize;
+          piece.position = { x: (slotIdx % gridSize) * cellSize, y: Math.floor(slotIdx / gridSize) * cellSize };
+          piece.isPlaced = true; piece.rotation = 0;
         }
       }
-
       updated[pIdx] = piece;
       return updated;
     });
     setMoves(m => m + 1);
   };
 
-  useEffect(() => {
-    if (isPlaying && pieces.length > 0 && pieces.every(p => p.isPlaced)) {
-      setIsSolved(true);
-    }
-  }, [pieces, isPlaying]);
+  useEffect(() => { if (isPlaying && pieces.length > 0 && pieces.every(p => p.isPlaced)) setIsSolved(true); }, [pieces, isPlaying]);
 
-  // 차트 데이터 통합 관리 (타임 워프 및 일반 차트 모드 대응)
   useEffect(() => {
     if ((!isQuizOpen && !isOnlyChart) || !stockSymbol) return;
-
     const fetchTimeframeData = async () => {
       setIsQuizDataLoading(true);
       const tfMap = { "D": "day", "W": "week", "M": "month" };
@@ -364,70 +337,55 @@ export const PuzzleGame = ({
         const res = await fetch(`http://127.0.0.1:8000/api/stock/${stockSymbol}?timeframe=${tfMap[timeframe]}`);
         if (res.ok) {
           const result = await res.json();
-          if (result.data) {
-            setQuizData(result.data);
-          }
+          if (result.data) setQuizData(result.data);
         }
-      } catch (e) {
-        console.error("Timeframe data fetch failed", e);
-        if (timeframe === "D") setQuizData(stockData);
-      } finally {
-        setIsQuizDataLoading(false);
-      }
+      } catch (e) { console.error(e); } finally { setIsQuizDataLoading(false); }
     };
-
     fetchTimeframeData();
-  }, [timeframe, isQuizOpen, isOnlyChart, stockSymbol, stockData]);
+  }, [timeframe, isQuizOpen, isOnlyChart, stockSymbol]);
 
-  // 퍼즐 시작 또는 종목 선택 시 뉴스 데이터 가져오기 (News Pulse)
   useEffect(() => {
     if (!stockName) return;
-
     const abortController = new AbortController();
-
     const fetchNews = async () => {
       setIsNewsLoading(true);
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/news/${encodeURIComponent(stockName)}?t=${Date.now()}`, {
-          signal: abortController.signal
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setNewsResults(data.news || []);
-        }
-      } catch (e: any) {
-        if (e.name === "AbortError") {
-          console.log("News fetch aborted due to timeout");
-        } else {
-          console.error("News Pulse fetch failed", e);
-        }
-        setNewsResults([]);
-      } finally {
-        setIsNewsLoading(false);
-      }
+        const res = await fetch(`http://127.0.0.1:8000/api/news/${encodeURIComponent(stockName)}?t=${Date.now()}`, { signal: abortController.signal });
+        if (res.ok) { const data = await res.json(); setNewsResults(data.news || []); }
+      } catch (e: any) { setNewsResults([]); } finally { setIsNewsLoading(false); }
     };
-
     fetchNews();
 
-    // 5초 강제 타임아웃
-    const timeoutId = setTimeout(() => abortController.abort(), 5000);
-
-    return () => {
-      clearTimeout(timeoutId);
-      abortController.abort();
+    const fetchTrigger = async () => {
+      if (!stockSymbol) return;
+      setIsTriggerLoading(true);
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/api/trigger/${stockSymbol}?name=${encodeURIComponent(stockName)}&t=${Date.now()}`, { signal: abortController.signal });
+        if (res.ok) { const data = await res.json(); setTriggerResults(data); }
+      } catch (e: any) {} finally { setIsTriggerLoading(false); }
     };
-  }, [stockName]);
+    fetchTrigger();
+    const timeoutId = setTimeout(() => abortController.abort(), 10000);
+    return () => { clearTimeout(timeoutId); abortController.abort(); };
+  }, [stockName, stockSymbol]);
 
-  // 퍼즐 타이머
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isPlaying && !isSolved) {
-      interval = setInterval(() => {
-        setSeconds(s => s + 1);
-      }, 1000);
-    }
+    if (isPlaying && !isSolved) interval = setInterval(() => setSeconds(s => s + 1), 1000);
     return () => clearInterval(interval);
   }, [isPlaying, isSolved]);
+
+  const handleQuizSelect = (predictRise: boolean) => {
+    if (quizData.length < 10) return;
+    const lastVisibleIdx = quizData.length - 11;
+    const finalIdx = quizData.length - 1;
+    const lastPrice = quizData[finalIdx].close;
+    const visiblePrice = quizData[lastVisibleIdx].close;
+    const isActuallyRise = lastPrice > visiblePrice;
+    const correct = predictRise === isActuallyRise;
+    setQuizFeedback({ isCorrect: correct, message: correct ? "축하합니다! 주가의 방향을 정확히 예측했습니다." : "아쉽네요. 주가가 반대로 움직였습니다." });
+    setShowResult(true);
+  };
 
   const formatTime = (sec: number) => {
     const mins = Math.floor(sec / 60);
@@ -435,42 +393,42 @@ export const PuzzleGame = ({
     return `${mins.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}s`;
   };
 
-  const progress = pieces.length > 0 
-    ? Math.round((pieces.filter(p => p.isPlaced).length / pieces.length) * 100) 
-    : 0;
-
-  const cellSize = 512 / gridSize;
-
   if (isOnlyChart) {
     return (
-      <div className="w-full flex flex-col items-center max-w-4xl px-4 h-full relative">
-        {/* 네이티브 스타일 일/주/월 메뉴 (차트 상단 부착) */}
-        <div className="absolute top-4 left-6 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl scale-90 origin-top-left">
-          {(["D", "W", "M"] as const).map((tf) => (
-            <button
-              key={tf}
-              onClick={() => setTimeframe(tf)}
-              disabled={isQuizDataLoading}
-              className={`
-                w-12 h-10 rounded-lg text-sm font-black transition-all flex items-center justify-center
-                ${timeframe === tf ? "bg-white text-slate-900 shadow-xl" : "text-white/40 hover:text-white hover:bg-white/5"}
-                ${isQuizDataLoading ? "opacity-50 cursor-wait" : ""}
-              `}
-            >
-              {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
-            </button>
-          ))}
-        </div>
-
-        {isQuizDataLoading && (
-          <div className="absolute inset-x-4 top-[50%] -translate-y-1/2 flex items-center justify-center z-40">
-            <span className="text-blue-400 font-bold animate-pulse">차트 로딩 중...</span>
+      <div className="w-full flex flex-col items-center max-w-4xl px-4 relative pb-20">
+        <div className="w-full relative flex items-center justify-between mb-4 z-40">
+          <div className="flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md">
+            {(["D", "W", "M"] as const).map((tf) => (
+              <button key={tf} onClick={() => setTimeframe(tf)} className={`w-12 h-10 rounded-lg text-sm font-black transition-all flex items-center justify-center ${timeframe === tf ? "bg-white text-slate-900 shadow-xl" : "text-white/40 hover:text-white"}`}>
+                {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
+              </button>
+            ))}
           </div>
-        )}
-
-        <div className="w-full p-2 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md mb-4 h-[60vh] min-h-[400px]">
-          <StockChart ref={chartRef} data={timeframe === "D" && !quizData.length ? stockData : quizData} />
+          <button onClick={() => setIsNewsOpen(!isNewsOpen)} className="p-3 bg-slate-900/80 rounded-xl border border-white/10 shadow-2xl relative"><Newspaper className={isNewsOpen ? "text-blue-400" : "text-white/40"} size={20} /></button>
         </div>
+
+        <AnimatePresence>
+          {isNewsOpen && (
+            <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 50, opacity: 0 }} className="absolute top-16 right-4 z-50 w-[240px] sm:w-[300px]">
+              <div className="bg-slate-950/90 backdrop-blur-3xl border border-white/10 rounded-3xl p-6 shadow-3xl">
+                <div className="flex items-center justify-between mb-4"><span className="text-[10px] font-black text-white/40 uppercase tracking-widest">News Pulse</span><button onClick={() => setIsNewsOpen(false)}><X size={16} className="text-white/20" /></button></div>
+                <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
+                  {newsResults.map((news, i) => (<a key={i} href={news.link} target="_blank" rel="noreferrer" className="block p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 transition-all"><p className="text-[11px] text-white/80 line-clamp-2 leading-relaxed">{news.title}</p></a>))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <UnifiedFlipCard 
+          isFlipped={isFlipped}
+          setIsFlipped={setIsFlipped}
+          chartContent={<StockChart ref={chartRef} data={quizData} />}
+          triggerLoading={isTriggerLoading}
+          triggerResults={triggerResults}
+          stockSymbol={stockSymbol}
+          stockName={stockName}
+        />
       </div>
     );
   }
@@ -478,555 +436,124 @@ export const PuzzleGame = ({
   return (
     <div className="w-full flex flex-col items-center pb-6 relative overflow-x-hidden min-h-[85vh]">
       {!isPlaying ? (
-        <div className="w-full flex flex-col items-center animate-in fade-in duration-700 max-w-2xl px-4 flex-grow h-full">
-          {/* 상단 차트 영역: 120% 확대 (60vh) */}
+        <div className="w-full flex flex-col items-center animate-in fade-in duration-700 max-w-2xl px-4 grow h-full">
           <div className="w-full p-2 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md mb-4 h-[60vh] min-h-[400px]">
-            <StockChart ref={chartRef} data={stockData} />
+             <StockChart ref={chartRef} data={stockData} />
           </div>
-          
-          {/* 하단 메뉴 영역: mt-10으로 위치 조정 */}
-          <div className="w-full mt-4 flex items-center justify-between gap-2 p-1.5 bg-black/60 rounded-2xl border border-white/10 shadow-[0_-10px_50px_-15px_rgba(0,0,0,0.8)] backdrop-blur-3xl z-10 sm:max-w-md mx-auto">
-            <Button
-              onClick={startPuzzle}
-              disabled={isCapturing}
-              className="w-28 h-12 text-[13px] font-black bg-gradient-to-r from-rose-400 to-rose-600 hover:from-rose-500 hover:to-rose-700 text-white rounded-xl shadow-2xl transition-all font-sans whitespace-nowrap active:scale-95 px-1"
-            >
+          <div className="w-full mt-4 flex items-center justify-between gap-2 p-1.5 bg-black/60 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-3xl z-10 sm:max-w-md mx-auto">
+            <Button onClick={(e) => { e.stopPropagation(); startPuzzle(); }} disabled={isCapturing} className="w-28 h-12 text-[13px] font-black bg-[#F08080] text-white rounded-xl active:scale-95">
               {isCapturing ? "분할.." : "퍼즐 시작"}
             </Button>
-
-            <div className="relative group">
-              <select 
-                value={gridSize}
-                onChange={(e) => setGridSize(Number(e.target.value))}
-                className="w-24 h-12 bg-white/5 text-white text-[11px] font-black py-1 px-1 rounded-xl border border-white/20 outline-none transition-all cursor-pointer appearance-none text-center hover:bg-white/10 focus:border-rose-500/50 active:scale-95"
-              >
-                <option value={2} className="bg-slate-900">조각 2x2</option>
-                <option value={3} className="bg-slate-900">조각 3x3</option>
-                <option value={4} className="bg-slate-900">조각 4x4</option>
-              </select>
-            </div>
-
-            <Button
-              onClick={() => {
-                setIsPlaying(true);
-                setIsSolved(true);
-                setIsQuizOpen(true);
-              }}
-              className="flex-1 h-12 text-[13px] font-black bg-white/5 hover:bg-white/10 text-blue-400 border border-blue-500/20 rounded-xl transition-all font-sans flex items-center justify-center gap-1 whitespace-nowrap active:scale-95"
-            >
-              <Timer size={16} />
-              타임 워프
+            <select value={gridSize} onChange={(e) => setGridSize(Number(e.target.value))} className="w-24 h-12 bg-white/5 text-white text-[11px] font-black rounded-xl border border-white/20 outline-none text-center appearance-none cursor-pointer">
+              <option value={2} className="bg-slate-900">2x2</option><option value={3} className="bg-slate-900">3x3</option><option value={4} className="bg-slate-900">4x4</option>
+            </select>
+            <Button onClick={(e) => { e.stopPropagation(); setIsPlaying(true); setIsSolved(true); setIsQuizOpen(true); }} className="flex-1 h-12 text-[13px] font-black bg-white/5 text-blue-400 border border-blue-500/20 rounded-xl active:scale-95">
+              <Timer size={16} className="mr-1" /> 타임 워프
             </Button>
           </div>
         </div>
+      ) : isSolved && !isQuizOpen ? (
+        <AnimatePresence>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center gap-8 py-4 px-4">
+            <div className="w-full max-w-2xl">
+              <UnifiedFlipCard 
+                isFlipped={isFlipped}
+                setIsFlipped={setIsFlipped}
+                chartContent={<StockChart data={stockData} />}
+                triggerLoading={isTriggerLoading}
+                triggerResults={triggerResults}
+                stockSymbol={stockSymbol}
+                stockName={stockName}
+              />
+            </div>
+            <div className="w-full max-w-sm flex flex-col gap-3">
+              <Button onClick={(e) => { e.stopPropagation(); setIsQuizOpen(true); setIsFlipped(false); }} className="w-full h-18 bg-[#A0C4FF]/40 border border-[#A0C4FF]/20 hover:bg-[#A0C4FF]/60 text-white rounded-[2rem] text-xl font-black shadow-3xl active:scale-95 flex items-center justify-center gap-3 backdrop-blur-md transition-all">
+                <Timer size={24} className="text-sky-400" /> 타임 워프 퀴즈 도전
+              </Button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       ) : (
-        <div className="w-full flex flex-col items-center gap-4 animate-in zoom-in-95 duration-500 relative -mt-2">
-          {/* 타이머 및 무브 카운터 */}
-          <div className="flex items-center gap-6 px-6 py-2 bg-black/40 backdrop-blur-md rounded-2xl border border-white/5 shadow-2xl animate-in slide-in-from-top-4 duration-500">
-            <div className="flex items-center gap-2">
-              <Timer size={14} className="text-yellow-500" />
-              <span className="text-sm font-black text-yellow-500 font-mono tracking-wider uppercase">Time</span>
-              <span className="text-lg font-black text-white font-mono min-w-[5ch]">{formatTime(seconds)}</span>
-            </div>
-            <div className="w-[1px] h-4 bg-white/10" />
-            <div className="flex items-center gap-2">
-              <RefreshCw size={14} className="text-blue-400" />
-              <span className="text-sm font-black text-blue-400 font-mono tracking-wider uppercase">Moves</span>
-              <span className="text-lg font-black text-white font-mono min-w-[2ch]">{moves}</span>
-            </div>
+        <div className="w-full flex flex-col items-center gap-4 relative -mt-2">
+          <div className="flex items-center gap-6 px-6 py-2 bg-black/40 backdrop-blur-md rounded-2xl border border-white/5 shadow-2xl mb-2">
+            <div className="flex items-center gap-2"><Timer size={14} className="text-yellow-500" /><span className="text-lg font-black text-white font-mono">{formatTime(seconds)}</span></div>
+            <div className="w-[1px] h-4 bg-white/10" /><div className="flex items-center gap-2"><RefreshCw size={14} className="text-blue-400" /><span className="text-lg font-black text-white font-mono">{moves}</span></div>
           </div>
-          
-          {/* 퍼즐 진행도 바 */}
-          <div className="w-64 h-2 bg-white/5 rounded-full overflow-hidden border border-white/10">
-            <motion.div 
-              className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-            />
-          </div>
-
-          <DndContext
-            sensors={sensors}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          >
-            {/* 중앙 퍼즐 보드 (Target Area) */}
-            <div
-              className="rounded-3xl p-8 bg-slate-950/40 border-8 border-white/5 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] backdrop-blur-3xl relative"
-              style={{
-                width: "min(95vw, 608px)",
-                aspectRatio: "1 / 1",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <div
-                className="relative"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-                  width: "512px",
-                  height: "512px",
-                  overflow: "visible",
-                }}
-              >
-                  {/* 가이드 배경 */}
-                  {guideImage && (
-                    <img 
-                      src={guideImage} 
-                      alt="" 
-                      className="absolute inset-0 w-full h-full object-cover pointer-events-none rounded-sm"
-                      draggable={false}
-                    />
-                  )}
-
-                  {/* 슬롯 레이어 */}
-                  {Array.from({ length: gridSize * gridSize }).map((_, i) => (
-                    <DroppableSlot key={`slot-${i}`} id={`slot-${i}`} index={i} isCorrect={false} />
-                  ))}
-
-                  {/* 풀(Pool)에 있는 조각 레이어 (512x512 캔버스 내 기준) */}
-                  <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 100 }}>
-                    {pieces.filter(p => !p.isPlaced).map((p) => (
-                      <div key={p.id} className="pointer-events-auto absolute" style={{ left: 0, top: 0 }}>
-                        <DraggablePiece piece={p} pieceImg={pieceImages[p.pieceIdx]} gridSize={gridSize} />
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* 배치 완료된 조각 레이어 */}
-                  <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>
-                    {pieces.filter(p => p.isPlaced).map((p) => (
-                      <DraggablePiece key={p.id} piece={p} pieceImg={pieceImages[p.pieceIdx]} gridSize={gridSize} />
-                    ))}
-                  </div>
-                </div>
-
-                {/* 뉴스 플로팅 버튼 (퍼즐 보드 내 오른쪽 상단) - 항상 최상단 노출 */}
-                <div className="absolute right-4 top-[-20px] z-[5000] flex flex-col items-end gap-2">
-                  <button
-                    onClick={() => setIsNewsOpen(!isNewsOpen)}
-                    className={`p-3 rounded-full shadow-2xl transition-all duration-300 group flex items-center justify-center
-                      ${isNewsOpen ? "bg-white text-blue-600 shadow-xl scale-90" : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 animate-pulse"}`}
-                  >
-                    <Newspaper className="transition-transform" size={20} />
-                  </button>
-
-                  <AnimatePresence>
-                    {isNewsOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                        className="w-[240px] min-h-[360px] bg-white/70 border border-white/80 backdrop-blur-3xl rounded-2xl p-5 shadow-2xl flex flex-col justify-between"
-                      >
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between border-b border-black/5 pb-2">
-                            <span className="flex items-center gap-1.5 text-blue-600 font-extrabold text-xs">
-                              <Newspaper size={14} /> NEWS PULSE
-                            </span>
-                            <button onClick={() => setIsNewsOpen(false)} className="text-gray-400 hover:text-black transition-colors">
-                              <X size={14} />
-                            </button>
-                          </div>
-                          
-                          <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1">
-                            {newsResults.length > 0 ? (
-                              newsResults.map((news, idx) => (
-                                <a 
-                                  key={idx}
-                                  href={news.link}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="block p-2 bg-black/5 hover:bg-black/10 rounded-lg border border-black/5 transition-all"
-                                >
-                                  <p className="text-[10px] font-bold text-slate-800 line-clamp-2 leading-tight">
-                                    {news.title}
-                                  </p>
-                                  <span className="text-[8px] text-blue-600 font-bold uppercase mt-1 block">Naver News</span>
-                                </a>
-                              ))
-                            ) : (
-                              <div className="py-8 text-center text-gray-400 text-[10px] italic">
-                                관련 뉴스를 불러오는 중...
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-
-            <DragOverlay dropAnimation={null} style={{ zIndex: 3000 }}>
-              {activeId ? (
-                <div style={{ width: `${cellSize}px`, height: `${cellSize}px`, transform: "scale(1.1)" }}>
-                  <img
-                    src={pieceImages[parseInt(activeId.split("-")[1])]}
-                    alt=""
-                    draggable={false}
-                    className="absolute w-[160%] h-[160%] left-[-30%] top-[-30%] block pointer-events-none"
-                    style={{
-                      maxWidth: "none",
-                      filter: "drop-shadow(0 30px 60px rgba(0,0,0,0.9))",
-                      imageRendering: "pixelated",
-                    }}
-                  />
-                </div>
-              ) : null}
-            </DragOverlay>
+          <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <div className="rounded-3xl p-8 bg-slate-950/40 border-8 border-white/5 shadow-3xl backdrop-blur-3xl relative" style={{ width: "min(540px, 95vw)", height: "min(540px, 95vw)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+               <div className="relative" style={{ display: "grid", gridTemplateColumns: `repeat(${gridSize}, 1fr)`, width: "480px", height: "480px" }}>
+                  {guideImage && <img src={guideImage} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none rounded-sm" />}
+                  {Array.from({ length: gridSize * gridSize }).map((_, i) => (<DroppableSlot key={`slot-${i}`} id={`slot-${i}`} index={i} isCorrect={false} />))}
+                  <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 100 }}>{pieces.filter(p => !p.isPlaced).map((p) => (<div key={p.id} className="pointer-events-auto absolute" style={{ left: 0, top: 0 }}><DraggablePiece piece={p} pieceImg={pieceImages[p.pieceIdx]} gridSize={gridSize} /></div>))}</div>
+                  <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>{pieces.filter(p => p.isPlaced).map((p) => (<DraggablePiece key={p.id} piece={p} pieceImg={pieceImages[p.pieceIdx]} gridSize={gridSize} />))}</div>
+               </div>
+            </div>
+            <DragOverlay dropAnimation={null}>{activeId ? <div style={{ width: `${480/gridSize}px`, height: `${480/gridSize}px`, transform: "scale(1.1)" }}><img src={pieceImages[parseInt(activeId.split("-")[1])]} alt="" className="absolute w-[160%] h-[160%] left-[-30%] top-[-30%]" style={{ imageRendering: "pixelated" }} /></div> : null}</DragOverlay>
           </DndContext>
-
-          {/* 컨트롤 영역 */}
-          <div className="mt-2 mb-6 flex flex-col items-center gap-4 relative z-[6000]">
-            <div className="flex items-center justify-center gap-4">
-              <Button
-                variant="outline"
-                onClick={resetPiecesPositions}
-                className="px-8 h-12 text-sm font-black border-[#4B4646] text-[#4B4646] hover:bg-[#4B4646] hover:text-white transition-all rounded-xl"
-              >
-                다시 섞기
-              </Button>
-              <Button
-                onClick={() => {
-                  setPieces((prev) => prev.map((p) => {
-                    const row = Math.floor(p.pieceIdx / gridSize);
-                    const col = p.pieceIdx % gridSize;
-                    const cellSize = 512 / gridSize;
-                    return {
-                      ...p,
-                      isPlaced: true,
-                      position: { x: col * cellSize, y: row * cellSize },
-                      rotation: 0,
-                    };
-                  }));
-                  setIsSolved(true);
-                }}
-                className="px-10 h-12 text-sm font-black bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-xl shadow-rose-900/20 transition-all rounded-xl"
-              >
-                정답 확인
-              </Button>
-            </div>
-
-            <AnimatePresence>
-              {isSolved && !isQuizOpen && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9, y: 10 }} 
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                  className="mt-2"
-                >
-                  <Button 
-                    onClick={() => setIsQuizOpen(true)}
-                    className="h-14 px-8 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-lg font-black shadow-2xl shadow-blue-900/40 transition-all flex items-center gap-2 animate-bounce scale-90"
-                  >
-                    <Timer size={20} />
-                    타임 워프 퀴즈 시작
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* 타임 워프 퀴즈 모달 (디자인 샘플 100% 반영) */}
-            <AnimatePresence>
-              {isQuizOpen && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[6000] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center pt-4 pb-8 px-6 overflow-y-auto"
-                >
-                  <motion.div 
-                    initial={{ scale: 0.9, y: 20 }}
-                    animate={{ scale: 1, y: 0 }}
-                    className="w-full max-w-2xl flex flex-col items-center gap-2"
-                  >
-                    {/* 상단 바 (홈으로/이전으로) - 퍼즐 메인 화면과 통일 */}
-                    <div className="w-full flex justify-start mb-0">
-                       <Button 
-                         variant="ghost" 
-                         className="text-gray-500 hover:text-white flex items-center p-0 h-auto"
-                         onClick={() => window.location.reload()}
-                       >
-                         <ChevronLeft className="mr-1" size={16} /> <span className="font-bold text-xs">홈으로</span>
-                       </Button>
-                    </div>
-
-                    <div className="w-full flex flex-col items-center gap-1">
-                    </div>
-
-                    {/* 종목 확인 카드 */}
-                    <div className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-4 sm:p-6 flex flex-col items-center gap-4 shadow-2xl relative overflow-hidden group">
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-50" />
-                      
-                      <div className="w-full relative z-[100] px-4">
-                        <div className="flex flex-col items-center text-center transition-all">
-                          <h3 className="text-xl font-black text-white flex flex-wrap items-center justify-center gap-x-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-                            {stockName || "분석 종목"}
-                            <span className="text-[10px] text-white/40 font-mono">[{stockSymbol || "------"}]</span>
-                          </h3>
-                        </div>
-                      </div>
-
-                      {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원 - 높이 확대) */}
-                      <div className="w-full h-[40vh] sm:h-[45vh] min-h-[250px] bg-black/40 rounded-3xl overflow-hidden border border-white/10 relative z-10 mt-1 shadow-inner">
-                        {/* 네이티브 스타일 일/주/월 메뉴 (차트 상단 부착 - 가격 축과 겹치지 않게 좌측으로 이동) */}
-                        <div className="absolute top-2 left-4 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl scale-90 origin-top-left">
-                          {(["D", "W", "M"] as const).map((tf) => (
-                            <button
-                              key={tf}
-                              onClick={() => {
-                                setTimeframe(tf);
-                                setShowResult(false);
-                                setUserPrediction(null);
-                              }}
-                              disabled={isQuizDataLoading}
-                              className={`
-                                w-14 h-12 rounded-lg text-lg font-black transition-all flex items-center justify-center
-                                ${timeframe === tf ? "bg-white text-slate-900 shadow-xl" : "text-white/40 hover:text-white hover:bg-white/5"}
-                                ${isQuizDataLoading ? "opacity-50 cursor-wait" : ""}
-                              `}
-                            >
-                              {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
-                            </button>
-                          ))}
-                        </div>
-                        {isQuizDataLoading ? (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-20">
-                            <span className="text-blue-400 font-bold animate-pulse">데이터 로딩 중...</span>
-                          </div>
-                        ) : null}
-                        {/* 퀴즈 차트: 결과 공개 전에는 마지막 5일치를 가림 (Phase 5 정통성 확보) */}
-                        <StockChart 
-                          ref={quizChartRef} 
-                          data={showResult ? quizData : quizData.slice(0, -5)} 
-                        />
-                      </div>
-                    </div>
-
-                    {/* 퀴즈 메인 카드 (차트 강화형) */}
-                    <div className="w-full bg-slate-900/50 border border-white/5 rounded-[2rem] p-3 sm:p-5 flex flex-col items-center gap-2 sm:gap-4 shadow-3xl backdrop-blur-2xl mt-1">
-                      <div className="flex flex-col items-center gap-1">
-                        {showResult ? (
-                          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-                            <h4 className={`text-2xl sm:text-4xl font-black mb-1 ${
-                              ((quizData[quizData.length-1].close >= quizData[quizData.length-6].close) === (userPrediction === "up")) 
-                              ? "text-emerald-400" : "text-rose-400"
-                            }`}>
-                              {((quizData[quizData.length-1].close >= quizData[quizData.length-6].close) === (userPrediction === "up")) 
-                              ? "정답입니다!" : "틀렸습니다!"}
-                            </h4>
-                            <p className="text-white/60 text-xs sm:text-sm">실제 결과: 다음 5개 봉 기준 <span className={quizData[quizData.length-1].close >= quizData[quizData.length-6].close ? "text-blue-400" : "text-rose-400"}>
-                              {quizData[quizData.length-1].close >= quizData[quizData.length-6].close ? "상승" : "하락"}
-                            </span></p>
-                          </motion.div>
-                        ) : (
-                          <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed text-center mt-2">
-                            이 패턴 이후, 다음 <span className="text-blue-400 font-bold">5거래일 동안</span> 주가는<br />어떻게 되었을까요?
-                          </p>
-                        )}
-                      </div>
-
-                      {!showResult && (
-                        <div className="w-full grid grid-cols-2 gap-4 sm:gap-6">
-                          <button
-                            onClick={() => {
-                              setUserPrediction("up");
-                              setShowResult(true);
-                            }}
-                            className={`group relative flex flex-col items-center gap-2 sm:gap-4 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] transition-all border
-                              ${userPrediction === "up" 
-                                ? "bg-blue-600/20 border-blue-500 scale-105 shadow-2xl shadow-blue-500/20" 
-                                : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
-                          >
-                            <div className={`w-12 h-12 sm:w-20 sm:h-20 rounded-full flex items-center justify-center transition-all
-                              ${userPrediction === "up" ? "bg-blue-500 text-white" : "bg-slate-800 text-blue-400"}`}>
-                              <TrendingUp size={window.innerWidth < 640 ? 24 : 40} />
-                            </div>
-                            <div className="flex flex-col items-center">
-                              <span className="text-lg sm:text-xl font-black text-white">상승</span>
-                              <span className="text-[8px] sm:text-[10px] text-white/30 font-bold uppercase tracking-widest mt-0.5">BULLISH</span>
-                            </div>
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              setUserPrediction("down");
-                              setShowResult(true);
-                            }}
-                            className={`group relative flex flex-col items-center gap-2 sm:gap-4 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] transition-all border
-                              ${userPrediction === "down" 
-                                ? "bg-rose-600/20 border-rose-500 scale-105 shadow-2xl shadow-rose-500/20" 
-                                : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
-                          >
-                            <div className={`w-12 h-12 sm:w-20 sm:h-20 rounded-full flex items-center justify-center transition-all
-                              ${userPrediction === "down" ? "bg-rose-500 text-white" : "bg-slate-800 text-rose-400"}`}>
-                              <TrendingDown size={window.innerWidth < 640 ? 24 : 40} />
-                            </div>
-                            <div className="flex flex-col items-center">
-                              <span className="text-lg sm:text-xl font-black text-white">하락</span>
-                              <span className="text-[8px] sm:text-[10px] text-white/30 font-bold uppercase tracking-widest mt-0.5">BEARISH</span>
-                            </div>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* 뉴스 펄스 버튼 */}
-                    <div className="w-full bg-white/5 border border-white/10 rounded-3xl overflow-hidden mt-3">
-                      <button 
-                        onClick={() => setIsTimeWarpNewsOpen(!isTimeWarpNewsOpen)}
-                        className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-white/5 transition-all text-left"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full animate-pulse ${isTimeWarpNewsOpen ? "bg-blue-400" : "bg-blue-500"}`} />
-                          <span className="text-xs font-black text-white/40 uppercase tracking-widest">Real-time News Pulse</span>
-                        </div>
-                        <motion.div
-                          animate={{ rotate: isTimeWarpNewsOpen ? 180 : 0 }}
-                          className="text-white/40"
-                        >
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </motion.div>
-                      </button>
-                      
-                      <AnimatePresence>
-                        {isTimeWarpNewsOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <div className="px-6 pb-6 space-y-3">
-                              {isNewsLoading ? (
-                                <div className="py-4 text-center text-white/20 text-xs italic">
-                                  {stockName} 관련 뉴스를 불러오는 중...
-                                </div>
-                              ) : newsResults.length > 0 ? (
-                                newsResults.map((news, idx) => (
-                                  <a 
-                                    key={idx}
-                                    href={news.link}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="block p-4 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all group"
-                                  >
-                                    <p className="text-sm font-medium text-white/80 group-hover:text-white transition-colors line-clamp-1">
-                                      {news.title}
-                                    </p>
-                                    <div className="flex items-center gap-2 mt-1">
-                                      <span className="text-[10px] text-blue-500/60 font-bold uppercase">Google News</span>
-                                      <span className="text-[10px] text-white/10 font-mono">•</span>
-                                      <span className="text-[10px] text-white/20">최신 뉴스</span>
-                                    </div>
-                                  </a>
-                                ))
-                              ) : (
-                                <div className="py-4 text-center text-white/20 text-xs italic">
-                                  최근 뉴스가 없습니다.
-                                </div>
-                              )}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                    {/* 트리거 클라우드 버튼 (v0.4.0 신규) */}
-                    <div className="w-full bg-white/5 border border-white/10 rounded-3xl overflow-hidden mt-3">
-                      <button 
-                        onClick={() => setIsTriggerOpen(!isTriggerOpen)}
-                        className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-white/5 transition-all text-left"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full animate-pulse ${isTriggerOpen ? "bg-rose-400" : "bg-rose-500"}`} />
-                          <span className="text-xs font-black text-rose-400/80 uppercase tracking-widest flex items-center gap-1">
-                            <CloudLightning size={12} /> Trigger Cloud
-                          </span>
-                        </div>
-                        <motion.div
-                          animate={{ rotate: isTriggerOpen ? 180 : 0 }}
-                          className="text-white/40"
-                        >
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </motion.div>
-                      </button>
-                      
-                      <AnimatePresence>
-                        {isTriggerOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <div className="px-6 pb-6 space-y-4">
-                              {isTriggerLoading ? (
-                                <div className="py-8 text-center text-white/20 text-xs italic flex flex-col items-center gap-3">
-                                  <Loader2 className="animate-spin text-rose-500" size={24} />
-                                  증권사 리포트 및 트리거 분석 중...
-                                </div>
-                              ) : triggerResults ? (
-                                <>
-                                  <div className="bg-rose-500/5 border border-rose-500/10 rounded-2xl p-4 sm:p-6 mb-4">
-                                    <TriggerCloud data={triggerResults.cloud} />
-                                  </div>
-                                  
-                                  {triggerResults.gap_comment && (
-                                    <motion.div 
-                                      initial={{ opacity: 0, y: 10 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-start gap-3"
-                                    >
-                                      <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 shrink-0">
-                                        <BarChart2 size={16} />
-                                      </div>
-                                      <div>
-                                        <p className="text-[10px] font-black text-emerald-400/60 uppercase tracking-widest mb-1">Gap Index Analysis</p>
-                                        <p className="text-sm font-bold text-emerald-400 leading-relaxed">
-                                          {triggerResults.gap_comment}
-                                        </p>
-                                        <div className="mt-2 flex items-center gap-3">
-                                          <span className="text-[10px] text-white/20 font-mono">Sentiment Score: <span className={triggerResults.sentiment_score > 0 ? "text-rose-400" : "text-blue-400"}>{triggerResults.sentiment_score > 0 ? "+" : ""}{triggerResults.sentiment_score}</span></span>
-                                          <span className="text-[10px] text-white/20 font-mono">20D Change: <span className={triggerResults.price_change_20d > 0 ? "text-rose-400" : "text-blue-400"}>{triggerResults.price_change_20d > 0 ? "+" : ""}{triggerResults.price_change_20d}%</span></span>
-                                        </div>
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </>
-                              ) : (
-                                <div className="py-4 text-center text-white/20 text-xs italic">
-                                  트리거 정보를 제공할 수 없습니다.
-                                </div>
-                              )}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                    <div className="w-full flex flex-col gap-2 mt-3">
-                      <Button 
-                        onClick={() => window.location.reload()}
-                        className="w-full h-14 sm:h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white text-lg sm:text-xl font-black rounded-2xl sm:rounded-3xl shadow-2xl shadow-[#F08080]/20 transition-all flex items-center justify-center gap-2"
-                      >
-                         <Home size={20} /> 메인으로 돌아가기
-                      </Button>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div className="mt-6 flex items-center justify-center gap-4 relative z-[200]">
+            <Button variant="outline" onClick={resetPiecesPositions} className="px-8 h-12 text-sm font-black border-white/20 text-white/60 hover:text-white rounded-xl">다시 섞기</Button>
+            <Button onClick={() => { setPieces((p) => p.map((piece) => ({ ...piece, isPlaced: true, position: { x: (piece.pieceIdx % gridSize) * (480/gridSize), y: Math.floor(piece.pieceIdx / gridSize) * (480/gridSize) } }))); setIsSolved(true); }} className="px-10 h-12 text-sm font-black bg-[#F08080] text-white rounded-xl shadow-xl shadow-rose-900/40">정답 확인</Button>
           </div>
         </div>
       )}
+
+      {/* 퀴즈 모달 */}
+      <AnimatePresence>
+        {isQuizOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[6000] bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center pt-4 pb-8 px-6 overflow-y-auto">
+            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-2xl flex flex-col items-center gap-4">
+              <div className="w-full flex justify-start"><Button variant="ghost" className="text-white/20 hover:text-white flex items-center p-0 h-auto" onClick={() => window.location.reload()}><ChevronLeft size={16} className="mr-1"/>홈으로</Button></div>
+              
+              {quizFeedback && (
+                <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className={`w-full p-6 rounded-3xl border-2 flex flex-col items-center gap-2 shadow-2xl ${quizFeedback.isCorrect ? "bg-emerald-500/20 border-emerald-500/40" : "bg-rose-500/20 border-rose-500/40"}`}>
+                  <div className="flex items-center gap-3">
+                    {quizFeedback.isCorrect ? <CheckCircle2 className="text-emerald-400" size={32} /> : <Award className="text-rose-400" size={32} />}
+                    <h3 className={`text-2xl font-black ${quizFeedback.isCorrect ? "text-emerald-400" : "text-rose-400"}`}>
+                      {quizFeedback.isCorrect ? "정답입니다!" : "오답입니다!"}
+                    </h3>
+                  </div>
+                  <p className="text-white/80 font-bold text-center">{quizFeedback.message}</p>
+                </motion.div>
+              )}
+
+              <UnifiedFlipCard 
+                isFlipped={isFlipped}
+                setIsFlipped={setIsFlipped}
+                chartContent={<StockChart ref={quizChartRef} data={showResult ? quizData : quizData.slice(0, -10)} />}
+                triggerLoading={isTriggerLoading}
+                triggerResults={triggerResults}
+                stockSymbol={stockSymbol}
+                stockName={stockName}
+              />
+
+              {!showResult && (
+                <div className="w-full flex gap-4 mt-2 px-2">
+                  <button 
+                    onClick={() => handleQuizSelect(true)}
+                    className="flex-1 h-20 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-3xl border border-emerald-500/20 flex flex-col items-center justify-center gap-1 transition-all group active:scale-95"
+                  >
+                    <TrendingUp size={24} className="group-hover:scale-110 transition-transform" />
+                    <span className="text-lg font-black italic tracking-widest">상승</span>
+                  </button>
+                  <button 
+                    onClick={() => handleQuizSelect(false)}
+                    className="flex-1 h-20 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-3xl border border-rose-500/20 flex flex-col items-center justify-center gap-1 transition-all group active:scale-95"
+                  >
+                    <TrendingDown size={24} className="group-hover:scale-110 transition-transform" />
+                    <span className="text-lg font-black italic tracking-widest">하락</span>
+                  </button>
+                </div>
+              )}
+
+              <div className="w-full bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
+                <button onClick={() => setIsTimeWarpNewsOpen(!isTimeWarpNewsOpen)} className="w-full flex items-center justify-between p-4 text-white/40 hover:text-white"><span className="text-xs font-black uppercase tracking-widest">News Pulse</span><ChevronDown size={18}/></button>
+                <AnimatePresence>{isTimeWarpNewsOpen && <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} className="px-6 pb-6 space-y-2">{newsResults.map((n, i) => (<a key={i} href={n.link} target="_blank" className="block text-xs text-white/60 hover:text-white bg-white/5 p-3 rounded-xl line-clamp-1">{n.title}</a>))}</motion.div>}</AnimatePresence>
+              </div>
+              <Button onClick={() => window.location.reload()} className="w-full h-16 bg-[#F08080] text-white text-lg font-black rounded-2xl mt-4 active:scale-95 transition-all shadow-2xl shadow-rose-900/20"><Home size={20} className="mr-2"/> 메인으로 돌아가기</Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

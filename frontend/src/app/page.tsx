@@ -284,16 +284,16 @@ export default function Home() {
               {/* 챌린지 시작 버튼은 나중에 하단으로 이동됨 */}
               <div className="w-20" />
             </div>
-            <div className="w-full h-[70vh] bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative">
+            <div className="w-full min-h-[70vh] h-auto bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible">
               <PuzzleGame stockData={stockData} isOnlyChart={true} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
               
-              {/* 챌린지 시작 메뉴 하단 이동 */}
-              <div className="absolute -bottom-10 left-0 right-0 flex justify-center z-[100]">
+              {/* 챌린지 시작 메뉴 위치 조정 (하단 고정 대신 컨텐츠 바로 아래) */}
+              <div className="mt-12 flex justify-center z-[100]">
                 <Button 
                   onClick={() => setView("GAME")} 
-                  className="bg-[#F08080] hover:bg-[#F08080]/90 text-white font-black rounded-2xl h-14 px-10 shadow-2xl shadow-[#F08080]/20 flex items-center gap-2"
+                  className="bg-[#F08080] hover:bg-[#F08080]/90 text-white font-black rounded-3xl h-16 px-14 shadow-2xl shadow-rose-500/30 flex items-center gap-2 text-lg active:scale-95 transition-all"
                 >
-                  <Play size={18} fill="currentColor" /> 블라인드 챌린지 시작
+                  <Play size={22} fill="currentColor" /> 블라인드 챌린지 시작
                 </Button>
               </div>
             </div>
