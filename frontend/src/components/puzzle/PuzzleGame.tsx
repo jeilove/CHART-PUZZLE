@@ -179,6 +179,19 @@ const UnifiedFlipCard = ({
           className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center justify-center shadow-3xl" 
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
+          {stockName && !hideName && (
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[200] whitespace-nowrap">
+              <h3 
+                className="text-2xl font-black text-white flex items-baseline gap-2 cursor-pointer hover:text-rose-400 transition-colors group"
+                onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
+                title="클릭하여 데이터 강제 갱신"
+              >
+                {stockName}
+                <span className="text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
+                <RefreshCw size={14} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </h3>
+            </div>
+          )}
           <div 
             className="absolute bottom-28 right-12 flex flex-col items-end gap-1.5 pointer-events-none select-none z-50 text-right"
           >
