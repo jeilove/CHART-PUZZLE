@@ -180,23 +180,19 @@ const UnifiedFlipCard = ({
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
           <div 
-            className="absolute bottom-28 right-12 flex flex-col items-end gap-1 pointer-events-none select-none z-50 text-right"
+            className="absolute bottom-28 right-12 flex flex-col items-end gap-1.5 pointer-events-none select-none z-50 text-right"
           >
-            {triggerResults?.total_report_count && triggerResults.total_report_count > 0 ? (
+            {(triggerResults?.total_report_count || (triggerResults?.report_dates?.length || 0) > 0) ? (
               <div 
-                className="flex items-center gap-2 text-[12px] font-black text-rose-300 mb-2 border-b border-rose-500/30 pb-1.5 animate-in fade-in slide-in-from-right duration-500"
-                title={`총 ${triggerResults.total_report_count}건의 리포트 및 뉴스를 수집해 분석했습니다.`}
+                className="flex items-center gap-2 text-[13px] font-black text-white mb-2 border-b border-rose-500/40 pb-1.5 animate-in fade-in slide-in-from-right duration-500"
+                title={`총 ${triggerResults?.total_report_count || triggerResults?.report_dates?.length}건의 리포트 및 뉴스를 수집해 분석했습니다.`}
               >
                 <Search size={18} className="text-rose-400 animate-pulse" />
-                분석 리포트 {triggerResults.total_report_count}건
+                분석 리포트 {triggerResults?.total_report_count || triggerResults?.report_dates?.length}건
               </div>
             ) : (
-              <div 
-                className="flex items-center gap-1 text-[10px] font-black text-rose-500/40 mb-1 cursor-help"
-                title="데이터가 부족하거나 옛날 버전입니다. 상단 종목명을 클릭해 갱신하세요."
-              >
-                <RefreshCw size={10} className="animate-spin-slow" />
-                분석 캐시 정보 없음
+              <div className="flex items-center gap-2 text-[11px] font-bold text-white/30 mb-2 italic">
+                분석 소스 데이터 확인 중...
               </div>
             )}
             {triggerResults?.report_dates?.map((d: string, i: number) => (
