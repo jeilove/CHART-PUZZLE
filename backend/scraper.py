@@ -213,58 +213,59 @@ def fetch_news_keywords(stock_name):
         return []
 
 @lru_cache(maxsize=100)
-def fetch_fnguide_reports(symbol):
+def fetch_research_reports(symbol):
     """
-    Jina Reader (r.jina.ai)를 활용한 FnGuide 리포트 요약 크롤링
-    안정성과 정제된 텍스트 데이터를 위해 Jina를 경유함
+    네이버 금융 리서치 메뉴에서 해당 종목의 최근 리포트 제목과 날짜를 스크래핑.
+    직접 스크래핑하므로 타 종목(베스트 리포트 등)이 섞이지 않아 100% 해당 종목 키워드만 추출 가능.
     """
     _apply_rate_limit()
-    target_url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701"
-    jina_url = f"https://r.jina.ai/{target_url}"
+    
+    report_text = ""
+    dates = []
     
     try:
-        # Jina Reader는 응답이 느릴 수 있으므로 타임아웃을 8초로 넉넉히 설정 (글로벌 지침 준수)
-        response = requests.get(jina_url, headers=HEADERS, timeout=8)
-        response.raise_for_status()
-        
-        # Jina는 정제된 Markdown/Text 형식을 반환하므로 HTML 파싱이 불필요함
-        content = response.text
-        
-        # 불필요한 메타 정보나 링크 제거 (Jina 특유의 Header/Footer)
-        if "### Summary" in content:
-            content = content.split("### Summary")[-1]
+        # 최근 2페이지 분량(약 60개 리포트)의 제목 수집
+        for page in range(1, 3):
+            url = f"https://finance.naver.com/research/company_list.naver?searchType=itemCode&itemCode={symbol}&page={page}"
+            resp = requests.get(url, headers=HEADERS, timeout=5)
+            soup = BeautifulSoup(resp.content, 'html.parser')
             
-        return content.strip()
+            for row in soup.select('table.type_1 tr'):
+                tds = row.find_all('td')
+                if len(tds) >= 4:
+                    title_tag = tds[1].find('a')
+                    date_node = tds[4] # 날짜 컬럼
+                    if title_tag and date_node.text.strip():
+                        report_text += title_tag.text.strip() + " "
+                        dates.append(date_node.text.strip())
+                        
+        return report_text, dates
     except Exception as e:
-        print(f"FnGuide Jina fetch error for {symbol}: {e}")
-        return ""
+        print(f"Naver Research fetch error for {symbol}: {e}")
+        return "", []
 
 def analysis_trigger_cloud(symbol, stock_name):
     """
     리포트 텍스트 분석 및 트리거 클라우드 데이터 생성
     """
-    report_text = fetch_fnguide_reports(symbol)
+    report_text, report_dates = fetch_research_reports(symbol)
     if not report_text:
         # 리포트가 없으면 구글 뉴스 RSS 제목 활용 (Fallback)
         news = fetch_news_keywords(stock_name)
         report_text = " ".join([n["title"] for n in news])
+        report_dates = []
 
-    # 특정 종목에 대한 내용만 분리 (심볼 'AXXXXXX' 기준)
-    lines = report_text.split("\n")
-    filtered_text = " ".join([line for line in lines if f"A{symbol}" in line])
+    cloud_data = []
+    sentiment_score = 0
     
-    # 만약 필터링 결과가 너무 적으면 전체 검색 (Fallback - 단 주식 이름이 포함되어야 함)
-    if len(filtered_text) < 50:
-        filtered_text = " ".join([line for line in lines if stock_name in line or f"A{symbol}" in line])
-
-    # 키워드 매칭 및 카운팅 (필터링된 텍스트 기준)
+    # 텍스트는 100% 해당 종목의 리포트/뉴스이므로 전체 매칭 수행
     for sentiment, keywords in TRIGGER_KEYWORDS.items():
         for kw in keywords:
-            count = filtered_text.count(kw)
+            count = report_text.count(kw)
             if count > 0:
                 cloud_data.append({
                     "text": kw,
-                    "value": 10 + (count * 5), # 빈도에 따른 크기 가중치
+                    "value": 10 + (count * 5),
                     "sentiment": sentiment
                 })
                 if sentiment == "positive": sentiment_score += count
@@ -290,15 +291,13 @@ def analysis_trigger_cloud(symbol, stock_name):
     elif sentiment_score <= -2 and price_change >= -5:
         gap_comment = "악재 키워드 출현 중이나 하락 미반영 (리스크 관리 주의)"
 
-    # 리포트 날짜 추출 (Regex 활용: 2024.03.25 또는 24/03/25 형태)
-    dates = sorted(list(set(re.findall(r'\d{4}\.\d{2}\.\d{2}', report_text))), reverse=True)
-    if not dates: 
-        dates = sorted(list(set(re.findall(r'\d{2}/\d{2}/\d{2}', report_text))), reverse=True)
-
+    # 리포트 날짜 추출 (기수집된 dates 배열에서 상위 3개)
+    sorted_dates = sorted(list(set(report_dates)), reverse=True)
+    
     return {
         "cloud": cloud_data[:20], # 상위 20개만
         "sentiment_score": sentiment_score,
         "price_change_20d": round(price_change, 2),
         "gap_comment": gap_comment,
-        "report_dates": dates[:3] # 상위 3개 날짜만
+        "report_dates": sorted_dates[:3] # 상위 3개 날짜만
     }
