@@ -241,30 +241,24 @@ def fetch_reports_combined(symbol, stock_name):
     except Exception as e:
         print(f"Naver fetch error: {e}")
 
-    # 2. FnGuide 요약 내용 수집 (심층 키워드, Jina Reader 경유)
-    # 특정 종목용 페이지와 전체 리포트 페이지 모두 검토하여 60일 데이터 확보 시도
+    # 리포트 요약 내용 수집 (타임아웃 단축 10s -> 6s)
     target_urls = [
-        f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701",
-        f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701" # 전체 최신
+        f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701"
     ]
     
     for base_url in target_urls:
         try:
             jina_url = f"https://r.jina.ai/{base_url}"
-            resp = requests.get(jina_url, headers=HEADERS, timeout=10)
+            resp = requests.get(jina_url, headers=HEADERS, timeout=6) 
             if resp.status_code == 200:
                 lines = resp.text.split('\n')
                 for line in lines:
-                    # 해당 종목심볼(A000000) 또는 종목명이 포함된 줄만 유효 텍스트로 인정
-                    if f"A{symbol}" in line or stock_name in line:
-                        # 요약 상세 내용이 포함된 라인 전체를 본문에 추가
+                    if f"A{symbol}" in line or stock_name in line or "A" + symbol in line:
                         combined_text += line + " "
-                        # 날짜 추출 시도 (YY/MM/DD)
                         date_match = re.search(r'\d{2}/\d{2}/\d{2}', line)
-                        if date_match:
-                            latest_dates.append(date_match.group())
+                        if date_match: latest_dates.append(date_match.group())
         except Exception as e:
-            print(f"FnGuide fetch error: {e}")
+            print(f"FnGuide Jina timeout: {e}")
             
     return combined_text, latest_dates
 
@@ -295,36 +289,44 @@ def _write_cache(symbol, data):
     except Exception as e:
         print(f"Cache write error: {e}")
 
-def analysis_trigger_cloud(symbol, stock_name):
+def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
     """
-    리포트 텍스트 분석 및 트리거 클라우드 데이터 생성 (캐시 시스템 적용)
+    리포트 텍스트 분석 및 트리거 클라우드 데이터 생성 (캐시 시스템 고도화)
     """
-    # 1. 캐시 확인 (24시간 유효)
-    cached = _read_cache(symbol)
-    if cached and time.time() - cached.get("timestamp", 0) < 86400:
-        print(f"[{symbol}] Returning cached trigger result.")
-        return cached
+    # 1. 캐시 확인 (강제 갱신이 아니며, 24시간 이내인 경우)
+    if not force_refresh:
+        cached = _read_cache(symbol)
+        if cached and time.time() - cached.get("timestamp", 0) < 86400:
+            # 유효한 키워드가 있는 캐시만 즉시 반환
+            if len(cached.get("cloud", [])) > 0:
+                print(f"[{symbol}] Returning valid cached results.")
+                return cached
+            else:
+                print(f"[{symbol}] Cached result was empty. Re-fetching...")
 
-    # 2. 캐시 없거나 만료된 경우 직접 수집 (느림)
-    print(f"[{symbol}] Cache miss. Fetching fresh data...")
+    # 2. 데이터 직접 수집 (타임아웃 강화)
+    print(f"[{symbol}] Fetching multi-source data (Force={force_refresh})...")
+    
+    # 여러 소스를 비동기적으로(순차적이지만 빠른 타임아웃으로) 결합
     report_text, report_dates = fetch_reports_combined(symbol, stock_name)
-    if not report_text:
-        news = fetch_news_keywords(stock_name)
-        report_text = " ".join([n["title"] for n in news])
-        report_dates = []
+    
+    # 뉴스 키워드 항상 결합 (키워드 풍부함 확보)
+    news = fetch_news_keywords(stock_name)
+    news_text = " ".join([n["title"] for n in news])
+    report_text += " " + news_text
 
     cloud_data = []
     sentiment_score = 0
     
-    # 키워드 매칭 및 카운팅
+    # 키워드 매칭 및 가중치 부여
     for sentiment, keywords in TRIGGER_KEYWORDS.items():
         for kw in keywords:
-            # 텍스트에 키워드가 정확히 포함되었는지 확인 (FnGuide 요약문 포함)
+            # 단순히 count만 하는게 아니라, 중복 가점을 줄임 (전체 개수 기반)
             count = report_text.count(kw)
             if count > 0:
                 cloud_data.append({
                     "text": kw,
-                    "value": 10 + (count * 5),
+                    "value": min(40, 10 + (count * 5)), # 최대 크기 제한
                     "sentiment": sentiment
                 })
                 if sentiment == "positive": sentiment_score += count
@@ -356,6 +358,10 @@ def analysis_trigger_cloud(symbol, stock_name):
         "report_dates": sorted_dates[:3]
     }
     
-    # 3. 신규 데이터 캐시에 저장
-    _write_cache(symbol, result)
+    # 결과가 존재할 때만 24시간 캐싱 (실패 시 캐싱 안함)
+    if len(cloud_data) > 0:
+        _write_cache(symbol, result)
+    else:
+        print(f"[{symbol}] Analysis returned empty. Skipping long-term cache.")
+        
     return result

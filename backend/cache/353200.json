@@ -1,0 +1,48 @@
+{
+  "cloud": [
+    {
+      "text": "흑자전환",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "수익성 개선",
+      "value": 25,
+      "sentiment": "positive"
+    },
+    {
+      "text": "턴어라운드",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "업사이클",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "리레이팅",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "재고 조정",
+      "value": 15,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 15,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 7,
+  "price_change_20d": 32.11,
+  "gap_comment": "호재 키워드 반영 완료 및 단기 과열 양상 (추격 매수 주의)",
+  "report_dates": [
+    "26.03.23",
+    "26.03.20",
+    "26.03.19"
+  ],
+  "timestamp": 1774870465.294768
+}

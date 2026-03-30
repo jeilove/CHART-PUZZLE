@@ -104,9 +104,10 @@ interface FlipCardProps {
   triggerResults: any;
   stockSymbol?: string;
   stockName?: string;
-  hideName?: boolean; // 이름 중복 방지를 위한 옵션
+  hideName?: boolean;
   timeframe?: "D" | "W" | "M";
   setTimeframe?: (tf: "D" | "W" | "M") => void;
+  onRefresh?: () => void; // 수동 갱신 함수 추가
 }
 
 const UnifiedFlipCard = ({ 
@@ -119,7 +120,8 @@ const UnifiedFlipCard = ({
   stockName, 
   hideName, 
   timeframe, 
-  setTimeframe 
+  setTimeframe,
+  onRefresh
 }: FlipCardProps) => {
   return (
     <div className="w-full perspect-2000 relative z-10" style={{ perspective: "2000px" }}>
@@ -134,10 +136,15 @@ const UnifiedFlipCard = ({
           style={{ backfaceVisibility: "hidden", pointerEvents: isFlipped ? "none" : "auto", visibility: isFlipped ? "hidden" : "visible" }}
         >
           {stockName && !hideName && (
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[200] whitespace-nowrap pointer-events-none">
-              <h3 className="text-2xl font-black text-white flex items-baseline gap-2">
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[200] whitespace-nowrap">
+              <h3 
+                className="text-2xl font-black text-white flex items-baseline gap-2 cursor-pointer hover:text-rose-400 transition-colors group"
+                onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
+                title="클릭하여 데이터 강제 갱신"
+              >
                 {stockName}
-                <span className="text-sm font-bold text-white/40 tracking-wider">({stockSymbol})</span>
+                <span className="text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
+                <RefreshCw size={14} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
               </h3>
             </div>
           )}
@@ -372,6 +379,27 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
     fetchTimeframeData();
   }, [timeframe, isQuizOpen, isOnlyChart, stockSymbol]);
 
+  const fetchTrigger = async (force = false) => {
+    if (!stockSymbol) return;
+    setIsTriggerLoading(true);
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/trigger/${stockSymbol}?name=${encodeURIComponent(stockName)}&refresh=${force}&t=${Date.now()}`);
+      if (res.ok) { 
+        const data = await res.json(); 
+        setTriggerResults(data); 
+      } else {
+        setTriggerResults({ cloud: [], gap_comment: "데이터를 불러올 수 없습니다." });
+      }
+    } catch (e: any) { 
+      setTriggerResults({ cloud: [], gap_comment: "분석 요청이 지연되었습니다. 상단 헤더의 종목명을 클릭하여 다시 시도해 주세요." });
+    } finally { setIsTriggerLoading(false); }
+  };
+
+  useEffect(() => {
+    if (!stockName || !stockSymbol) return;
+    fetchTrigger(false);
+  }, [stockName, stockSymbol]);
+
   useEffect(() => {
     if (!stockName) return;
     const abortController = new AbortController();
@@ -383,26 +411,9 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
       } catch (e: any) { setNewsResults([]); } finally { setIsNewsLoading(false); }
     };
     fetchNews();
-
-    const fetchTrigger = async () => {
-      if (!stockSymbol) return;
-      setIsTriggerLoading(true);
-      try {
-        const res = await fetch(`http://127.0.0.1:8000/api/trigger/${stockSymbol}?name=${encodeURIComponent(stockName)}&t=${Date.now()}`, { signal: abortController.signal });
-        if (res.ok) { 
-          const data = await res.json(); 
-          setTriggerResults(data); 
-        } else {
-          setTriggerResults({ cloud: [], gap_comment: "데이터를 불러올 수 없습니다." });
-        }
-      } catch (e: any) { 
-        setTriggerResults({ cloud: [], gap_comment: "분석 요청이 지연되었습니다. 잠시 후 상단 헤더의 종목명을 클릭하여 다시 시도해 주세요." });
-      } finally { setIsTriggerLoading(false); }
-    };
-    fetchTrigger();
     const timeoutId = setTimeout(() => abortController.abort(), 10000);
     return () => { clearTimeout(timeoutId); abortController.abort(); };
-  }, [stockName, stockSymbol]);
+  }, [stockName]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -463,9 +474,10 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
           triggerResults={triggerResults}
           stockSymbol={stockSymbol}
           stockName={stockName}
-          hideName={true} // 이미 app/page.tsx에서 헤더를 그리므로 숨김
+          hideName={true}
           timeframe={timeframe}
           setTimeframe={setTimeframe}
+          onRefresh={() => fetchTrigger(true)}
         />
       </div>
     );
@@ -502,9 +514,10 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
                 triggerResults={triggerResults}
                 stockSymbol={stockSymbol}
                 stockName={stockName}
-                hideName={true} // 상단 app/page.tsx 헤더와 중복되므로 삭제
+                hideName={true}
                 timeframe={timeframe}
                 setTimeframe={setTimeframe}
+                onRefresh={() => fetchTrigger(true)}
               />
             </div>
             <div className="w-full max-w-sm flex flex-col gap-3">
@@ -568,6 +581,7 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
                 hideName={true}
                 timeframe={timeframe}
                 setTimeframe={setTimeframe}
+                onRefresh={() => fetchTrigger(true)}
               />
 
               {!showResult && (

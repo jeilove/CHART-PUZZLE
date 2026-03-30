@@ -46,9 +46,9 @@ def get_news_keywords(stock_name: str):
     return {"stock_name": stock_name, "news": news}
 
 @app.get("/api/trigger/{symbol}")
-def get_trigger_analysis(symbol: str, name: str):
+def get_trigger_analysis(symbol: str, name: str, refresh: bool = False):
     from scraper import analysis_trigger_cloud
-    result = analysis_trigger_cloud(symbol, name)
+    result = analysis_trigger_cloud(symbol, name, force_refresh=refresh)
     return result
 
 if __name__ == "__main__":
