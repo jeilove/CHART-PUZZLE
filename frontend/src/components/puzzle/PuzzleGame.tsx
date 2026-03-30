@@ -444,7 +444,7 @@ export const PuzzleGame = ({
     return (
       <div className="w-full flex flex-col items-center max-w-4xl px-4 h-full relative">
         {/* 네이티브 스타일 일/주/월 메뉴 (차트 상단 부착) */}
-        <div className="absolute top-8 left-10 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl">
+        <div className="absolute top-4 left-6 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl scale-90 origin-top-left">
           {(["D", "W", "M"] as const).map((tf) => (
             <button
               key={tf}
@@ -735,28 +735,21 @@ export const PuzzleGame = ({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[6000] bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center py-10 px-6 overflow-y-auto"
+                  className="fixed inset-0 z-[6000] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center pt-4 pb-8 px-6 overflow-y-auto"
                 >
                   <motion.div 
                     initial={{ scale: 0.9, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
-                    className="w-full max-w-2xl flex flex-col items-center gap-6"
+                    className="w-full max-w-2xl flex flex-col items-center gap-2"
                   >
                     {/* 상단 바 (홈으로/이전으로) - 퍼즐 메인 화면과 통일 */}
-                    <div className="w-full flex justify-between mb-2">
+                    <div className="w-full flex justify-start mb-0">
                        <Button 
                          variant="ghost" 
-                         className="text-gray-400 hover:text-white flex items-center"
+                         className="text-gray-500 hover:text-white flex items-center p-0 h-auto"
                          onClick={() => window.location.reload()}
                        >
-                         <ChevronLeft className="mr-2" size={20} /> <span className="font-bold">홈으로</span>
-                       </Button>
-                       <Button 
-                         variant="ghost" 
-                         className="text-gray-400 hover:text-white flex items-center"
-                         onClick={() => setIsQuizOpen(false)}
-                       >
-                         <span className="font-bold">이전으로</span>
+                         <ChevronLeft className="mr-1" size={16} /> <span className="font-bold text-xs">홈으로</span>
                        </Button>
                     </div>
 
@@ -767,19 +760,19 @@ export const PuzzleGame = ({
                     <div className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-4 sm:p-6 flex flex-col items-center gap-4 shadow-2xl relative overflow-hidden group">
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-50" />
                       
-                      <div className="w-full relative z-10 px-2">
-                        <div className="flex flex-col items-center sm:items-start">
-                          <span className="text-white/40 text-[9px] font-bold uppercase tracking-wider">Analysis Complete</span>
-                          <h3 className="text-xl sm:text-3xl font-black text-white flex items-center gap-1.5 flex-wrap justify-center sm:justify-start">
-                             {stockName} <span className="text-white/20 text-sm sm:text-lg font-medium">({stockSymbol})</span>
+                      <div className="w-full relative z-[100] px-4">
+                        <div className="flex flex-col items-center text-center transition-all">
+                          <h3 className="text-xl font-black text-white flex flex-wrap items-center justify-center gap-x-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                            {stockName || "분석 종목"}
+                            <span className="text-[10px] text-white/40 font-mono">[{stockSymbol || "------"}]</span>
                           </h3>
                         </div>
                       </div>
 
                       {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원 - 높이 확대) */}
-                      <div className="w-full h-[45vh] sm:h-[55vh] min-h-[300px] bg-black/40 rounded-3xl overflow-hidden border border-white/10 relative z-10 mt-4 shadow-inner">
+                      <div className="w-full h-[40vh] sm:h-[45vh] min-h-[250px] bg-black/40 rounded-3xl overflow-hidden border border-white/10 relative z-10 mt-1 shadow-inner">
                         {/* 네이티브 스타일 일/주/월 메뉴 (차트 상단 부착 - 가격 축과 겹치지 않게 좌측으로 이동) */}
-                        <div className="absolute top-4 left-4 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl">
+                        <div className="absolute top-2 left-4 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl scale-90 origin-top-left">
                           {(["D", "W", "M"] as const).map((tf) => (
                             <button
                               key={tf}
@@ -813,7 +806,7 @@ export const PuzzleGame = ({
                     </div>
 
                     {/* 퀴즈 메인 카드 (차트 강화형) */}
-                    <div className="w-full bg-slate-900/50 border border-white/5 rounded-[2.5rem] p-4 sm:p-8 flex flex-col items-center gap-4 sm:gap-8 shadow-3xl backdrop-blur-2xl mt-3">
+                    <div className="w-full bg-slate-900/50 border border-white/5 rounded-[2rem] p-3 sm:p-5 flex flex-col items-center gap-2 sm:gap-4 shadow-3xl backdrop-blur-2xl mt-1">
                       <div className="flex flex-col items-center gap-1">
                         {showResult ? (
                           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
@@ -881,10 +874,10 @@ export const PuzzleGame = ({
                     </div>
 
                     {/* 뉴스 펄스 아코디언 섹션 */}
-                    <div className="w-full bg-slate-900/50 rounded-2xl sm:rounded-3xl border border-white/5 overflow-hidden mt-3">
+                    <div className="w-full bg-slate-900/50 rounded-2xl border border-white/5 overflow-hidden mt-1">
                       <button 
                         onClick={() => setIsTimeWarpNewsOpen(!isTimeWarpNewsOpen)}
-                        className="w-full flex items-center justify-between p-4 sm:p-6 hover:bg-white/5 transition-all text-left"
+                        className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-white/5 transition-all text-left"
                       >
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full animate-pulse ${isTimeWarpNewsOpen ? "bg-blue-400" : "bg-blue-500"}`} />

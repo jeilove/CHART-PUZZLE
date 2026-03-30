@@ -1,7 +1,9 @@
+"use client";
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Play, ChevronLeft, Loader2, Star, Menu, X, Trash2, GripVertical } from "lucide-react";
+import { Search, Play, ChevronLeft, ChevronRight, Loader2, Star, Menu, X, Trash2, GripVertical } from "lucide-react";
 import { PuzzleGame } from "@/components/puzzle/PuzzleGame";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -39,6 +41,7 @@ export default function Home() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   React.useEffect(() => {
+    console.log("%c VIBE CODING • CHART PUZZLE v0.2.6-stable ", "background: #F08080; color: white; font-weight: bold; padding: 4px 8px; border-radius: 6px;");
     const saved = localStorage.getItem("puzzle-favorites");
     if (saved) setFavorites(JSON.parse(saved));
   }, []);
@@ -76,6 +79,22 @@ export default function Home() {
       setView(mode);
       setIsLoading(false);
     }
+  };
+
+  const handlePrevFavorite = () => {
+    if (favorites.length === 0 || !selectedStock) return;
+    const currentIndex = favorites.findIndex(f => f.symbol === selectedStock.symbol);
+    const prevIndex = (currentIndex - 1 + favorites.length) % favorites.length;
+    const prevStock = favorites[prevIndex];
+    selectStock(prevStock.name, prevStock.symbol, view === "GAME" ? "GAME" : "CHART");
+  };
+
+  const handleNextFavorite = () => {
+    if (favorites.length === 0 || !selectedStock) return;
+    const currentIndex = favorites.findIndex(f => f.symbol === selectedStock.symbol);
+    const nextIndex = (currentIndex + 1) % favorites.length;
+    const nextStock = favorites[nextIndex];
+    selectStock(nextStock.name, nextStock.symbol, view === "GAME" ? "GAME" : "CHART");
   };
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -150,8 +169,9 @@ export default function Home() {
                         onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
                         className="flex-1 py-4 text-left"
                       >
-                        <p className="font-bold text-slate-200 text-sm">{fav.name}</p>
-                        <p className="text-[10px] text-white/30 font-mono">{fav.symbol}</p>
+                        <p className="font-bold text-slate-200 text-sm">
+                          {fav.name} <span className="text-[10px] text-white/30 font-mono ml-1">[{fav.symbol}]</span>
+                        </p>
                       </button>
                       <button 
                         onClick={() => deleteFavorite(fav.symbol)}
@@ -213,37 +233,74 @@ export default function Home() {
                 </AnimatePresence>
               </div>
 
-              <Button onClick={() => selectStock(STOCK_LIST[Math.floor(Math.random()*STOCK_LIST.length)].name, STOCK_LIST[Math.floor(Math.random()*STOCK_LIST.length)].symbol)} className="w-full h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white rounded-2xl text-lg font-black flex items-center justify-center gap-2">
+              <Button 
+                onClick={() => {
+                  const randomStock = STOCK_LIST[Math.floor(Math.random() * STOCK_LIST.length)];
+                  selectStock(randomStock.name, randomStock.symbol);
+                }} 
+                className="w-full h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white rounded-2xl text-lg font-black flex items-center justify-center gap-2"
+              >
                 <Play size={20} fill="currentColor" /> 블라인드 챌린지 시작
               </Button>
             </div>
           </motion.div>
         ) : view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="w-full flex items-center justify-between mb-6 px-4">
-              <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
-              <h2 className="text-xl font-black">{selectedStock?.name}</h2>
-              <div className="w-20" />
+            <div className="w-full flex items-center justify-center mb-6 px-4 relative">
+              <Button variant="ghost" className="absolute left-4 text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
+              <h2 className="text-xl font-black flex items-center gap-2 text-white">
+                {selectedStock?.name}
+                <span className="text-[10px] text-white/40 font-mono font-normal">[{selectedStock?.symbol}]</span>
+              </h2>
             </div>
             <PuzzleGame stockData={stockData} gridSize={2} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
           </motion.div>
         ) : (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="w-full flex items-center justify-between mb-6 px-4">
+            <div className="w-full flex items-center justify-between mb-4 px-4">
               <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
-              <div className="flex flex-col items-center">
-                <h2 className="text-xl font-black">{selectedStock?.name}</h2>
-                <span className="text-[10px] text-white/40 font-mono">{selectedStock?.symbol}</span>
+              
+              <div className="flex items-center gap-1 sm:gap-4">
+                <button 
+                  onClick={handlePrevFavorite}
+                  disabled={favorites.length <= 1}
+                  className="p-1 sm:p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white disabled:opacity-20 transition-all"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <h2 className="text-base sm:text-lg font-black text-white">{selectedStock?.name}</h2>
+                  <span className="text-[9px] text-white/40 font-mono">[{selectedStock?.symbol}]</span>
+                </div>
+                <button 
+                  onClick={handleNextFavorite}
+                  disabled={favorites.length <= 1}
+                  className="p-1 sm:p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white disabled:opacity-20 transition-all"
+                >
+                  <ChevronRight size={20} />
+                </button>
               </div>
-              <Button onClick={() => setView("GAME")} className="bg-[#F08080] hover:bg-[#F08080]/90 text-white font-black rounded-xl">챌린지 시작</Button>
+
+              {/* 챌린지 시작 버튼은 나중에 하단으로 이동됨 */}
+              <div className="w-20" />
             </div>
-            <div className="w-full h-[70vh] bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl">
+            <div className="w-full h-[70vh] bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative">
               <PuzzleGame stockData={stockData} isOnlyChart={true} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
+              
+              {/* 챌린지 시작 메뉴 하단 이동 */}
+              <div className="absolute -bottom-10 left-0 right-0 flex justify-center z-[100]">
+                <Button 
+                  onClick={() => setView("GAME")} 
+                  className="bg-[#F08080] hover:bg-[#F08080]/90 text-white font-black rounded-2xl h-14 px-10 shadow-2xl shadow-[#F08080]/20 flex items-center gap-2"
+                >
+                  <Play size={18} fill="currentColor" /> 블라인드 챌린지 시작
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      <footer className="fixed bottom-6 text-[10px] text-white/10 tracking-widest font-mono uppercase">VIBE CODING • CHART PUZZLE v0.2.0</footer>
+      <footer className="fixed bottom-6 text-[10px] text-white/30 tracking-widest font-mono uppercase z-50">VIBE CODING • CHART PUZZLE v0.3.5-stable</footer>
     </main>
   );
 }
