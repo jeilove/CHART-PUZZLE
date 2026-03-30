@@ -300,7 +300,7 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-      <footer className="fixed bottom-6 text-[10px] text-white/30 tracking-widest font-mono uppercase z-50">VIBE CODING • CHART PUZZLE v0.3.5-stable</footer>
+      <footer className="mt-20 py-10 text-[10px] text-white/20 tracking-widest font-mono uppercase z-50 text-center w-full">VIBE CODING • CHART PUZZLE v0.8.3-stable</footer>
     </main>
   );
 }

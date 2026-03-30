@@ -175,19 +175,31 @@ const UnifiedFlipCard = ({
           className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center justify-center shadow-3xl" 
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
-          <div className="absolute top-22 right-10 flex flex-col items-end gap-1 pointer-events-none select-none">
+          <div 
+            className="absolute top-22 right-10 flex flex-col items-end gap-1 pointer-events-none select-none z-100"
+          >
             {triggerResults?.total_report_count && triggerResults.total_report_count > 0 && (
-              <span className="text-[10px] font-black text-rose-400 mb-1 border-b border-rose-500/30 pb-1">
-                총 {triggerResults.total_report_count}건 + 뉴스 분석
-              </span>
+              <div 
+                className="flex items-center gap-1 text-[10px] font-black text-rose-300 mb-1 border-b border-rose-500/20 pb-0.5 animate-in fade-in slide-in-from-right duration-500"
+                title={`총 ${triggerResults.total_report_count}건의 리포트 및 뉴스를 수집해 분석했습니다.`}
+              >
+                <Search size={10} className="text-rose-500" />
+                분석 리포트 {triggerResults.total_report_count}건
+              </div>
             )}
             {triggerResults?.report_dates?.map((d: string, i: number) => (
-              <span key={i} className="text-[10px] font-bold text-white/40 tracking-tighter bg-white/5 px-2 py-0.5 rounded-md border border-white/5">{d}</span>
+              <span 
+                key={i} 
+                className="text-[10px] font-bold text-white/40 tracking-tighter bg-white/5 px-2 py-0.5 rounded-md border border-white/5 hover:border-rose-500/30 transition-colors"
+                title={`${d} 발행 리포트 포함`}
+              >
+                {d}
+              </span>
             ))}
           </div>
           <button 
             onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }} 
-            className="absolute top-8 right-10 flex items-center gap-2 px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-2xl border border-white/20 transition-all z-[9999] active:scale-95 group shadow-2xl cursor-pointer"
+            className="absolute top-8 right-10 flex items-center gap-2 px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-2xl border border-white/20 transition-all z-9999 active:scale-95 group shadow-2xl cursor-pointer"
             style={{ transform: "translateZ(100px)" }}
           >
             <BarChart2 size={20} className="text-blue-400 group-hover:rotate-12 transition-transform" />
@@ -202,9 +214,14 @@ const UnifiedFlipCard = ({
           </div>
           <div className="w-full flex-1 flex items-center justify-center">
             {triggerLoading ? (
-              <div className="flex flex-col items-center gap-4">
-                <Loader2 className="animate-spin text-rose-500" size={48} />
-                <span className="text-rose-500/60 font-black text-xs uppercase tracking-widest animate-pulse">Analyzing...</span>
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="animate-spin text-rose-500" size={40} />
+                <div className="flex flex-col items-center">
+                  <span className="text-rose-500/80 font-black text-xs uppercase tracking-widest animate-pulse">Deep Analyzing...</span>
+                  <p className="mt-2 text-[9px] text-white/30 text-center font-bold">
+                    수집 시간이 길어질 경우 상단 종목명을 클릭하여<br/>다시 시도해 주세요.
+                  </p>
+                </div>
               </div>
             ) : triggerResults ? (
               <TriggerCloud data={triggerResults.cloud} />
@@ -258,7 +275,7 @@ const DraggablePiece = ({ piece, pieceImg, gridSize }: { piece: PieceState; piec
 /*                            메인 PuzzleGame 컴포넌트                           */
 /* -------------------------------------------------------------------------- */
 
-export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnlyChart = false }: { stockData: any[]; stockName?: string; stockSymbol?: string; isOnlyChart?: boolean; }) => {
+export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnlyChart = false, gridSize: initialGridSize = 3 }: { stockData: any[]; stockName?: string; stockSymbol?: string; isOnlyChart?: boolean; gridSize?: number; }) => {
   const [pieces, setPieces]           = useState<PieceState[]>([]);
   const [pieceImages, setPieceImages] = useState<string[]>([]);
   const [guideImage, setGuideImage]   = useState<string | null>(null);
@@ -267,7 +284,7 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
   const [isSolved, setIsSolved]       = useState(isOnlyChart);
   const [isNewsOpen, setIsNewsOpen]   = useState(false);
   const [activeId, setActiveId]       = useState<string | null>(null);
-  const [gridSize, setGridSize]       = useState<number>(3);
+  const [gridSize, setGridSize]       = useState<number>(initialGridSize);
   const [isQuizOpen, setIsQuizOpen]   = useState(false);
   const [timeframe, setTimeframe]     = useState<"D" | "W" | "M">("D");
   const [quizData, setQuizData]       = useState<any[]>(stockData);
