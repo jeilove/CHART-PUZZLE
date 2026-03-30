@@ -45,5 +45,11 @@ def get_news_keywords(stock_name: str):
     news = fetch_news_keywords(stock_name)
     return {"stock_name": stock_name, "news": news}
 
+@app.get("/api/trigger/{symbol}")
+def get_trigger_analysis(symbol: str, name: str):
+    from scraper import analysis_trigger_cloud
+    result = analysis_trigger_cloud(symbol, name)
+    return result
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -5,6 +5,7 @@ import re
 from datetime import datetime, timedelta
 import time
 from functools import lru_cache
+import math
 
 # 브라우저처럼 보이게 하기 위한 User-Agent 설정
 HEADERS = {
@@ -20,6 +21,28 @@ AD_SCORES = {
     "direct": ["[AD]", "(광고)", "제작지원", "기획기사", "PR", "유료공고"],
     "hype": ["제2의", "폭등임박", "상한가 직행", "1000% 수익", "역대급", "비밀리에", "독점공개", "긴급속보", "세력 매집", "점상한가"],
     "cta": ["카톡방", "무료입장", "선착순", "전문가 리딩", "체험하기", "링크 클릭", "번호 남기기", "텔레그램"]
+}
+
+# 트리거 용어 사전 (사용자 제공 문서 반영)
+TRIGGER_KEYWORDS = {
+    "positive": [
+        "어어닝 서프라이즈", "흑자전환", "영업레버리지", "수익성 개선", "믹스 개선", "턴어라운드", "사상 최대 실적", "밸류에이션 매력", "업사이클",
+        "기술 이전", "임상 성공", "양산 개시", "독점적 지위", "공급계약 체결", "수주 회복", "신사업 가시화", "진입장벽 강화", "고성장",
+        "자사주 소각", "배당 확대", "무상증자", "리레이팅", "기업가치 제고", "공격적 증설", "M&A 시너지",
+        "구조적 성장", "상승 사이클", "공급 부족", "가격 인상", "낙수효과", "독보적 점유율", "규제 완화", "국산화 성공", "최선호주", "Top Pick"
+    ],
+    "negative": [
+        "어닝 쇼크", "적자전환", "역성장", "저마진", "실적 하향", "컨센서스 하회", "비용 부담", "자본 잠식", "영업적자", "다운사이클",
+        "임상 실패", "계약 해지", "공급 과잉", "열위", "신규 진입자 발생", "파이프라인 중단", "사업 철수", "저성장",
+        "유상증자(채무상환)", "오버행", "대주주 지분 매각", "감자", "불성실 공시", "횡령", "배임",
+        "피크 아웃", "하락 사이클", "가격 경쟁 심화", "규제 강화", "포화", "보호무역", "부정적", "불가피"
+    ],
+    "neutral": [
+        "컨센서스 부합", "실적 전망", "수익성 안정화", "일회성 비용", "가동률 회복", "재고 조정", "기저 효과",
+        "수주 잔고", "레퍼런스 확보", "차세대 모델", "상용화 준비", "가이던스 제시", "진출 검토", "전략적 제휴", "신작",
+        "자사주 매입", "유상증자(운영자금)", "담보 대출", "지분 구조 재편", "인수 검토", "유동성 확보",
+        "업황 회복 기대", "벨류체인 편입", "시장 점유율 유지", "경기 민감도", "규제 리스크", "변동성 확대", "긍정적", "가시성", "시너지"
+    ]
 }
 
 def clean_news_filter(title, content=""):
@@ -188,3 +211,83 @@ def fetch_news_keywords(stock_name):
     except Exception as e:
         print(f"News fetch error for {stock_name}: {e}")
         return []
+
+@lru_cache(maxsize=100)
+def fetch_fnguide_reports(symbol):
+    """
+    FnGuide 리포트 요약 페이지 크롤링
+    """
+    _apply_rate_limit()
+    url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701"
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=5)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+        
+        # 리포트 요약 텍스트 추출 (td.txt_left_2 클래스 등)
+        rows = soup.select("tr")
+        texts = []
+        for row in rows:
+            tds = row.select("td")
+            if len(tds) > 3:
+                # 리포트 제목 또는 요약 내용이 있는 컬럼 (FnGuide 구조상 2, 3번째 인덱스)
+                content = tds[1].text.strip() + " " + tds[2].text.strip()
+                texts.append(content)
+        
+        return " ".join(texts)
+    except Exception as e:
+        print(f"FnGuide fetch error for {symbol}: {e}")
+        return ""
+
+def analysis_trigger_cloud(symbol, stock_name):
+    """
+    리포트 텍스트 분석 및 트리거 클라우드 데이터 생성
+    """
+    report_text = fetch_fnguide_reports(symbol)
+    if not report_text:
+        # 리포트가 없으면 구글 뉴스 RSS 제목 활용 (Fallback)
+        news = fetch_news_keywords(stock_name)
+        report_text = " ".join([n["title"] for n in news])
+
+    cloud_data = []
+    sentiment_score = 0
+    
+    # 키워드 매칭 및 카운팅
+    for sentiment, keywords in TRIGGER_KEYWORDS.items():
+        for kw in keywords:
+            count = report_text.count(kw)
+            if count > 0:
+                cloud_data.append({
+                    "text": kw,
+                    "value": 10 + (count * 5), # 빈도에 따른 크기 가중치
+                    "sentiment": sentiment
+                })
+                if sentiment == "positive": sentiment_score += count
+                elif sentiment == "negative": sentiment_score -= count
+
+    # 주가 반영률(Gap Index) 계산
+    # 최근 20거래일 수익률 확인
+    ohlcv = fetch_stock_ohlcv(symbol, days=21)
+    price_change = 0
+    if ohlcv and len(ohlcv) >= 20:
+        start_price = ohlcv[0]["close"]
+        end_price = ohlcv[-1]["close"]
+        price_change = ((end_price - start_price) / start_price) * 100
+
+    # 선반영 여부 멘트 생성 (사용자 로직 반영)
+    gap_comment = ""
+    # 호재는 많은데 주가는 하락 또는 횡보 (미반반영)
+    if sentiment_score >= 2 and price_change <= 5:
+        gap_comment = "호재 키워드 다수 출현 중이나 주가 미반영 상태 (매수 기회 분석 필요)"
+    # 호재 출현 후 이미 주가 20% 상승 (선반영 완료)
+    elif sentiment_score >= 1 and price_change >= 20:
+        gap_comment = "호재 키워드 반영 완료 및 단기 과열 양상 (추격 매수 주의)"
+    elif sentiment_score <= -2 and price_change >= -5:
+        gap_comment = "악재 키워드 출현 중이나 하락 미반영 (리스크 관리 주의)"
+
+    return {
+        "cloud": cloud_data[:20], # 상위 20개만
+        "sentiment_score": sentiment_score,
+        "price_change_20d": round(price_change, 2),
+        "gap_comment": gap_comment
+    }

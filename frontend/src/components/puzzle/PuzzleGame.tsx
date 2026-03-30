@@ -4,8 +4,9 @@ import React, { useState, useRef, useMemo, useEffect } from "react";
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay } from "@dnd-kit/core";
 import { StockChart, StockChartHandle } from "../charts/StockChart";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings, ChevronLeft } from "lucide-react";
+import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings, ChevronLeft, CloudLightning } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { TriggerCloud } from "./TriggerCloud";
 
 // TAB 비율: 렌더링과 표시에서 동일하게 사용 (핵심: 반드시 일치해야 함)
 const TAB_RATIO = 0.30; 
@@ -873,8 +874,8 @@ export const PuzzleGame = ({
                       )}
                     </div>
 
-                    {/* 뉴스 펄스 아코디언 섹션 */}
-                    <div className="w-full bg-slate-900/50 rounded-2xl border border-white/5 overflow-hidden mt-1">
+                    {/* 뉴스 펄스 버튼 */}
+                    <div className="w-full bg-white/5 border border-white/10 rounded-3xl overflow-hidden mt-3">
                       <button 
                         onClick={() => setIsTimeWarpNewsOpen(!isTimeWarpNewsOpen)}
                         className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-white/5 transition-all text-left"
@@ -928,6 +929,81 @@ export const PuzzleGame = ({
                               ) : (
                                 <div className="py-4 text-center text-white/20 text-xs italic">
                                   최근 뉴스가 없습니다.
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* 트리거 클라우드 버튼 (v0.4.0 신규) */}
+                    <div className="w-full bg-white/5 border border-white/10 rounded-3xl overflow-hidden mt-3">
+                      <button 
+                        onClick={() => setIsTriggerOpen(!isTriggerOpen)}
+                        className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-white/5 transition-all text-left"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full animate-pulse ${isTriggerOpen ? "bg-rose-400" : "bg-rose-500"}`} />
+                          <span className="text-xs font-black text-rose-400/80 uppercase tracking-widest flex items-center gap-1">
+                            <CloudLightning size={12} /> Trigger Cloud
+                          </span>
+                        </div>
+                        <motion.div
+                          animate={{ rotate: isTriggerOpen ? 180 : 0 }}
+                          className="text-white/40"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </motion.div>
+                      </button>
+                      
+                      <AnimatePresence>
+                        {isTriggerOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <div className="px-6 pb-6 space-y-4">
+                              {isTriggerLoading ? (
+                                <div className="py-8 text-center text-white/20 text-xs italic flex flex-col items-center gap-3">
+                                  <Loader2 className="animate-spin text-rose-500" size={24} />
+                                  증권사 리포트 및 트리거 분석 중...
+                                </div>
+                              ) : triggerResults ? (
+                                <>
+                                  <div className="bg-rose-500/5 border border-rose-500/10 rounded-2xl p-4 sm:p-6 mb-4">
+                                    <TriggerCloud data={triggerResults.cloud} />
+                                  </div>
+                                  
+                                  {triggerResults.gap_comment && (
+                                    <motion.div 
+                                      initial={{ opacity: 0, y: 10 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-start gap-3"
+                                    >
+                                      <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 shrink-0">
+                                        <BarChart2 size={16} />
+                                      </div>
+                                      <div>
+                                        <p className="text-[10px] font-black text-emerald-400/60 uppercase tracking-widest mb-1">Gap Index Analysis</p>
+                                        <p className="text-sm font-bold text-emerald-400 leading-relaxed">
+                                          {triggerResults.gap_comment}
+                                        </p>
+                                        <div className="mt-2 flex items-center gap-3">
+                                          <span className="text-[10px] text-white/20 font-mono">Sentiment Score: <span className={triggerResults.sentiment_score > 0 ? "text-rose-400" : "text-blue-400"}>{triggerResults.sentiment_score > 0 ? "+" : ""}{triggerResults.sentiment_score}</span></span>
+                                          <span className="text-[10px] text-white/20 font-mono">20D Change: <span className={triggerResults.price_change_20d > 0 ? "text-rose-400" : "text-blue-400"}>{triggerResults.price_change_20d > 0 ? "+" : ""}{triggerResults.price_change_20d}%</span></span>
+                                        </div>
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </>
+                              ) : (
+                                <div className="py-4 text-center text-white/20 text-xs italic">
+                                  트리거 정보를 제공할 수 없습니다.
                                 </div>
                               )}
                             </div>
