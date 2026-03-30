@@ -149,9 +149,13 @@ const UnifiedFlipCard = ({
             </div>
           )}
           {setTimeframe && (
-            <div className="absolute top-6 left-8 z-[200] flex p-1 bg-black/40 rounded-xl border border-white/10 backdrop-blur-md">
+            <div className="absolute top-6 left-8 z-[200] flex p-1.5 bg-black/40 rounded-2xl border border-white/10 backdrop-blur-md">
               {(["D", "W", "M"] as const).map((tf) => (
-                <button key={tf} onClick={() => setTimeframe(tf)} className={`w-8 h-8 rounded-lg text-[10px] font-black transition-all flex items-center justify-center ${timeframe === tf ? "bg-white text-slate-900 shadow-lg" : "text-white/40 hover:text-white"}`}>
+                <button 
+                  key={tf} 
+                  onClick={() => setTimeframe(tf)} 
+                  className={`w-14 h-12 rounded-xl text-base font-black transition-all flex items-center justify-center ${timeframe === tf ? "bg-white text-slate-900 shadow-lg scale-105" : "text-white/40 hover:text-white"}`}
+                >
                   {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
                 </button>
               ))}
@@ -180,10 +184,10 @@ const UnifiedFlipCard = ({
           >
             {triggerResults?.total_report_count && triggerResults.total_report_count > 0 && (
               <div 
-                className="flex items-center gap-1 text-[10px] font-black text-rose-300 mb-1 border-b border-rose-500/20 pb-0.5 animate-in fade-in slide-in-from-right duration-500"
+                className="flex items-center gap-2 text-[12px] font-black text-rose-300 mb-2 border-b border-rose-500/20 pb-1.5 animate-in fade-in slide-in-from-right duration-500"
                 title={`총 ${triggerResults.total_report_count}건의 리포트 및 뉴스를 수집해 분석했습니다.`}
               >
-                <Search size={10} className="text-rose-500" />
+                <Search size={18} className="text-rose-500 animate-pulse" />
                 분석 리포트 {triggerResults.total_report_count}건
               </div>
             )}
@@ -464,14 +468,7 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
   if (isOnlyChart) {
     return (
       <div className="w-full flex flex-col items-center max-w-4xl px-4 relative pb-20">
-        <div className="w-full relative flex items-center justify-between mb-4 z-40">
-          <div className="flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md">
-            {(["D", "W", "M"] as const).map((tf) => (
-              <button key={tf} onClick={() => setTimeframe(tf)} className={`w-12 h-10 rounded-lg text-sm font-black transition-all flex items-center justify-center ${timeframe === tf ? "bg-white text-slate-900 shadow-xl" : "text-white/40 hover:text-white"}`}>
-                {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
-              </button>
-            ))}
-          </div>
+        <div className="w-full relative flex items-center justify-end mb-4 z-40">
           <button onClick={() => setIsNewsOpen(!isNewsOpen)} className="p-3 bg-slate-900/80 rounded-xl border border-white/10 shadow-2xl relative"><Newspaper className={isNewsOpen ? "text-blue-400" : "text-white/40"} size={20} /></button>
         </div>
 
