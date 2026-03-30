@@ -1,0 +1,33 @@
+{
+  "cloud": [
+    {
+      "text": "턴어라운드",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "컨센서스 하회",
+      "value": 15,
+      "sentiment": "negative"
+    },
+    {
+      "text": "일회성 비용",
+      "value": 15,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 30,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 0,
+  "price_change_20d": -16.95,
+  "gap_comment": "",
+  "report_dates": [
+    "26.03.26",
+    "26.02.02",
+    "26.01.30"
+  ],
+  "timestamp": 1774869885.2278645
+}

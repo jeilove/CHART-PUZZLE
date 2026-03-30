@@ -1,0 +1,38 @@
+{
+  "cloud": [
+    {
+      "text": "기업가치 제고",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "실적 전망",
+      "value": 15,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "가이던스 제시",
+      "value": 15,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "자사주 매입",
+      "value": 20,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 25,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 1,
+  "price_change_20d": -26.28,
+  "gap_comment": "",
+  "report_dates": [
+    "26/03/30",
+    "26.02.26",
+    "26.02.04"
+  ],
+  "timestamp": 1774869869.681104
+}

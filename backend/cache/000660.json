@@ -1,0 +1,28 @@
+{
+  "cloud": [
+    {
+      "text": "믹스 개선",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "실적 전망",
+      "value": 15,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "가시성",
+      "value": 15,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 1,
+  "price_change_20d": -17.72,
+  "gap_comment": "",
+  "report_dates": [
+    "26.03.25",
+    "26.03.23",
+    "26.03.16"
+  ],
+  "timestamp": 1774869824.5407689
+}

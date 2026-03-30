@@ -389,8 +389,15 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
       setIsTriggerLoading(true);
       try {
         const res = await fetch(`http://127.0.0.1:8000/api/trigger/${stockSymbol}?name=${encodeURIComponent(stockName)}&t=${Date.now()}`, { signal: abortController.signal });
-        if (res.ok) { const data = await res.json(); setTriggerResults(data); }
-      } catch (e: any) {} finally { setIsTriggerLoading(false); }
+        if (res.ok) { 
+          const data = await res.json(); 
+          setTriggerResults(data); 
+        } else {
+          setTriggerResults({ cloud: [], gap_comment: "데이터를 불러올 수 없습니다." });
+        }
+      } catch (e: any) { 
+        setTriggerResults({ cloud: [], gap_comment: "분석 요청이 지연되었습니다. 잠시 후 상단 헤더의 종목명을 클릭하여 다시 시도해 주세요." });
+      } finally { setIsTriggerLoading(false); }
     };
     fetchTrigger();
     const timeoutId = setTimeout(() => abortController.abort(), 10000);

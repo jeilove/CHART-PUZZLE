@@ -1,0 +1,28 @@
+{
+  "cloud": [
+    {
+      "text": "최선호주",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "비용 부담",
+      "value": 15,
+      "sentiment": "negative"
+    },
+    {
+      "text": "자사주 매입",
+      "value": 15,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 0,
+  "price_change_20d": -30.34,
+  "gap_comment": "",
+  "report_dates": [
+    "26/03/30",
+    "26.03.16",
+    "26.03.03"
+  ],
+  "timestamp": 1774869857.3917382
+}

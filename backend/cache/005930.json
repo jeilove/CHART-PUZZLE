@@ -1,0 +1,28 @@
+{
+  "cloud": [
+    {
+      "text": "Top Pick",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "실적 전망",
+      "value": 15,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 15,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 1,
+  "price_change_20d": -18.57,
+  "gap_comment": "",
+  "report_dates": [
+    "26/03/30",
+    "26.03.30",
+    "26.03.23"
+  ],
+  "timestamp": 1774869807.4350355
+}

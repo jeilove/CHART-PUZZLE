@@ -1,0 +1,38 @@
+{
+  "cloud": [
+    {
+      "text": "수익성 개선",
+      "value": 30,
+      "sentiment": "positive"
+    },
+    {
+      "text": "컨센서스 하회",
+      "value": 25,
+      "sentiment": "negative"
+    },
+    {
+      "text": "일회성 비용",
+      "value": 20,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 15,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "가시성",
+      "value": 15,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 1,
+  "price_change_20d": -15.51,
+  "gap_comment": "",
+  "report_dates": [
+    "26/03/30",
+    "26.03.30",
+    "26.02.12"
+  ],
+  "timestamp": 1774869880.5624268
+}

@@ -1,0 +1,33 @@
+{
+  "cloud": [
+    {
+      "text": "고성장",
+      "value": 20,
+      "sentiment": "positive"
+    },
+    {
+      "text": "역성장",
+      "value": 15,
+      "sentiment": "negative"
+    },
+    {
+      "text": "저성장",
+      "value": 15,
+      "sentiment": "negative"
+    },
+    {
+      "text": "긍정적",
+      "value": 20,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 0,
+  "price_change_20d": -24.4,
+  "gap_comment": "",
+  "report_dates": [
+    "26.02.13",
+    "26.01.26",
+    "26.01.20"
+  ],
+  "timestamp": 1774869900.011405
+}

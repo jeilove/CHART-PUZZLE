@@ -4,6 +4,8 @@ import pandas as pd
 import re
 from datetime import datetime, timedelta
 import time
+import json
+import os
 from functools import lru_cache
 import math
 
@@ -266,10 +268,45 @@ def fetch_reports_combined(symbol, stock_name):
             
     return combined_text, latest_dates
 
+# 캐시 저장 경로 설정
+CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
+if not os.path.exists(CACHE_DIR):
+    os.makedirs(CACHE_DIR)
+
+def _get_cache_path(symbol):
+    return os.path.join(CACHE_DIR, f"{symbol}.json")
+
+def _read_cache(symbol):
+    path = _get_cache_path(symbol)
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return None
+    return None
+
+def _write_cache(symbol, data):
+    path = _get_cache_path(symbol)
+    data["timestamp"] = time.time() # 저장 시점 기록
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Cache write error: {e}")
+
 def analysis_trigger_cloud(symbol, stock_name):
     """
-    리포트 텍스트 분석 및 트리거 클라우드 데이터 생성
+    리포트 텍스트 분석 및 트리거 클라우드 데이터 생성 (캐시 시스템 적용)
     """
+    # 1. 캐시 확인 (24시간 유효)
+    cached = _read_cache(symbol)
+    if cached and time.time() - cached.get("timestamp", 0) < 86400:
+        print(f"[{symbol}] Returning cached trigger result.")
+        return cached
+
+    # 2. 캐시 없거나 만료된 경우 직접 수집 (느림)
+    print(f"[{symbol}] Cache miss. Fetching fresh data...")
     report_text, report_dates = fetch_reports_combined(symbol, stock_name)
     if not report_text:
         news = fetch_news_keywords(stock_name)
@@ -294,7 +331,6 @@ def analysis_trigger_cloud(symbol, stock_name):
                 elif sentiment == "negative": sentiment_score -= count
 
     # 주가 반영률(Gap Index) 계산
-    # 최근 20거래일 수익률 확인
     ohlcv = fetch_stock_ohlcv(symbol, days=21)
     price_change = 0
     if ohlcv and len(ohlcv) >= 20:
@@ -302,24 +338,24 @@ def analysis_trigger_cloud(symbol, stock_name):
         end_price = ohlcv[-1]["close"]
         price_change = ((end_price - start_price) / start_price) * 100
 
-    # 선반영 여부 멘트 생성 (사용자 로직 반영)
     gap_comment = ""
-    # 호재는 많은데 주가는 하락 또는 횡보 (미반반영)
     if sentiment_score >= 2 and price_change <= 5:
         gap_comment = "호재 키워드 다수 출현 중이나 주가 미반영 상태 (매수 기회 분석 필요)"
-    # 호재 출현 후 이미 주가 20% 상승 (선반영 완료)
     elif sentiment_score >= 1 and price_change >= 20:
         gap_comment = "호재 키워드 반영 완료 및 단기 과열 양상 (추격 매수 주의)"
     elif sentiment_score <= -2 and price_change >= -5:
         gap_comment = "악재 키워드 출현 중이나 하락 미반영 (리스크 관리 주의)"
 
-    # 리포트 날짜 추출 (기수집된 dates 배열에서 상위 3개)
     sorted_dates = sorted(list(set(report_dates)), reverse=True)
     
-    return {
-        "cloud": cloud_data[:20], # 상위 20개만
+    result = {
+        "cloud": cloud_data[:20],
         "sentiment_score": sentiment_score,
         "price_change_20d": round(price_change, 2),
         "gap_comment": gap_comment,
-        "report_dates": sorted_dates[:3] # 상위 3개 날짜만
+        "report_dates": sorted_dates[:3]
     }
+    
+    # 3. 신규 데이터 캐시에 저장
+    _write_cache(symbol, result)
+    return result
