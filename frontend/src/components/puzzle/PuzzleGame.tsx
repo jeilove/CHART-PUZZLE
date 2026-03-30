@@ -497,7 +497,7 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
           triggerResults={triggerResults}
           stockSymbol={stockSymbol}
           stockName={stockName}
-          hideName={true}
+          hideName={false}
           timeframe={timeframe}
           setTimeframe={setTimeframe}
           onRefresh={() => fetchTrigger(true)}
@@ -537,7 +537,7 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
                 triggerResults={triggerResults}
                 stockSymbol={stockSymbol}
                 stockName={stockName}
-                hideName={true}
+                hideName={false}
                 timeframe={timeframe}
                 setTimeframe={setTimeframe}
                 onRefresh={() => fetchTrigger(true)}
@@ -601,7 +601,7 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
                 triggerResults={triggerResults}
                 stockSymbol={stockSymbol}
                 stockName={stockName}
-                hideName={true}
+                hideName={false}
                 timeframe={timeframe}
                 setTimeframe={setTimeframe}
                 onRefresh={() => fetchTrigger(true)}

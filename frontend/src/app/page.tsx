@@ -246,12 +246,8 @@ export default function Home() {
           </motion.div>
         ) : view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="w-full flex items-center justify-center mb-6 px-4 relative">
+            <div className="w-full flex items-center justify-center mb-6 px-4 relative h-16">
               <Button variant="ghost" className="absolute left-4 text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
-              <h2 className="text-xl font-black flex items-center gap-2 text-white">
-                {selectedStock?.name}
-                <span className="text-[10px] text-white/40 font-mono font-normal">[{selectedStock?.symbol}]</span>
-              </h2>
             </div>
             <PuzzleGame stockData={stockData} gridSize={2} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
           </motion.div>
@@ -268,10 +264,7 @@ export default function Home() {
                 >
                   <ChevronLeft size={20} />
                 </button>
-                <div className="flex items-center gap-2 whitespace-nowrap">
-                  <h2 className="text-base sm:text-lg font-black text-white">{selectedStock?.name}</h2>
-                  <span className="text-[9px] text-white/40 font-mono">[{selectedStock?.symbol}]</span>
-                </div>
+                <div className="w-4 sm:w-12 h-px" />
                 <button 
                   onClick={handleNextFavorite}
                   disabled={favorites.length <= 1}
