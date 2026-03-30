@@ -724,27 +724,25 @@ export const PuzzleGame = ({
                        </Button>
                     </div>
 
-                    <div className="w-full flex flex-col items-center gap-2">
-                       <span className="text-blue-400 font-bold text-sm tracking-tighter">레벨 12 클리어!</span>
-                       <h2 className="text-4xl font-black text-white tracking-tight">퍼즐 완성!</h2>
-                       <div className="mt-2 text-white/40"><Award size={32} /></div>
+                    <div className="w-full flex flex-col items-center gap-1">
+                       <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">퍼즐 완성!</h2>
                     </div>
 
                     {/* 종목 확인 카드 */}
                     <div className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-4 sm:p-6 flex flex-col items-center gap-4 shadow-2xl relative overflow-hidden group">
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-50" />
                       
-                      <div className="w-full flex justify-between items-center px-4 relative z-10">
-                        <div className="flex flex-col">
-                          <span className="text-white/40 text-[10px] font-bold uppercase tracking-wider">Analysis Complete</span>
-                          <h3 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
-                             {stockName} <span className="text-white/20 text-base sm:text-lg font-medium">({stockSymbol})</span>
+                      <div className="w-full relative z-10 px-2">
+                        <div className="flex flex-col items-center sm:items-start">
+                          <span className="text-white/40 text-[9px] font-bold uppercase tracking-wider">Analysis Complete</span>
+                          <h3 className="text-xl sm:text-3xl font-black text-white flex items-center gap-1.5 flex-wrap justify-center sm:justify-start">
+                             {stockName} <span className="text-white/20 text-sm sm:text-lg font-medium">({stockSymbol})</span>
                           </h3>
                         </div>
                       </div>
 
                       {/* 실제 차트 영역 (PuzzleGame에서 보던 라이브 차트 복원 - 높이 확대) */}
-                      <div className="w-full h-[55vh] min-h-[400px] bg-black/40 rounded-3xl overflow-hidden border border-white/10 relative z-10 mt-6 shadow-inner">
+                      <div className="w-full h-[45vh] sm:h-[55vh] min-h-[300px] bg-black/40 rounded-3xl overflow-hidden border border-white/10 relative z-10 mt-4 shadow-inner">
                         {/* 네이티브 스타일 일/주/월 메뉴 (차트 상단 부착 - 가격 축과 겹치지 않게 좌측으로 이동) */}
                         <div className="absolute top-4 left-4 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl">
                           {(["D", "W", "M"] as const).map((tf) => (
@@ -780,47 +778,47 @@ export const PuzzleGame = ({
                     </div>
 
                     {/* 퀴즈 메인 카드 (차트 강화형) */}
-                    <div className="w-full bg-slate-900/50 border border-white/5 rounded-[3rem] p-8 flex flex-col items-center gap-8 shadow-3xl backdrop-blur-2xl mt-4">
-                      <div className="flex flex-col items-center gap-2">
+                    <div className="w-full bg-slate-900/50 border border-white/5 rounded-[2.5rem] p-4 sm:p-8 flex flex-col items-center gap-4 sm:gap-8 shadow-3xl backdrop-blur-2xl mt-3">
+                      <div className="flex flex-col items-center gap-1">
                         {showResult ? (
                           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-                            <h4 className={`text-4xl font-black mb-1 ${
+                            <h4 className={`text-2xl sm:text-4xl font-black mb-1 ${
                               ((quizData[quizData.length-1].close >= quizData[quizData.length-6].close) === (userPrediction === "up")) 
                               ? "text-emerald-400" : "text-rose-400"
                             }`}>
                               {((quizData[quizData.length-1].close >= quizData[quizData.length-6].close) === (userPrediction === "up")) 
                               ? "정답입니다!" : "틀렸습니다!"}
                             </h4>
-                            <p className="text-white/60 text-sm">실제 결과: 다음 5개 봉 기준 <span className={quizData[quizData.length-1].close >= quizData[quizData.length-6].close ? "text-blue-400" : "text-rose-400"}>
+                            <p className="text-white/60 text-xs sm:text-sm">실제 결과: 다음 5개 봉 기준 <span className={quizData[quizData.length-1].close >= quizData[quizData.length-6].close ? "text-blue-400" : "text-rose-400"}>
                               {quizData[quizData.length-1].close >= quizData[quizData.length-6].close ? "상승" : "하락"}
                             </span></p>
                           </motion.div>
                         ) : (
-                          <p className="text-gray-400 text-sm font-medium leading-relaxed text-center mt-4">
+                          <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed text-center mt-2">
                             이 패턴 이후, 다음 <span className="text-blue-400 font-bold">5거래일 동안</span> 주가는<br />어떻게 되었을까요?
                           </p>
                         )}
                       </div>
 
                       {!showResult && (
-                        <div className="w-full grid grid-cols-2 gap-6">
+                        <div className="w-full grid grid-cols-2 gap-4 sm:gap-6">
                           <button
                             onClick={() => {
                               setUserPrediction("up");
                               setShowResult(true);
                             }}
-                            className={`group relative flex flex-col items-center gap-4 p-8 rounded-[2.5rem] transition-all border
+                            className={`group relative flex flex-col items-center gap-2 sm:gap-4 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] transition-all border
                               ${userPrediction === "up" 
                                 ? "bg-blue-600/20 border-blue-500 scale-105 shadow-2xl shadow-blue-500/20" 
                                 : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
                           >
-                            <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all
+                            <div className={`w-12 h-12 sm:w-20 sm:h-20 rounded-full flex items-center justify-center transition-all
                               ${userPrediction === "up" ? "bg-blue-500 text-white" : "bg-slate-800 text-blue-400"}`}>
-                              <TrendingUp size={40} />
+                              <TrendingUp size={window.innerWidth < 640 ? 24 : 40} />
                             </div>
                             <div className="flex flex-col items-center">
-                              <span className="text-xl font-black text-white">상승</span>
-                              <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">BULLISH</span>
+                              <span className="text-lg sm:text-xl font-black text-white">상승</span>
+                              <span className="text-[8px] sm:text-[10px] text-white/30 font-bold uppercase tracking-widest mt-0.5">BULLISH</span>
                             </div>
                           </button>
 
@@ -829,18 +827,18 @@ export const PuzzleGame = ({
                               setUserPrediction("down");
                               setShowResult(true);
                             }}
-                            className={`group relative flex flex-col items-center gap-4 p-8 rounded-[2.5rem] transition-all border
+                            className={`group relative flex flex-col items-center gap-2 sm:gap-4 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] transition-all border
                               ${userPrediction === "down" 
                                 ? "bg-rose-600/20 border-rose-500 scale-105 shadow-2xl shadow-rose-500/20" 
                                 : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
                           >
-                            <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all
+                            <div className={`w-12 h-12 sm:w-20 sm:h-20 rounded-full flex items-center justify-center transition-all
                               ${userPrediction === "down" ? "bg-rose-500 text-white" : "bg-slate-800 text-rose-400"}`}>
-                              <TrendingDown size={40} />
+                              <TrendingDown size={window.innerWidth < 640 ? 24 : 40} />
                             </div>
                             <div className="flex flex-col items-center">
-                              <span className="text-xl font-black text-white">하락</span>
-                              <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">BEARISH</span>
+                              <span className="text-lg sm:text-xl font-black text-white">하락</span>
+                              <span className="text-[8px] sm:text-[10px] text-white/30 font-bold uppercase tracking-widest mt-0.5">BEARISH</span>
                             </div>
                           </button>
                         </div>
@@ -848,10 +846,10 @@ export const PuzzleGame = ({
                     </div>
 
                     {/* 뉴스 펄스 아코디언 섹션 */}
-                    <div className="w-full bg-slate-900/50 rounded-3xl border border-white/5 overflow-hidden">
+                    <div className="w-full bg-slate-900/50 rounded-2xl sm:rounded-3xl border border-white/5 overflow-hidden mt-3">
                       <button 
                         onClick={() => setIsTimeWarpNewsOpen(!isTimeWarpNewsOpen)}
-                        className="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-all text-left"
+                        className="w-full flex items-center justify-between p-4 sm:p-6 hover:bg-white/5 transition-all text-left"
                       >
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full animate-pulse ${isTimeWarpNewsOpen ? "bg-blue-400" : "bg-blue-500"}`} />
@@ -910,12 +908,12 @@ export const PuzzleGame = ({
                       </AnimatePresence>
                     </div>
 
-                    <div className="w-full flex flex-col gap-3 mt-4">
+                    <div className="w-full flex flex-col gap-2 mt-3">
                       <Button 
                         onClick={() => window.location.reload()}
-                        className="w-full h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white text-xl font-black rounded-3xl shadow-2xl shadow-[#F08080]/20 transition-all flex items-center justify-center gap-2"
+                        className="w-full h-14 sm:h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white text-lg sm:text-xl font-black rounded-2xl sm:rounded-3xl shadow-2xl shadow-[#F08080]/20 transition-all flex items-center justify-center gap-2"
                       >
-                         <Home size={24} /> 메인으로 돌아가기
+                         <Home size={20} /> 메인으로 돌아가기
                       </Button>
                     </div>
                   </motion.div>
