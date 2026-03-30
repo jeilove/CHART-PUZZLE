@@ -215,28 +215,28 @@ def fetch_news_keywords(stock_name):
 @lru_cache(maxsize=100)
 def fetch_fnguide_reports(symbol):
     """
-    FnGuide 리포트 요약 페이지 크롤링
+    Jina Reader (r.jina.ai)를 활용한 FnGuide 리포트 요약 크롤링
+    안정성과 정제된 텍스트 데이터를 위해 Jina를 경유함
     """
     _apply_rate_limit()
-    url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701"
+    target_url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701"
+    jina_url = f"https://r.jina.ai/{target_url}"
+    
     try:
-        response = requests.get(url, headers=HEADERS, timeout=5)
+        # Jina Reader는 응답이 느릴 수 있으므로 타임아웃을 8초로 넉넉히 설정 (글로벌 지침 준수)
+        response = requests.get(jina_url, headers=HEADERS, timeout=8)
         response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
         
-        # 리포트 요약 텍스트 추출 (td.txt_left_2 클래스 등)
-        rows = soup.select("tr")
-        texts = []
-        for row in rows:
-            tds = row.select("td")
-            if len(tds) > 3:
-                # 리포트 제목 또는 요약 내용이 있는 컬럼 (FnGuide 구조상 2, 3번째 인덱스)
-                content = tds[1].text.strip() + " " + tds[2].text.strip()
-                texts.append(content)
+        # Jina는 정제된 Markdown/Text 형식을 반환하므로 HTML 파싱이 불필요함
+        content = response.text
         
-        return " ".join(texts)
+        # 불필요한 메타 정보나 링크 제거 (Jina 특유의 Header/Footer)
+        if "### Summary" in content:
+            content = content.split("### Summary")[-1]
+            
+        return content.strip()
     except Exception as e:
-        print(f"FnGuide fetch error for {symbol}: {e}")
+        print(f"FnGuide Jina fetch error for {symbol}: {e}")
         return ""
 
 def analysis_trigger_cloud(symbol, stock_name):
