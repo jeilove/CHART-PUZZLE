@@ -1,21 +1,15 @@
-"use client";
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Play, Trophy, Settings, ChevronLeft, Loader2 } from "lucide-react";
+import { Search, Play, ChevronLeft, Loader2, Star, Menu, X, Trash2, GripVertical } from "lucide-react";
 import { PuzzleGame } from "@/components/puzzle/PuzzleGame";
 import { motion, AnimatePresence } from "framer-motion";
 
 // 테스트를 위한 Mock 주가 데이터 (KOSP 200/KOSDAQ 150 컨셉)
 const MOCK_STOCK_DATA = Array.from({ length: 60 }, (_, i) => {
-  const date = new Date(2024, 0, i + 1); // 2024년 1월 1일부터 시작하여 i일만큼 증가
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  
+  const date = new Date(2024, 0, i + 1);
   return {
-    time: `${yyyy}-${mm}-${dd}`,
+    time: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
     open: 300 + Math.random() * 50,
     high: 350 + Math.random() * 50,
     low: 250 + Math.random() * 50,
@@ -24,7 +18,6 @@ const MOCK_STOCK_DATA = Array.from({ length: 60 }, (_, i) => {
   };
 });
 
-// 실제 KOSPI 상장 종목 리스트 (샘플)
 const STOCK_LIST = [
   { name: "삼성전자", symbol: "005930" },
   { name: "SK하이닉스", symbol: "000660" },
@@ -43,8 +36,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiResults, setApiResults] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<{name: string, symbol: string}[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // 로컬 스토리지에서 즐겨찾기 불러오기
   React.useEffect(() => {
     const saved = localStorage.getItem("puzzle-favorites");
     if (saved) setFavorites(JSON.parse(saved));
@@ -62,13 +55,20 @@ export default function Home() {
     localStorage.setItem("puzzle-favorites", JSON.stringify(newFavs));
   };
 
+  const deleteFavorite = (symbol: string) => {
+    const newFavs = favorites.filter(f => f.symbol !== symbol);
+    setFavorites(newFavs);
+    localStorage.setItem("puzzle-favorites", JSON.stringify(newFavs));
+  };
+
   const selectStock = async (name: string, symbol: string, mode: "GAME" | "CHART" = "GAME") => {
     setIsLoading(true);
+    setIsDrawerOpen(false);
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/stock/${symbol}`);
-      if (!response.ok) throw new Error("API 연결 실패");
+      if (!response.ok) throw new Error("API 실패");
       const result = await response.json();
-      if (result.data && result.data.length > 0) setStockData(result.data);
+      if (result.data) setStockData(result.data);
     } catch (e) {
       setStockData(MOCK_STOCK_DATA);
     } finally {
@@ -100,16 +100,82 @@ export default function Home() {
     ...STOCK_LIST.filter(s => s.name.includes(searchTerm) || s.symbol.includes(searchTerm)),
     ...apiResults
   ].map(s => [s.symbol, s])).values()).slice(0, 8);
-  
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && filteredStocks.length > 0) {
-      selectStock(filteredStocks[0].name, filteredStocks[0].symbol);
-    }
-  };
 
   return (
     <main className="min-h-screen bg-[#0d1117] text-slate-200 flex flex-col items-center justify-center p-4 overflow-hidden relative font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#F08080]/5 rounded-full blur-[140px]" />
+      
+      {/* 햄버거 메뉴 버튼 */}
+      {view === "HOME" && (
+        <button 
+          onClick={() => setIsDrawerOpen(true)}
+          className="absolute top-8 left-8 z-50 p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-all group"
+        >
+          <Menu size={24} className="text-slate-400 group-hover:text-white" />
+        </button>
+      )}
+
+      {/* 즐겨찾기 드로어 (Drawer) */}
+      <AnimatePresence>
+        {isDrawerOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsDrawerOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            />
+            <motion.div 
+              initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed top-0 left-0 bottom-0 w-[300px] bg-[#161b22] border-r border-white/10 z-[110] p-6 shadow-2xl flex flex-col"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-2">
+                  <Star className="text-yellow-500 fill-yellow-500" size={20} />
+                  <h2 className="text-xl font-black text-white">즐겨찾기</h2>
+                </div>
+                <button onClick={() => setIsDrawerOpen(false)} className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                {favorites.length > 0 ? (
+                  favorites.map((fav) => (
+                    <div key={fav.symbol} className="group relative flex items-center bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl transition-all overflow-hidden">
+                      <div className="p-3 text-white/20 cursor-grab active:cursor-grabbing">
+                        <GripVertical size={16} />
+                      </div>
+                      <button 
+                        onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
+                        className="flex-1 py-4 text-left"
+                      >
+                        <p className="font-bold text-slate-200 text-sm">{fav.name}</p>
+                        <p className="text-[10px] text-white/30 font-mono">{fav.symbol}</p>
+                      </button>
+                      <button 
+                        onClick={() => deleteFavorite(fav.symbol)}
+                        className="p-4 text-slate-500 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-40 text-slate-500">
+                    <Star size={32} className="mb-4 opacity-10" />
+                    <p className="text-sm">등록된 즐겨찾기가 없습니다.</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="mt-auto pt-6 border-t border-white/5">
+                <p className="text-[10px] text-white/20 font-mono text-center">VIBE CODING • CHART PUZZLE v0.2.0</p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
       
       <AnimatePresence mode="wait">
         {view === "HOME" ? (
@@ -126,7 +192,6 @@ export default function Home() {
                   placeholder="종목 검색 (삼성전자, 005930...)" 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={handleKeyDown}
                   className="w-full h-14 bg-black/20 border-white/10 rounded-2xl pl-12 focus-visible:ring-0"
                 />
                 <AnimatePresence>
@@ -148,28 +213,9 @@ export default function Home() {
                 </AnimatePresence>
               </div>
 
-              <div className="grid grid-cols-1 gap-3">
-                <Button onClick={() => selectStock(STOCK_LIST[Math.floor(Math.random()*STOCK_LIST.length)].name, STOCK_LIST[Math.floor(Math.random()*STOCK_LIST.length)].symbol)} className="w-full h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white rounded-2xl text-lg font-black flex items-center justify-center gap-2">
-                  <Play size={20} fill="currentColor" /> 블라인드 챌린지 시작
-                </Button>
-                
-                {favorites.length > 0 && (
-                  <div className="pt-2">
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-2 px-1">My Favorites</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {favorites.slice(0, 4).map(fav => (
-                        <button key={fav.symbol} onClick={() => selectStock(fav.name, fav.symbol, "CHART")} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 text-left transition-all group">
-                          <div className="flex justify-between items-start">
-                            <span className="text-xs font-bold truncate pr-2">{fav.name}</span>
-                            <Star size={10} className="fill-yellow-500 text-yellow-500" />
-                          </div>
-                          <span className="text-[9px] text-white/30 font-mono">{fav.symbol}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Button onClick={() => selectStock(STOCK_LIST[Math.floor(Math.random()*STOCK_LIST.length)].name, STOCK_LIST[Math.floor(Math.random()*STOCK_LIST.length)].symbol)} className="w-full h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white rounded-2xl text-lg font-black flex items-center justify-center gap-2">
+                <Play size={20} fill="currentColor" /> 블라인드 챌린지 시작
+              </Button>
             </div>
           </motion.div>
         ) : view === "GAME" ? (
@@ -201,6 +247,3 @@ export default function Home() {
     </main>
   );
 }
-
-// Star 아이콘 추가 (lucide-react에서 가져옴)
-import { Star } from "lucide-react";

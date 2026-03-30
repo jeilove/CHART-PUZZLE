@@ -352,9 +352,9 @@ export const PuzzleGame = ({
     }
   }, [pieces, isPlaying]);
 
-  // 타임 워프용 데이터 통합 관리 (오픈 시 초기화 및 전환 대응)
+  // 차트 데이터 통합 관리 (타임 워프 및 일반 차트 모드 대응)
   useEffect(() => {
-    if (!isQuizOpen || !stockSymbol) return;
+    if ((!isQuizOpen && !isOnlyChart) || !stockSymbol) return;
 
     const fetchTimeframeData = async () => {
       setIsQuizDataLoading(true);
@@ -376,7 +376,7 @@ export const PuzzleGame = ({
     };
 
     fetchTimeframeData();
-  }, [timeframe, isQuizOpen, stockSymbol, stockData]);
+  }, [timeframe, isQuizOpen, isOnlyChart, stockSymbol, stockData]);
 
   // 퍼즐 시작 또는 종목 선택 시 뉴스 데이터 가져오기 (News Pulse)
   useEffect(() => {
@@ -442,9 +442,33 @@ export const PuzzleGame = ({
 
   if (isOnlyChart) {
     return (
-      <div className="w-full flex flex-col items-center max-w-4xl px-4 h-full">
+      <div className="w-full flex flex-col items-center max-w-4xl px-4 h-full relative">
+        {/* 네이티브 스타일 일/주/월 메뉴 (차트 상단 부착) */}
+        <div className="absolute top-8 left-10 z-[30] flex p-1 bg-slate-900/80 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl">
+          {(["D", "W", "M"] as const).map((tf) => (
+            <button
+              key={tf}
+              onClick={() => setTimeframe(tf)}
+              disabled={isQuizDataLoading}
+              className={`
+                w-12 h-10 rounded-lg text-sm font-black transition-all flex items-center justify-center
+                ${timeframe === tf ? "bg-white text-slate-900 shadow-xl" : "text-white/40 hover:text-white hover:bg-white/5"}
+                ${isQuizDataLoading ? "opacity-50 cursor-wait" : ""}
+              `}
+            >
+              {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
+            </button>
+          ))}
+        </div>
+
+        {isQuizDataLoading && (
+          <div className="absolute inset-x-4 top-[50%] -translate-y-1/2 flex items-center justify-center z-40">
+            <span className="text-blue-400 font-bold animate-pulse">차트 로딩 중...</span>
+          </div>
+        )}
+
         <div className="w-full p-2 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md mb-4 h-[60vh] min-h-[400px]">
-          <StockChart ref={chartRef} data={stockData} />
+          <StockChart ref={chartRef} data={timeframe === "D" && !quizData.length ? stockData : quizData} />
         </div>
       </div>
     );
