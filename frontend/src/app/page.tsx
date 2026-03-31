@@ -26,6 +26,7 @@ const MOCK_STOCK_DATA = Array.from({ length: 60 }, (_, i) => {
 interface Stock {
   name: string;
   symbol: string;
+  industry?: string;
 }
 
 interface FavoriteGroup {
@@ -34,15 +35,25 @@ interface FavoriteGroup {
   stocks: Stock[];
 }
 
-const STOCK_LIST = [
-  { name: "삼성전자", symbol: "005930" },
-  { name: "SK하이닉스", symbol: "000660" },
-  { name: "LG에너지솔루션", symbol: "373220" },
-  { name: "삼성바이오로직스", symbol: "207940" },
-  { name: "현대차", symbol: "005380" },
-  { name: "기아", symbol: "000270" },
-  { name: "셀트리온", symbol: "068270" },
-  { name: "POSCO홀딩스", symbol: "005490" },
+const STOCK_LIST: (Stock & { industry: string })[] = [
+  { name: "삼성전자", symbol: "005930", industry: "반도체" },
+  { name: "SK하이닉스", symbol: "000660", industry: "반도체" },
+  { name: "한미반도체", symbol: "042700", industry: "반도체" },
+  { name: "DB하이텍", symbol: "000990", industry: "반도체" },
+  { name: "리노공업", symbol: "058470", industry: "반도체" },
+  { name: "HPSP", symbol: "403870", industry: "반도체" },
+  { name: "LG에너지솔루션", symbol: "373220", industry: "이차전지" },
+  { name: "에코프로비엠", symbol: "247540", industry: "이차전지" },
+  { name: "에코프로", symbol: "086520", industry: "이차전지" },
+  { name: "포스코퓨처엠", symbol: "003670", industry: "이차전지" },
+  { name: "삼성바이오로직스", symbol: "207940", industry: "바이오" },
+  { name: "셀트리온", symbol: "068270", industry: "바이오" },
+  { name: "유한양행", symbol: "000100", industry: "바이오" },
+  { name: "현대차", symbol: "005380", industry: "자동차" },
+  { name: "기아", symbol: "000270", industry: "자동차" },
+  { name: "POSCO홀딩스", symbol: "005490", industry: "철강" },
+  { name: "카카오", symbol: "035720", industry: "IT서비스" },
+  { name: "NAVER", symbol: "035420", industry: "IT서비스" },
 ];
 
 export default function Home() {
@@ -231,9 +242,13 @@ export default function Home() {
   }, [searchTerm]);
 
   const filteredStocks = Array.from(new Map([
-    ...STOCK_LIST.filter(s => s.name.includes(searchTerm) || s.symbol.includes(searchTerm)),
+    ...STOCK_LIST.filter(s => 
+      s.name.includes(searchTerm) || 
+      s.symbol.includes(searchTerm) ||
+      (s.industry && s.industry.includes(searchTerm))
+    ),
     ...apiResults
-  ].map(s => [s.symbol, s])).values()).slice(0, 8);
+  ].map(s => [s.symbol, s])).values()).slice(0, 12);
 
   return (
     <main className="min-h-screen bg-[#0d1117] text-slate-200 flex flex-col items-center justify-center p-4 overflow-hidden relative font-sans">
@@ -288,10 +303,13 @@ export default function Home() {
                 {favoriteGroups.map(g => (
                   <button 
                     key={g.id}
-                    onClick={() => setActiveFilterGroupId(g.id)}
+                    onClick={() => {
+                      setActiveFilterGroupId(g.id);
+                      console.log("Filtering by:", g.name, g.id);
+                    }}
                     className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all border ${activeFilterGroupId === g.id ? 'bg-[#F08080] border-[#F08080] text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
                   >
-                    {g.name}
+                    {g.name} <span className="opacity-50 ml-1">({g.stocks.length})</span>
                   </button>
                 ))}
               </div>
@@ -433,7 +451,10 @@ export default function Home() {
                               </button>
                               <button onClick={() => selectStock(stock.name, stock.symbol, "CHART")} className="flex-1 px-4 py-4 text-left flex items-center justify-between outline-none">
                                 <span className="font-bold text-slate-200">{stock.name}</span>
-                                <span className="text-xs text-slate-500 font-mono tracking-tighter">{stock.symbol}</span>
+                                <div className="flex items-center gap-2">
+                                  {stock.industry && <span className="text-[10px] px-2 py-0.5 bg-[#F08080]/10 text-[#F08080] rounded-md border border-[#F08080]/20 font-medium">{stock.industry}</span>}
+                                  <span className="text-xs text-slate-500 font-mono tracking-tighter">{stock.symbol}</span>
+                                </div>
                               </button>
                               <button onClick={(e) => toggleFavorite(stock, e)} className="p-4 text-gray-500 hover:text-yellow-500 transition-colors">
                                 <Star className={favoriteGroups.flatMap(g => g.stocks).find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : ""} size={18} />
