@@ -3,7 +3,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Play, ChevronLeft, ChevronRight, Loader2, Star, Menu, X, Trash2, GripVertical, Plus, Edit3, Check } from "lucide-react";
+import { 
+  Search, Play, ChevronLeft, ChevronRight, Loader2, Star, Menu, X, Trash2, 
+  GripVertical, Plus, Edit3, Check, CheckSquare, Square, Filter, ChevronDown 
+} from "lucide-react";
 import { PuzzleGame } from "@/components/puzzle/PuzzleGame";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -52,16 +55,22 @@ export default function Home() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editingGroupName, setEditingGroupName] = useState("");
+  
+  // v0.6.0 신규 상태
+  const [selectedSearchSymbols, setSelectedSearchSymbols] = useState<string[]>([]);
+  const [targetAddGroupId, setTargetAddGroupId] = useState<string>("");
+  const [activeFilterGroupId, setActiveFilterGroupId] = useState<string | null>(null);
 
   React.useEffect(() => {
-    console.log("%c VIBE CODING • CHART PUZZLE v0.5.0-grouping ", "background: #F08080; color: white; font-weight: bold; padding: 4px 8px; border-radius: 6px;");
+    console.log("%c VIBE CODING • CHART PUZZLE v0.6.0-multiselect ", "background: #F08080; color: white; font-weight: bold; padding: 4px 8px; border-radius: 6px;");
     
-    // 마이그레이션 및 초기화
     const savedGroups = localStorage.getItem("puzzle-favorite-groups");
     const oldFavs = localStorage.getItem("puzzle-favorites");
 
     if (savedGroups) {
-      setFavoriteGroups(JSON.parse(savedGroups));
+      const parsed = JSON.parse(savedGroups);
+      setFavoriteGroups(parsed);
+      if (parsed.length > 0) setTargetAddGroupId(parsed[0].id);
     } else if (oldFavs) {
       const parsedOld = JSON.parse(oldFavs);
       const migratedGroups: FavoriteGroup[] = [{
@@ -70,10 +79,12 @@ export default function Home() {
         stocks: parsedOld
       }];
       setFavoriteGroups(migratedGroups);
+      setTargetAddGroupId("default");
       localStorage.setItem("puzzle-favorite-groups", JSON.stringify(migratedGroups));
     } else {
       const initialGroups: FavoriteGroup[] = [{ id: "default", name: "기본 그룹", stocks: [] }];
       setFavoriteGroups(initialGroups);
+      setTargetAddGroupId("default");
     }
   }, []);
 
@@ -92,7 +103,7 @@ export default function Home() {
   };
 
   const deleteGroup = (id: string) => {
-    if (favoriteGroups.length <= 1) return; // 마지막 그룹은 삭제 방지
+    if (favoriteGroups.length <= 1) return;
     saveGroups(favoriteGroups.filter(g => g.id !== id));
   };
 
@@ -116,22 +127,46 @@ export default function Home() {
     const isExist = allStocks.find(s => s.symbol === stock.symbol);
 
     if (isExist) {
-      // 모든 그룹에서 삭제
       const newGroups = favoriteGroups.map(g => ({
         ...g,
         stocks: g.stocks.filter(s => s.symbol !== stock.symbol)
       }));
       saveGroups(newGroups);
     } else {
-      // 첫 번째 그룹에 추가
       const newGroups = [...favoriteGroups];
-      if (newGroups.length > 0) {
-        newGroups[0].stocks = [...newGroups[0].stocks, stock];
-      } else {
-        newGroups.push({ id: "default", name: "기본 그룹", stocks: [stock] });
+      const targetGroup = newGroups.find(g => g.id === targetAddGroupId) || newGroups[0];
+      if (targetGroup) {
+        targetGroup.stocks = [...targetGroup.stocks, stock];
       }
       saveGroups(newGroups);
     }
+  };
+
+  // v0.6.0 일괄 추가 로직
+  const handleMultiAdd = () => {
+    if (selectedSearchSymbols.length === 0 || !targetAddGroupId) return;
+    
+    // 현재 필터링된 검색 결과에서 실제 주식 객체 추출
+    const stocksToAdd = filteredStocks.filter(s => selectedSearchSymbols.includes(s.symbol));
+    
+    const newGroups = favoriteGroups.map(g => {
+      if (g.id === targetAddGroupId) {
+        const existingSymbols = g.stocks.map(s => s.symbol);
+        const uniqueNewStocks = stocksToAdd.filter(s => !existingSymbols.includes(s.symbol));
+        return { ...g, stocks: [...g.stocks, ...uniqueNewStocks] };
+      }
+      return g;
+    });
+    
+    saveGroups(newGroups);
+    setSelectedSearchSymbols([]);
+  };
+
+  const toggleSearchSelection = (symbol: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedSearchSymbols(prev => 
+      prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]
+    );
   };
 
   const deleteFavorite = (symbol: string) => {
@@ -159,7 +194,6 @@ export default function Home() {
     }
   };
 
-  // 모든 주식을 하나의 리스트로 평탄화 (네비게이션용)
   const flatFavorites = favoriteGroups.flatMap(g => g.stocks);
 
   const handlePrevFavorite = () => {
@@ -205,7 +239,6 @@ export default function Home() {
     <main className="min-h-screen bg-[#0d1117] text-slate-200 flex flex-col items-center justify-center p-4 overflow-hidden relative font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#F08080]/5 rounded-full blur-[140px]" />
       
-      {/* 햄버거 메뉴 버튼 */}
       {view === "HOME" && (
         <button 
           onClick={() => setIsDrawerOpen(true)}
@@ -229,7 +262,7 @@ export default function Home() {
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed top-0 left-0 bottom-0 w-[340px] bg-[#161b22] border-r border-white/10 z-[110] p-6 shadow-2xl flex flex-col"
             >
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <Star className="text-yellow-500 fill-yellow-500" size={20} />
                   <h2 className="text-xl font-black text-white">즐겨찾기</h2>
@@ -244,10 +277,30 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* 그룹 필터 칩 */}
+              <div className="flex flex-wrap gap-2 mb-8 pr-2">
+                <button 
+                  onClick={() => setActiveFilterGroupId(null)}
+                  className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all border ${!activeFilterGroupId ? 'bg-[#F08080] border-[#F08080] text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                >
+                  전체보기
+                </button>
+                {favoriteGroups.map(g => (
+                  <button 
+                    key={g.id}
+                    onClick={() => setActiveFilterGroupId(g.id)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all border ${activeFilterGroupId === g.id ? 'bg-[#F08080] border-[#F08080] text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                  >
+                    {g.name}
+                  </button>
+                ))}
+              </div>
+
               <div className="flex-1 overflow-y-auto space-y-6 pr-2 custom-scrollbar">
-                {favoriteGroups.map((group) => (
+                {favoriteGroups
+                  .filter(g => !activeFilterGroupId || g.id === activeFilterGroupId)
+                  .map((group) => (
                   <div key={group.id} className="space-y-3">
-                    {/* 그룹 헤더 */}
                     <div className="flex items-center justify-between px-1 group/header">
                       {editingGroupId === group.id ? (
                         <div className="flex items-center gap-2 flex-1">
@@ -279,10 +332,8 @@ export default function Home() {
                               onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
                               className="flex-1 py-3 px-4 text-left"
                             >
-                              <p className="font-bold text-slate-200 text-sm leading-tight mb-0.5">
-                                {fav.name}
-                              </p>
-                              <p className="text-[10px] text-white/30 font-medium">시장 데이터 분석 완료</p>
+                              <p className="font-bold text-slate-200 text-sm leading-tight mb-0.5">{fav.name}</p>
+                              <p className="text-[10px] text-white/30 font-medium tracking-tight">시장 데이터 분석 완료</p>
                             </button>
                             <button 
                               onClick={() => deleteFavorite(fav.symbol)}
@@ -310,7 +361,7 @@ export default function Home() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v0.5.0</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v0.6.0</p>
               </div>
             </motion.div>
           </>
@@ -331,23 +382,66 @@ export default function Home() {
                 <Input 
                   placeholder="종목 검색 (삼성전자, 005930...)" 
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setSelectedSearchSymbols([]);
+                  }}
                   className="w-full h-14 bg-black/20 border-white/10 rounded-2xl pl-12 focus-visible:ring-0"
                 />
+                
                 <AnimatePresence>
                   {searchTerm && (
                     <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-16 left-0 w-full bg-[#161b22] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50">
-                      {filteredStocks.map((stock) => (
-                        <div key={stock.symbol} className="w-full flex items-center hover:bg-white/5 border-b border-white/5">
-                          <button onClick={() => selectStock(stock.name, stock.symbol, "CHART")} className="flex-1 px-6 py-4 text-left flex items-center justify-between">
-                            <span className="font-bold text-slate-200">{stock.name}</span>
-                            <span className="text-xs text-slate-500 font-mono">{stock.symbol}</span>
-                          </button>
-                          <button onClick={(e) => toggleFavorite(stock, e)} className="p-4 text-gray-500 hover:text-yellow-500 transition-colors">
-                            <Star className={favoriteGroups.flatMap(g => g.stocks).find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : ""} size={18} />
+                      
+                      {/* 다중 선택 관리 바 */}
+                      {selectedSearchSymbols.length > 0 && (
+                        <div className="bg-[#F08080]/10 border-b border-white/10 p-3 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <span className="text-[10px] font-bold text-[#F08080] whitespace-nowrap">{selectedSearchSymbols.length}종목 선택됨</span>
+                            <div className="relative">
+                              <select 
+                                value={targetAddGroupId}
+                                onChange={(e) => setTargetAddGroupId(e.target.value)}
+                                className="bg-black/40 border border-white/10 rounded-lg text-[10px] px-2 py-1.5 pr-6 appearance-none text-slate-200 outline-none focus:border-[#F08080] min-w-[80px]"
+                              >
+                                {favoriteGroups.map(g => (
+                                  <option key={g.id} value={g.id}>{g.name}</option>
+                                ))}
+                              </select>
+                              <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#F08080] pointer-events-none" />
+                            </div>
+                          </div>
+                          <button 
+                            onClick={handleMultiAdd}
+                            className="bg-[#F08080] hover:bg-[#F08080]/90 text-white text-[10px] font-black px-4 py-1.5 rounded-lg whitespace-nowrap transition-colors"
+                          >
+                            일괄 추가
                           </button>
                         </div>
-                      ))}
+                      )}
+
+                      <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                        {filteredStocks.map((stock) => {
+                          const isSelected = selectedSearchSymbols.includes(stock.symbol);
+                          return (
+                            <div key={stock.symbol} className="w-full flex items-center hover:bg-white/5 border-b border-white/5 group/row">
+                              <button 
+                                onClick={(e) => toggleSearchSelection(stock.symbol, e)}
+                                className="pl-4 pr-1 py-4 text-slate-600 hover:text-[#F08080] transition-colors"
+                              >
+                                {isSelected ? <CheckSquare size={18} className="text-[#F08080]" /> : <Square size={18} />}
+                              </button>
+                              <button onClick={() => selectStock(stock.name, stock.symbol, "CHART")} className="flex-1 px-4 py-4 text-left flex items-center justify-between outline-none">
+                                <span className="font-bold text-slate-200">{stock.name}</span>
+                                <span className="text-xs text-slate-500 font-mono tracking-tighter">{stock.symbol}</span>
+                              </button>
+                              <button onClick={(e) => toggleFavorite(stock, e)} className="p-4 text-gray-500 hover:text-yellow-500 transition-colors">
+                                <Star className={favoriteGroups.flatMap(g => g.stocks).find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : ""} size={18} />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -394,13 +488,11 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* 챌린지 시작 버튼은 나중에 하단으로 이동됨 */}
               <div className="w-20" />
             </div>
             <div className="w-full min-h-[70vh] h-auto bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible">
               <PuzzleGame stockData={stockData} isOnlyChart={true} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
               
-              {/* 챌린지 시작 메뉴 위치 조정 (하단 고정 대신 컨텐츠 바로 아래) */}
               <div className="mt-12 flex justify-center z-[100]">
                 <Button 
                   onClick={() => setView("GAME")} 
