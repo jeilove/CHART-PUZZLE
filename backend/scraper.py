@@ -25,6 +25,10 @@ AD_SCORES = {
     "cta": ["카톡방", "무료입장", "선착순", "전문가 리딩", "체험하기", "링크 클릭", "번호 남기기", "텔레그램"]
 }
 
+# 지수적 감쇠 계수 (금융공학 보편적 수치 0.1 설정)
+# λ가 높을수록 최근 데이터에 더 민감함
+DECAY_LAMBDA = 0.1
+
 # 트리거 용어 사전 (사용자 제공 문서 반영)
 TRIGGER_KEYWORDS = {
     "positive": [
@@ -82,6 +86,42 @@ def _apply_rate_limit():
     if elapsed < MIN_DELAY_BETWEEN_REQUESTS:
         time.sleep(MIN_DELAY_BETWEEN_REQUESTS - elapsed)
     last_request_time = time.time()
+
+def _parse_date_to_days_ago(date_str):
+    """
+    다양한 날짜 포맷을 분석하여 현재로부터 며칠 전인지 반환 (Delta t)
+    - Google RSS: "Tue, 25 Mar 2026 05:30:00 GMT" (RFC 822)
+    - Naver: "26.03.31"
+    - FnGuide: "26/03/31"
+    """
+    if not date_str: return 0
+    now = datetime.now()
+    
+    try:
+        # 1. Google RSS (RFC 822) - 앞 16자 정도만 사용 ("Tue, 25 Mar 2026")
+        if "," in date_str:
+            # "Tue, 25 Mar 2026 05:30:00 GMT" -> "25 Mar 2026"
+            parts = date_str.split(" ")
+            clean_date = f"{parts[1]} {parts[2]} {parts[3]}"
+            dt = datetime.strptime(clean_date, "%d %b %Y")
+        # 2. Naver/FnGuide 스타일
+        else:
+            clean_date = date_str.replace("/", ".").strip()
+            # 24.03.31 -> 2024.03.31
+            if clean_date.count(".") == 2:
+                parts = clean_date.split(".")
+                if len(parts[0]) == 2: # "24" -> "2024"
+                    parts[0] = "20" + parts[0]
+                clean_date = ".".join(parts)
+                dt = datetime.strptime(clean_date, "%Y.%m.%d")
+            else:
+                return 0
+                
+        delta = (now - dt).days
+        return max(0, delta) # 미래 날짜 방지
+    except Exception as e:
+        # print(f"Date parse error ({date_str}): {e}")
+        return 0
 
 def _parse_naver_xml(xml_text):
     """
@@ -191,6 +231,7 @@ def fetch_news_keywords(stock_name):
         for item in items:
             title = item.title.text if item.title else ""
             link = item.link.text if item.link else ""
+            pub_date = item.pubDate.text if item.pubDate else ""
             
             # 구글 뉴스 제목 끝부분의 ' - 언론사명' 제거
             if " - " in title:
@@ -203,7 +244,8 @@ def fetch_news_keywords(stock_name):
             if clean_news_filter(title):
                 results.append({
                     "title": title.strip(),
-                    "link": link.strip()
+                    "link": link.strip(),
+                    "date": pub_date
                 })
                 
             if len(results) >= 5:
@@ -217,14 +259,13 @@ def fetch_news_keywords(stock_name):
 @lru_cache(maxsize=100)
 def fetch_reports_combined(symbol, stock_name):
     """
-    네이버 리서치(제목)와 FnGuide(요약)를 결합하여 풍부한 키워드 소스 확보.
-    60일 이내의 데이터를 충분히 가져오기 위해 여러 페이지 스캔.
+    네이버 리서치(제목)와 FnGuide(요약)를 결합하여 풍부한 키워드 소침 확보.
+    가중치 계산을 위해 텍스트와 날짜를 리스트 형태로 반환.
     """
     _apply_rate_limit()
-    combined_text = ""
-    latest_dates = []
+    sources = [] # list of {"text": str, "date": str}
     
-    # 1. 네이버 리서치 제목 수집 (광범위한 커버리지, 최근 3페이지)
+    # 1. 네이버 리서치 제목 수집 (최근 3페이지)
     try:
         for page in range(1, 4):
             url = f"https://finance.naver.com/research/company_list.naver?searchType=itemCode&itemCode={symbol}&page={page}"
@@ -236,12 +277,14 @@ def fetch_reports_combined(symbol, stock_name):
                     title_tag = tds[1].find('a')
                     date_node = tds[4]
                     if title_tag and date_node.text.strip():
-                        combined_text += title_tag.text.strip() + " "
-                        latest_dates.append(date_node.text.strip())
+                        sources.append({
+                            "text": title_tag.text.strip(),
+                            "date": date_node.text.strip()
+                        })
     except Exception as e:
         print(f"Naver fetch error: {e}")
 
-    # 리포트 요약 내용 수집 (타임아웃 단축 10s -> 6s)
+    # 리포트 요약 내용 수집
     target_urls = [
         f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701"
     ]
@@ -254,13 +297,16 @@ def fetch_reports_combined(symbol, stock_name):
                 lines = resp.text.split('\n')
                 for line in lines:
                     if f"A{symbol}" in line or stock_name in line or "A" + symbol in line:
-                        combined_text += line + " "
                         date_match = re.search(r'\d{2}/\d{2}/\d{2}', line)
-                        if date_match: latest_dates.append(date_match.group())
+                        if date_match:
+                            sources.append({
+                                "text": line.strip(),
+                                "date": date_match.group()
+                            })
         except Exception as e:
             print(f"FnGuide Jina timeout: {e}")
             
-    return combined_text, latest_dates
+    return sources
 
 # 캐시 저장 경로 설정
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
@@ -310,30 +356,59 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
     # 2. 데이터 직접 수집 (타임아웃 강화)
     print(f"[{symbol}] Fetching multi-source data (Force={force_refresh})...")
     
-    # 여러 소스를 비동기적으로(순차적이지만 빠른 타임아웃으로) 결합
-    report_text, report_dates = fetch_reports_combined(symbol, stock_name)
+    # 여러 소스를 결합 (리스트 형태 유지)
+    all_sources = fetch_reports_combined(symbol, stock_name)
     
-    # 뉴스 키워드 항상 결합 (키워드 풍부함 확보)
+    # 뉴스 키워드 추가
     news = fetch_news_keywords(stock_name)
-    news_text = " ".join([n["title"] for n in news])
-    report_text += " " + news_text
+    for n in news:
+        all_sources.append({
+            "text": n["title"],
+            "date": n["date"]
+        })
 
-    cloud_data = []
+    keyword_weights = {} # {keyword: total_weighted_count}
     sentiment_score = 0
+    all_dates = []
     
-    # 키워드 매칭 및 가중치 부여
-    for sentiment, keywords in TRIGGER_KEYWORDS.items():
-        for kw in keywords:
-            # 단순히 count만 하는게 아니라, 중복 가점을 줄임 (전체 개수 기반)
-            count = report_text.count(kw)
-            if count > 0:
-                cloud_data.append({
-                    "text": kw,
-                    "value": min(40, 10 + (count * 5)), # 최대 크기 제한
-                    "sentiment": sentiment
-                })
-                if sentiment == "positive": sentiment_score += count
-                elif sentiment == "negative": sentiment_score -= count
+    for source in all_sources:
+        text = source["text"]
+        date_str = source["date"]
+        all_dates.append(date_str)
+        
+        # 지수적 감쇠 가중치 계산
+        delta_t = _parse_date_to_days_ago(date_str)
+        weight = math.exp(-DECAY_LAMBDA * delta_t)
+        
+        # 키워드 매칭
+        for sentiment, keywords in TRIGGER_KEYWORDS.items():
+            for kw in keywords:
+                count = text.count(kw)
+                if count > 0:
+                    weighted_val = count * weight
+                    keyword_weights[kw] = keyword_weights.get(kw, 0) + weighted_val
+                    
+                    if sentiment == "positive":
+                        sentiment_score += weighted_val
+                    elif sentiment == "negative":
+                        sentiment_score -= weighted_val
+
+    # 클라우드용 데이터 정제
+    cloud_data = []
+    for kw, val in keyword_weights.items():
+        # 어느 카테고리인지 다시 확인
+        sentiment = "neutral"
+        if kw in TRIGGER_KEYWORDS["positive"]: sentiment = "positive"
+        elif kw in TRIGGER_KEYWORDS["negative"]: sentiment = "negative"
+        
+        cloud_data.append({
+            "text": kw,
+            "value": min(40, 10 + (val * 10)), # 가중치 반영하여 크기 조절
+            "sentiment": sentiment
+        })
+    
+    # 상위 20개 키워드만 유지 (가중치 순)
+    cloud_data = sorted(cloud_data, key=lambda x: x["value"], reverse=True)[:20]
 
     # 주가 반영률(Gap Index) 계산
     ohlcv = fetch_stock_ohlcv(symbol, days=21)
@@ -344,14 +419,15 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
         price_change = ((end_price - start_price) / start_price) * 100
 
     gap_comment = ""
-    if sentiment_score >= 2 and price_change <= 5:
+    # 가중치 적용으로 인해 score가 소수점이 될 수 있음
+    if sentiment_score >= 1.5 and price_change <= 5:
         gap_comment = "호재 키워드 다수 출현 중이나 주가 미반영 상태 (매수 기회 분석 필요)"
-    elif sentiment_score >= 1 and price_change >= 20:
+    elif sentiment_score >= 0.8 and price_change >= 20:
         gap_comment = "호재 키워드 반영 완료 및 단기 과열 양상 (추격 매수 주의)"
-    elif sentiment_score <= -2 and price_change >= -5:
+    elif sentiment_score <= -1.5 and price_change >= -5:
         gap_comment = "악재 키워드 출현 중이나 하락 미반영 (리스크 관리 주의)"
 
-    sorted_dates = sorted(list(set(report_dates)), reverse=True)
+    sorted_dates = sorted(list(set(all_dates)), reverse=True)
     
     result = {
         "cloud": cloud_data[:20],

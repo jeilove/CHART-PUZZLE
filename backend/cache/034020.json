@@ -1,0 +1,37 @@
+{
+  "cloud": [
+    {
+      "text": "수익성 개선",
+      "value": 25,
+      "sentiment": "positive"
+    },
+    {
+      "text": "턴어라운드",
+      "value": 25,
+      "sentiment": "positive"
+    },
+    {
+      "text": "수주 회복",
+      "value": 15,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment_score": 7,
+  "price_change_20d": -1.96,
+  "gap_comment": "호재 키워드 다수 출현 중이나 주가 미반영 상태 (매수 기회 분석 필요)",
+  "report_dates": [
+    "26.03.24",
+    "26.02.25",
+    "26.02.19",
+    "26.02.13",
+    "26.01.16",
+    "26.01.13",
+    "25.11.27",
+    "25.11.13",
+    "25.11.12",
+    "25.11.10"
+  ],
+  "total_report_count": 62,
+  "is_fresh": true,
+  "timestamp": 1774927024.5925963
+}
