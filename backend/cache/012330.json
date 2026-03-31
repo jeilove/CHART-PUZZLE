@@ -1,0 +1,57 @@
+{
+  "cloud": [
+    {
+      "text": "턴어라운드",
+      "value": 20,
+      "sentiment": "positive"
+    },
+    {
+      "text": "고성장",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "최선호주",
+      "value": 30,
+      "sentiment": "positive"
+    },
+    {
+      "text": "Top Pick",
+      "value": 15,
+      "sentiment": "positive"
+    },
+    {
+      "text": "자사주 매입",
+      "value": 15,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 20,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "가시성",
+      "value": 15,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 8,
+  "price_change_20d": -18.46,
+  "gap_comment": "호재 키워드 다수 출현 중이나 주가 미반영 상태 (매수 기회 분석 필요)",
+  "report_dates": [
+    "26.01.29",
+    "26.01.09",
+    "26.01.08",
+    "26.01.06",
+    "25.12.18",
+    "25.12.16",
+    "25.11.03",
+    "25.10.15",
+    "25.10.10",
+    "25.09.02"
+  ],
+  "total_report_count": 33,
+  "is_fresh": true,
+  "timestamp": 1774928250.095105
+}
