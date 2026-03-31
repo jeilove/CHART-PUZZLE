@@ -194,11 +194,16 @@ export default function Home() {
     );
   };
 
-  const deleteFavorite = (symbol: string) => {
-    const newGroups = favoriteGroups.map(g => ({
-      ...g,
-      stocks: g.stocks.filter(s => s.symbol !== symbol)
-    }));
+  const deleteFavorite = (symbol: string, groupId: string) => {
+    const newGroups = favoriteGroups.map(g => {
+      if (g.id === groupId) {
+        return {
+          ...g,
+          stocks: g.stocks.filter(s => s.symbol !== symbol)
+        };
+      }
+      return g;
+    });
     saveGroups(newGroups);
   };
 
