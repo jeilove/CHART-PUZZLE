@@ -158,7 +158,7 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
                 {favorites.length > 0 ? (
                   favorites.map((fav) => (
                     <div key={fav.symbol} className="group relative flex items-center bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl transition-all overflow-hidden">
@@ -167,7 +167,7 @@ export default function Home() {
                       </div>
                       <button 
                         onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
-                        className="flex-1 py-4 text-left"
+                        className="flex-1 py-2.5 text-left"
                       >
                         <p className="font-bold text-slate-200 text-sm">
                           {fav.name} <span className="text-[10px] text-white/30 font-mono ml-1">[{fav.symbol}]</span>
