@@ -364,7 +364,7 @@ export default function Home() {
                     <div className="space-y-1.5 ml-1">
                       {group.stocks.length > 0 ? (
                         group.stocks.map((fav) => (
-                          <div key={fav.symbol} className="group relative flex items-center bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl transition-all overflow-hidden">
+                          <div key={`${group.id}-${fav.symbol}`} className="group relative flex items-center bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl transition-all overflow-hidden">
                             <button 
                               onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
                               className="flex-1 py-3 px-4 text-left"
@@ -373,7 +373,10 @@ export default function Home() {
                               <p className="text-[10px] text-white/30 font-medium tracking-tight">시장 데이터 분석 완료</p>
                             </button>
                             <button 
-                              onClick={() => deleteFavorite(fav.symbol, group.id)}
+                              onClick={() => {
+                                console.log(`Deleting ${fav.symbol} from group ${group.id}`);
+                                deleteFavorite(fav.symbol, group.id);
+                              }}
                               className="p-4 text-slate-500 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
                             >
                               <Trash2 size={16} />
