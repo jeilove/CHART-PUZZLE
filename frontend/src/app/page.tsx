@@ -114,8 +114,22 @@ export default function Home() {
   };
 
   const deleteGroup = (id: string) => {
-    if (favoriteGroups.length <= 1) return;
-    saveGroups(favoriteGroups.filter(g => g.id !== id));
+    if (favoriteGroups.length <= 1) {
+      alert("최소 하나의 그룹은 유지되어야 합니다.");
+      return;
+    }
+    const newGroups = favoriteGroups.filter(g => g.id !== id);
+    saveGroups(newGroups);
+    
+    // 삭제한 그룹이 현재 필터링 중이라면 필터 초기화
+    if (activeFilterGroupId === id) {
+      setActiveFilterGroupId(null);
+    }
+    
+    // 타겟 추가 그룹이 삭제되었다면 첫 번째 그룹으로 변경
+    if (targetAddGroupId === id && newGroups.length > 0) {
+      setTargetAddGroupId(newGroups[0].id);
+    }
   };
 
   const startEditGroup = (group: FavoriteGroup) => {
@@ -354,7 +368,7 @@ export default function Home() {
                               <p className="text-[10px] text-white/30 font-medium tracking-tight">시장 데이터 분석 완료</p>
                             </button>
                             <button 
-                              onClick={() => deleteFavorite(fav.symbol)}
+                              onClick={() => deleteFavorite(fav.symbol, group.id)}
                               className="p-4 text-slate-500 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
                             >
                               <Trash2 size={16} />
