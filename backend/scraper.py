@@ -14,6 +14,17 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
 }
 
+# v0.8.0: 전체 종목 업종 매핑 데이터 로드
+INDUSTRY_MAP = {}
+try:
+    map_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "stock_industry.json")
+    if os.path.exists(map_path):
+        with open(map_path, "r", encoding="utf-8") as f:
+            INDUSTRY_MAP = json.load(f)
+        print(f"Loaded {len(INDUSTRY_MAP)} stocks industry data.")
+except Exception as e:
+    print(f"Error loading industry map: {e}")
+
 # 요청 간격을 위한 글로벌 타임스탬프
 last_request_time = 0
 MIN_DELAY_BETWEEN_REQUESTS = 0.5  # 500ms 지연 최소화
@@ -190,31 +201,62 @@ def fetch_stock_ohlcv(symbol, timeframe="day", days=100):
 
 def search_stock(query):
     """
-    네이버 자동완성 API를 사용하여 종목명/코드 검색
+    네이버 자동완성 API 및 내부 업종 DB를 사용하여 종목명/코드/업종 통합 검색 (v0.8.0)
     """
     if not query: return []
+    query = query.strip().upper()
+    
+    results_map = {} # symbol -> {name, symbol, industry} 중복 방지용
+    
+    # 1. 내부 업종 DB에서 매칭되는 종목 먼저 검색 (업종명/종목명/코드 통합 검색)
+    if INDUSTRY_MAP:
+        for code, info in INDUSTRY_MAP.items():
+            # info = {"name": "...", "industry": "..."}
+            name = info.get("name", "")
+            industry = info.get("industry", "")
+            
+            # 검색어가 업종명, 종목명, 종목코드 중 하나에라도 포함되면 결과에 추가
+            if (query in industry.upper() or 
+                query in name.upper() or 
+                query in code.upper()):
+                results_map[code] = {
+                    "name": name,
+                    "symbol": code,
+                    "industry": industry
+                }
+            
+            # 너무 많은 결과 방지를 위해 1차적으로 30개 제한
+            if len(results_map) >= 30:
+                break
+
     try:
+        # 2. 네이버 API를 통한 실시간 이름/코드 검색 (내부 DB에 없는 신규 종목 대응)
         url = f"https://ac.stock.naver.com/ac?q={query}&target=stock"
         response = requests.get(url, headers=HEADERS, timeout=3)
-        response.raise_for_status()
-        
-        # 네이버 자동완성 API 응답 예시: {"items": [{"code":"005930", "name":"삼성전자", ...}, ...]}
-        data = response.json()
-        items = data.get("items", [])
-        
-        results = []
-        for item in items:
-            name = item.get("name")
-            code = item.get("code")
-            if name and code:
-                results.append({
-                    "name": name,
-                    "symbol": code
-                })
-        return results
+        if response.status_code == 200:
+            data = response.json()
+            items = data.get("items", [])
+            
+            for item in items:
+                name = item.get("name")
+                code = item.get("code")
+                if name and code and code not in results_map:
+                    # 네이버 API 결과는 내부 DB에서 업종 정보를 보강하여 추가
+                    # 내부 DB에 정보가 없다면 '일반분류' 표시
+                    info = INDUSTRY_MAP.get(code, {})
+                    industry = info.get("industry", "일반분류")
+                    
+                    results_map[code] = {
+                        "name": name,
+                        "symbol": code,
+                        "industry": industry
+                    }
+            
+        return list(results_map.values())[:30]
     except Exception as e:
         print(f"Search error: {e}")
-        return []
+        # API 오류가 나더라도 로컬 검색 결과는 반환
+        return list(results_map.values())
 
 def fetch_news_keywords(stock_name):
     """
