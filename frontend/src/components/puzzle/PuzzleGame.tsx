@@ -441,7 +441,12 @@ export const PuzzleGame = ({
 
   const resetPiecesPositions = () => {
     const cellSize = 480 / gridSize;
-    setPieces(prev => prev.map((p) => (p.isPlaced && !isSolved) ? p : { ...p, isPlaced: false, position: { x: Math.random() * (480 - cellSize), y: Math.random() * (480 - cellSize) }, rotation: 0 }));
+    setPieces(prev => prev.map((p) => ({ 
+      ...p, 
+      isPlaced: false, 
+      position: { x: Math.random() * (480 - cellSize), y: Math.random() * (480 - cellSize) }, 
+      rotation: 0 
+    })));
     if (isSolved) setIsSolved(false);
     setSeconds(0); setMoves(0);
   };
@@ -676,7 +681,18 @@ export const PuzzleGame = ({
                   <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>{pieces.filter(p => p.isPlaced).map((p) => (<DraggablePiece key={p.id} piece={p} pieceImg={pieceImages[p.pieceIdx]} gridSize={gridSize} />))}</div>
                </div>
             </div>
-            <DragOverlay dropAnimation={null}>{activeId ? <div style={{ width: `${480/gridSize}px`, height: `${480/gridSize}px`, transform: "scale(1.1)" }}><img src={pieceImages[parseInt(activeId.split("-")[1])]} alt="" className="absolute w-[160%] h-[160%] left-[-30%] top-[-30%]" style={{ imageRendering: "pixelated" }} /></div> : null}</DragOverlay>
+            <DragOverlay dropAnimation={null}>
+              {activeId ? (
+                <div style={{ width: `${480/gridSize}px`, height: `${480/gridSize}px`, transform: "scale(1.1)" }}>
+                  <img 
+                    src={pieceImages[parseInt(activeId.split("-")[1])]} 
+                    alt="" 
+                    className="absolute w-[160%] h-[160%] left-[-30%] top-[-30%] block" 
+                    style={{ maxWidth: "none", imageRendering: "pixelated" }} 
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
           </DndContext>
           <div className="mt-6 flex items-center justify-center gap-4 relative z-[200]">
             <Button variant="outline" onClick={resetPiecesPositions} className="px-8 h-12 text-sm font-black border-white/20 text-white/60 hover:text-white rounded-xl">다시 섞기</Button>

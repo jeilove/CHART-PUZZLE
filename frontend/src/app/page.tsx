@@ -58,6 +58,7 @@ const STOCK_LIST: (Stock & { industry: string })[] = [
 
 export default function Home() {
   const [view, setView] = useState<"HOME" | "GAME" | "CHART">("HOME");
+  const [puzzleKey, setPuzzleKey] = useState(0);
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [stockData, setStockData] = useState<any[]>(MOCK_STOCK_DATA);
   const [isLoading, setIsLoading] = useState(false);
@@ -538,7 +539,13 @@ export default function Home() {
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
             <div className="w-full flex items-center justify-center mb-6 px-4 relative h-16">
             </div>
-            <PuzzleGame stockData={stockData} gridSize={2} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
+            <PuzzleGame 
+              stockData={stockData} 
+              gridSize={2} 
+              stockName={selectedStock?.name} 
+              stockSymbol={selectedStock?.symbol} 
+              key={puzzleKey}
+            />
           </motion.div>
         ) : (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
@@ -552,6 +559,7 @@ export default function Home() {
                 onPrevFavorite={handlePrevFavorite}
                 onNextFavorite={handleNextFavorite}
                 hasMultipleFavorites={flatFavorites.length > 1}
+                key={puzzleKey}
               />
               
             </div>
@@ -606,6 +614,9 @@ export default function Home() {
           {/* 차트퍼즐 */}
           <button 
             onClick={() => {
+              if (view === "GAME") {
+                setPuzzleKey(prev => prev + 1);
+              }
               if (!selectedStock) {
                 const flatFavs = [...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
                 if (flatFavs.length > 0) {
