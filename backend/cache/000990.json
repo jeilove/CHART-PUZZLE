@@ -1,0 +1,27 @@
+{
+  "cloud": [
+    {
+      "text": "공급 부족",
+      "value": 10.0,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment_score": 1.004231273194113e-79,
+  "price_change_20d": 9.18,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 25 Mar 2026 07:51:29 GMT",
+    "Tue, 31 Mar 2026 07:10:31 GMT",
+    "Tue, 31 Mar 2026 00:21:12 GMT",
+    "Mon, 29 Dec 2025 08:00:00 GMT",
+    "Fri, 27 Mar 2026 10:08:03 GMT",
+    "26.01.21",
+    "25.11.05",
+    "25.08.05",
+    "25.07.23",
+    "25.07.10"
+  ],
+  "total_report_count": 42,
+  "is_fresh": true,
+  "timestamp": 1775013588.2252576
+}

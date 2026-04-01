@@ -1,38 +1,52 @@
 {
   "cloud": [
     {
-      "text": "기업가치 제고",
-      "value": 15,
+      "text": "신고가",
+      "value": 10.33373269960326,
       "sentiment": "positive"
     },
     {
-      "text": "실적 전망",
-      "value": 15,
-      "sentiment": "neutral"
-    },
-    {
-      "text": "가이던스 제시",
-      "value": 15,
+      "text": "긍정적",
+      "value": 10.000000000187468,
       "sentiment": "neutral"
     },
     {
       "text": "자사주 매입",
-      "value": 20,
+      "value": 10.0,
       "sentiment": "neutral"
     },
     {
-      "text": "긍정적",
-      "value": 25,
+      "text": "가이던스 제시",
+      "value": 10.0,
       "sentiment": "neutral"
+    },
+    {
+      "text": "실적 전망",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "기업가치 제고",
+      "value": 10.0,
+      "sentiment": "positive"
     }
   ],
-  "sentiment_score": 1,
-  "price_change_20d": -26.28,
+  "sentiment_score": 0.033373269960326066,
+  "price_change_20d": -2.11,
   "gap_comment": "",
   "report_dates": [
-    "26/03/30",
+    "Wed, 01 Apr 2026 01:10:16 GMT",
+    "Wed, 01 Apr 2026 00:36:35 GMT",
+    "Tue, 31 Mar 2026 23:08:41 GMT",
+    "Tue, 31 Mar 2026 21:03:13 GMT",
+    "Tue, 31 Mar 2026 01:33:36 GMT",
     "26.02.26",
-    "26.02.04"
+    "26.02.04",
+    "26.01.29",
+    "26.01.19",
+    "26.01.14"
   ],
-  "timestamp": 1774869869.681104
+  "total_report_count": 40,
+  "is_fresh": true,
+  "timestamp": 1775013713.2612004
 }

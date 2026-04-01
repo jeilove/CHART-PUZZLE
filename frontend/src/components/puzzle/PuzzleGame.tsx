@@ -233,12 +233,8 @@ const UnifiedFlipCard = ({
             <BarChart2 size={20} className="text-blue-400 group-hover:rotate-12 transition-transform" />
             <span className="text-[11px] font-black uppercase tracking-widest text-white">차트로 돌아가기</span>
           </button>
-          <div className="absolute top-10 left-12 flex items-center gap-3">
-            <CloudLightning className="text-rose-500" size={24} />
-            <div>
-              <span className="text-[10px] font-black text-rose-500/60 uppercase tracking-tighter">Intelligence</span>
-              <h4 className="text-lg font-black text-white">Trigger Analysis</h4>
-            </div>
+          <div className="absolute top-10 left-12">
+            <img src="/icons/트리거_아이콘.png" alt="Intelligence" className="h-14 object-contain shadow-2xl" />
           </div>
           <div className="w-full flex-1 flex items-center justify-center">
             {triggerLoading ? (
@@ -303,7 +299,21 @@ const DraggablePiece = ({ piece, pieceImg, gridSize }: { piece: PieceState; piec
 /*                            메인 PuzzleGame 컴포넌트                           */
 /* -------------------------------------------------------------------------- */
 
-export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnlyChart = false, gridSize: initialGridSize = 3 }: { stockData: any[]; stockName?: string; stockSymbol?: string; isOnlyChart?: boolean; gridSize?: number; }) => {
+export const PuzzleGame = ({ 
+  stockData, 
+  stockName = "", 
+  stockSymbol = "", 
+  isOnlyChart = false, 
+  gridSize: initialGridSize = 3,
+  isTimeWarpTriggered = false 
+}: { 
+  stockData: any[]; 
+  stockName?: string; 
+  stockSymbol?: string; 
+  isOnlyChart?: boolean; 
+  gridSize?: number;
+  isTimeWarpTriggered?: boolean;
+}) => {
   const [pieces, setPieces]           = useState<PieceState[]>([]);
   const [pieceImages, setPieceImages] = useState<string[]>([]);
   const [guideImage, setGuideImage]   = useState<string | null>(null);
@@ -331,6 +341,12 @@ export const PuzzleGame = ({ stockData, stockName = "", stockSymbol = "", isOnly
   const quizChartRef = useRef<StockChartHandle>(null);
 
   const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 5 } }), useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 5 } }));
+
+  useEffect(() => {
+    if (isTimeWarpTriggered) {
+      setIsQuizOpen(true);
+    }
+  }, [isTimeWarpTriggered]);
 
   const pieceEdges = useMemo(() => {
     const edges: Edge[] = [];
