@@ -1,23 +1,23 @@
-# Task: Stock Chart Puzzle - News Pulse Integration & UI Polishing (v1.0.40)
+# Task: Stock Chart Puzzle - Home Screen Redesign (v1.1.0)
 
-## 1. News Pulse Icon Integration
-- [x] Unify News Pulse as a header icon next to "Trigger".
-- [x] Implement Global Overlay for News Pulse accessible from all screens.
-- [x] Connect news toggle to all `UnifiedFlipCard` instances (Start, Play, Quiz).
-- [x] Auto-close news overlay when triggering card flip (Back).
+## 1. Top Section: Search Integration
+- [ ] Move existing search functionality to the top of the Home screen.
+- [ ] Implement search bar as a fixed-style container at the top of the page.
+- [ ] Ensure search results appear in an overlay-style container below the search bar.
 
-## 2. UI/UX 정밀 보정
-- [x] Apply `rounded-full` masking to news icon images for premium look.
-- [x] Reduce gap between Trigger and News icons to `1.5` for better density.
-- [x] Add dynamic Hover effects to "정답 확인" button (Scale, Shadow, Color).
-- [x] Adjust spacing between Time Warp challenge text and chart (reduce by 50%).
-- [x] Remove redundant status icons from Analysis Results (Back) header.
+## 2. Middle Section: Market Heatmaps (Placeholders)
+- [ ] Add cards for U.S. S&P 500, KOSPI, and KOSDAQ heatmaps.
+- [ ] Create layout for mini sparklines/indices as shown in the mockup image.
+- [ ] Use placeholder data for indices (S&P 500, KOSPI, KOSDAQ).
 
-## 3. Deployment & Sync
-- [x] Unify local and online data sync (Real-time).
-- [x] Clean up temporary build scripts and temporary Python tools.
-- [x] Verify production build (ignore lint for speed).
-- [x] Push to GitHub with commit message: "하단탭바 작업 이전 최종"
+## 3. Bottom Section: Favorites Grouped Accordion
+- [ ] Implement grouped favorites list using accordion components.
+- [ ] Categories: Total (전체), Group A (이차전지), Group B (반도체), etc.
+- [ ] Ensure each accordion item can be expanded/collapsed.
+- [ ] Style favorites list with stock name, symbol, and mini chart placeholders.
 
-## 4. Next Step: 하단 탭바 (Bottom Tab Bar) 작업
-- [ ] Implement permanent Bottom Navigation Bar for core features.
+## 4. UI/UX & Design
+- [ ] Apply premium dark mode aesthetics (Glassmorphism, dark backgrounds).
+- [ ] Optimize layouts for mobile-first experience.
+- [ ] Use `lucide-react` icons (Search, Star, ChevronDown, etc.) and `framer-motion` for transitions.
+- [ ] Ensure all modified areas are responsive and visually consistent with the provided mockup.

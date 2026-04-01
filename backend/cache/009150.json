@@ -1,0 +1,40 @@
+{
+  "cloud": [
+    {
+      "text": "일회성 비용",
+      "value": 14.493289641172215,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 10.000002266180127,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "불가피",
+      "value": 10.00000030669413,
+      "sentiment": "negative"
+    },
+    {
+      "text": "가격 인상",
+      "value": 10.000000124692528,
+      "sentiment": "positive"
+    },
+    {
+      "text": "리레이팅",
+      "value": 10.00000000027967,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment_score": -1.817219327532529e-08,
+  "price_change_20d": 22.62,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 18 Mar 2026 07:00:00 GMT",
+    "Tue, 31 Mar 2026 23:32:47 GMT",
+    "Tue, 31 Mar 2026 11:23:40 GMT"
+  ],
+  "total_report_count": 47,
+  "is_fresh": true,
+  "timestamp": 1775038971.922104
+}

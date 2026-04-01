@@ -75,6 +75,9 @@ export default function Home() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   const [isTimeWarpTriggered, setIsTimeWarpTriggered] = useState(false);
+  
+  // v1.1.0 홈 화면 아코디언 상태
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ "all": true });
 
   React.useEffect(() => {
     console.log("%c VIBE CODING • CHART PUZZLE v0.6.0-multiselect ", "background: #F08080; color: white; font-weight: bold; padding: 4px 8px; border-radius: 6px;");
@@ -163,6 +166,10 @@ export default function Home() {
     } else {
       saveUngrouped([...ungroupedStocks, stock]);
     }
+  };
+
+  const toggleAccordion = (id: string) => {
+    setExpandedGroups(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   // v0.6.0 일괄 추가 로직
@@ -279,12 +286,7 @@ export default function Home() {
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#F08080]/5 rounded-full blur-[140px]" />
       
       {view === "HOME" && (
-        <button 
-          onClick={() => setIsDrawerOpen(true)}
-          className="absolute top-8 left-8 z-50 p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-all group"
-        >
-          <Menu size={24} className="text-slate-400 group-hover:text-white" />
-        </button>
+        <label className="sr-only">Home Menu</label>
       )}
 
       {/* 즐겨찾기 드로어 (Drawer) */}
@@ -446,94 +448,194 @@ export default function Home() {
       
       <AnimatePresence mode="wait">
         {view === "HOME" ? (
-          <motion.div key="home" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="z-10 w-full max-w-md flex flex-col items-center">
-            <div className="text-center mb-10">
-              <h1 className="text-5xl font-extrabold tracking-tighter bg-gradient-to-r from-[#F08080] to-rose-400 bg-clip-text text-transparent mb-2">CHART PUZZLE</h1>
-              <p className="text-slate-500 text-sm font-medium">실시간 차트 데이터 기반 블라인드 챌린지</p>
+          <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="z-10 w-full max-w-lg flex flex-col items-center px-4 pt-4 pb-32 overflow-y-auto no-scrollbar h-full">
+            
+            {/* 1. 상단 검색바 섹션 */}
+            <div className="w-full mb-8 relative">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex-1 relative group">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <Input 
+                    placeholder="Search for news or tickers..." 
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setSelectedSearchSymbols([]);
+                    }}
+                    className="w-full h-12 bg-[#1c2128] border-transparent rounded-2xl pl-12 text-sm focus-visible:ring-0 placeholder:text-gray-500"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="p-3 bg-[#1c2128] rounded-full text-gray-400 hover:text-white transition-colors relative">
+                    <div className="w-1.5 h-1.5 bg-rose-500 rounded-full absolute top-3 right-3" />
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                  </button>
+                  <button className="w-11 h-11 bg-gray-600 rounded-full overflow-hidden border-2 border-white/5 hover:border-white/20 transition-all">
+                    <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600" />
+                  </button>
+                </div>
+              </div>
+
+              {/* 검색 결과 오버레이 */}
+              <AnimatePresence>
+                {(searchTerm || isSearchLoading) && (
+                  <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-14 left-0 w-full bg-[#1c2128] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-[200]">
+                    {isSearchLoading && (
+                      <div className="p-4 flex items-center justify-center gap-2 border-b border-white/5">
+                        <Loader2 size={16} className="animate-spin text-[#F08080]" />
+                        <span className="text-xs text-white/40">검색 중...</span>
+                      </div>
+                    )}
+                    <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+                      {filteredStocks.map((stock) => (
+                        <button key={stock.symbol} onClick={() => selectStock(stock.name, stock.symbol, "CHART")} className="w-full px-4 py-4 text-left flex items-center justify-between hover:bg-white/5 border-b border-white/5">
+                          <div>
+                            <span className="font-bold text-slate-200">{stock.name}</span>
+                            <span className="ml-2 text-xs text-slate-500 font-mono italic">{stock.symbol}</span>
+                          </div>
+                          <Star size={16} className={ungroupedStocks.find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : "text-gray-600"} />
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
-            <div className="w-full bg-white/5 border border-white/10 backdrop-blur-2xl rounded-[2.5rem] p-6 sm:p-8 shadow-2xl space-y-6">
-              <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                <Input 
-                  placeholder="종목 검색 (삼성전자, 005930...)" 
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setSelectedSearchSymbols([]);
-                  }}
-                  className="w-full h-14 bg-black/20 border-white/10 rounded-2xl pl-12 focus-visible:ring-0"
-                />
-                
+            {/* 2. 시장 정보 히트맵 섹션 (자리 잡기) */}
+            <div className="w-full mb-10 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-2 mb-4 text-[10px] font-black text-[#F08080] uppercase tracking-widest pl-1">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                U.S. MARKETS CLOSED
+              </div>
+              <div className="flex gap-4 min-w-full pb-2">
+                {[
+                  { name: "S&P 500", value: "6,575.32", change: "+0.72%", color: "emerald-400" },
+                  { name: "KOSPI", value: "2,741.08", change: "-0.15%", color: "rose-400" },
+                  { name: "KOSDAQ", value: "891.56", change: "+0.32%", color: "emerald-400" }
+                ].map((index, idx) => (
+                  <div key={idx} className="min-w-[140px] flex-1 bg-[#1c2128] border border-white/5 rounded-2xl p-4 shadow-xl">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-[11px] font-bold text-gray-400">{index.name}</span>
+                    </div>
+                    <div className="mb-1">
+                      <div className={`w-full h-8 bg-gradient-to-r from-transparent via-${index.color}/10 to-transparent relative overflow-hidden mb-1`}>
+                        <svg className="absolute bottom-0 left-0 w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
+                          <path d={`M0,15 Q25,${idx%2===0?5:18} 50,${idx%2===0?15:5} T100,10`} fill="none" stroke={idx%2===0?"#34d399":"#fb7185"} strokeWidth="1.5" />
+                        </svg>
+                      </div>
+                      <p className="text-sm font-black text-white">{index.value}</p>
+                      <p className={`text-[10px] font-bold text-${index.color}`}>{index.change}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. 즐겨찾기 아코디언 섹션 */}
+            <div className="w-full space-y-4">
+              <div className="flex items-center justify-between px-1 mb-2">
+                <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em]">PORTFOLIOS & WATCHLISTS</h3>
+                <button title="Options" className="p-1 text-gray-600 hover:text-white"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="3" fill="none"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+              </div>
+
+              {/* 전체보기 아코디언 */}
+              <div className="bg-[#1c2128] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+                <button 
+                  onClick={() => toggleAccordion("all")}
+                  className="w-full px-5 py-4 flex items-center justify-between group"
+                >
+                  <span className="text-sm font-black text-white">My List (전체)</span>
+                  <div className={`p-1.5 bg-white/5 rounded-full transition-transform duration-300 ${expandedGroups["all"] ? "rotate-180" : ""}`}>
+                    <ChevronDown size={14} className="text-gray-400 group-hover:text-white" />
+                  </div>
+                </button>
                 <AnimatePresence>
-                  {(searchTerm || isSearchLoading) && (
-                    <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-16 left-0 w-full bg-[#161b22] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-[200]">
-                      
-                      {isSearchLoading && (
-                        <div className="p-4 flex items-center justify-center gap-2 border-b border-white/5">
-                          <Loader2 size={16} className="animate-spin text-[#F08080]" />
-                          <span className="text-xs text-white/40">검색 중...</span>
-                        </div>
-                      )}
-                      
-                      {/* 다중 선택 관리 바 */}
-                      {selectedSearchSymbols.length > 0 && (
-                        <div className="bg-[#F08080]/10 border-b border-white/10 p-3 flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 overflow-hidden">
-                            <span className="text-[10px] font-bold text-[#F08080] whitespace-nowrap">{selectedSearchSymbols.length}종목 선택됨</span>
-                            <div className="relative">
-                              <select 
-                                value={targetAddGroupId}
-                                onChange={(e) => setTargetAddGroupId(e.target.value)}
-                                className="bg-black/40 border border-white/10 rounded-lg text-[10px] px-2 py-1.5 pr-6 appearance-none text-slate-200 outline-none focus:border-[#F08080] min-w-[80px]"
-                              >
-                                {favoriteGroups.map(g => (
-                                  <option key={g.id} value={g.id}>{g.name}</option>
-                                ))}
-                              </select>
-                              <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#F08080] pointer-events-none" />
+                  {expandedGroups["all"] && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                      <div className="px-5 pb-4 space-y-1 border-t border-white/5">
+                        {ungroupedStocks.length > 0 ? ungroupedStocks.map((fav) => (
+                          <div key={fav.symbol} onClick={() => selectStock(fav.name, fav.symbol, "CHART")} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 cursor-pointer transition-colors group/item">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-gradient-to-tr from-rose-500/10 to-rose-400/20 rounded-xl flex items-center justify-center">
+                                <span className="text-[10px] font-black text-rose-400 group-hover/item:scale-110 transition-transform">{fav.name[0]}</span>
+                              </div>
+                              <div>
+                                <p className="text-sm font-black text-white leading-tight">{fav.name}</p>
+                                <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">{fav.symbol}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <div className="w-16 h-8 opacity-40 group-hover/item:opacity-100 transition-opacity">
+                                <svg className="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                  <path d="M0,15 Q25,8 50,12 T100,5" fill="none" stroke="#2dd4bf" strokeWidth="2" />
+                                </svg>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-black text-white">145.23</p>
+                                <div className="bg-rose-500/20 text-rose-400 text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5">-1.28%</div>
+                              </div>
                             </div>
                           </div>
-                          <button 
-                            onClick={handleMultiAdd}
-                            className="bg-[#F08080] hover:bg-[#F08080]/90 text-white text-[10px] font-black px-4 py-1.5 rounded-lg whitespace-nowrap transition-colors"
-                          >
-                            일괄 추가
-                          </button>
-                        </div>
-                      )}
-
-                      <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
-                        {filteredStocks.map((stock) => {
-                          const isSelected = selectedSearchSymbols.includes(stock.symbol);
-                          return (
-                            <div key={stock.symbol} className="w-full flex items-center hover:bg-white/5 border-b border-white/5 group/row">
-                              <button 
-                                onClick={(e) => toggleSearchSelection(stock.symbol, e)}
-                                className="pl-4 pr-1 py-4 text-slate-600 hover:text-[#F08080] transition-colors"
-                              >
-                                {isSelected ? <CheckSquare size={18} className="text-[#F08080]" /> : <Square size={18} />}
-                              </button>
-                              <button onClick={() => selectStock(stock.name, stock.symbol, "CHART")} className="flex-1 px-4 py-4 text-left flex items-center justify-between outline-none group/btn">
-                                <span className="font-bold text-slate-200 group-hover/btn:text-rose-400 transition-colors">{stock.name}</span>
-                                <div className="flex items-center gap-2">
-                                  {stock.industry && <span className="text-[10px] px-2 py-0.5 bg-[#F08080]/10 text-[#F08080] rounded-md border border-[#F08080]/20 font-medium">{stock.industry}</span>}
-                                  <span className="text-xs text-slate-500 font-mono tracking-tighter">{stock.symbol}</span>
-                                </div>
-                              </button>
-                              <button onClick={(e) => toggleFavorite(stock, e)} className="p-4 text-gray-500 hover:text-yellow-500 transition-all active:scale-125">
-                                <Star className={ungroupedStocks.find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : ""} size={18} />
-                              </button>
-                            </div>
-                          );
-                        })}
+                        )) : (
+                          <div className="py-6 text-center text-[11px] text-gray-600 italic">추가된 종목이 없습니다.</div>
+                        )}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
 
+              {/* 그룹별 아코디언 */}
+              {favoriteGroups.map(group => (
+                <div key={group.id} className="bg-[#1c2128] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+                  <button 
+                    onClick={() => toggleAccordion(group.id)}
+                    className="w-full px-5 py-4 flex items-center justify-between group"
+                  >
+                    <span className="text-sm font-black text-white">{group.name}</span>
+                    <div className={`p-1.5 bg-white/5 rounded-full transition-transform duration-300 ${expandedGroups[group.id] ? "rotate-180" : ""}`}>
+                      <ChevronDown size={14} className="text-gray-400 group-hover:text-white" />
+                    </div>
+                  </button>
+                  <AnimatePresence>
+                    {expandedGroups[group.id] && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                        <div className="px-5 pb-4 space-y-1 border-t border-white/5">
+                          {group.stocks.length > 0 ? group.stocks.map((fav) => (
+                            <div key={fav.symbol} onClick={() => selectStock(fav.name, fav.symbol, "CHART")} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 cursor-pointer transition-colors group/item">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-tr from-emerald-500/10 to-emerald-400/20 rounded-xl flex items-center justify-center">
+                                  <span className="text-[10px] font-black text-emerald-400">{fav.name[0]}</span>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-black text-white leading-tight">{fav.name}</p>
+                                  <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">{fav.symbol}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <div className="w-16 h-8 opacity-40 group-hover/item:opacity-100 transition-opacity">
+                                  <svg className="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                    <path d="M0,5 Q25,18 50,8 T100,12" fill="none" stroke="#fb7185" strokeWidth="2" />
+                                  </svg>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm font-black text-white">313.49</p>
+                                  <div className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5">+1.24%</div>
+                                </div>
+                              </div>
+                            </div>
+                          )) : (
+                            <div className="py-6 text-center text-[11px] text-gray-600 italic">그룹에 등록된 종목이 없습니다.</div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
             </div>
+
           </motion.div>
         ) : view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
