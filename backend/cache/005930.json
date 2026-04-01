@@ -1,28 +1,52 @@
 {
   "cloud": [
     {
-      "text": "Top Pick",
-      "value": 15,
+      "text": "스태그플레이션 우려",
+      "value": 20.0,
+      "sentiment": "negative"
+    },
+    {
+      "text": "가격 인상",
+      "value": 20.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "긍정적",
+      "value": 14.065696597405992,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "가격 상승",
+      "value": 10.002749040216093,
       "sentiment": "positive"
     },
     {
       "text": "실적 전망",
-      "value": 15,
+      "value": 10.002034683690107,
       "sentiment": "neutral"
     },
     {
-      "text": "긍정적",
-      "value": 15,
-      "sentiment": "neutral"
+      "text": "Top Pick",
+      "value": 10.000000000207184,
+      "sentiment": "positive"
     }
   ],
-  "sentiment_score": 1,
-  "price_change_20d": -18.57,
+  "sentiment_score": 0.00027490404232777266,
+  "price_change_20d": 9.99,
   "gap_comment": "",
   "report_dates": [
-    "26/03/30",
+    "Wed, 01 Apr 2026 05:30:03 GMT",
+    "Wed, 01 Apr 2026 02:04:00 GMT",
+    "Tue, 31 Mar 2026 06:24:34 GMT",
+    "Tue, 31 Mar 2026 01:45:10 GMT",
+    "Mon, 30 Mar 2026 06:27:12 GMT",
+    "26.04.01",
     "26.03.30",
-    "26.03.23"
+    "26.03.23",
+    "26.03.18",
+    "26.03.16"
   ],
-  "timestamp": 1774869807.4350355
+  "total_report_count": 47,
+  "is_fresh": true,
+  "timestamp": 1775023799.1922455
 }

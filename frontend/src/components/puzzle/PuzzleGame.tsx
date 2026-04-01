@@ -170,7 +170,7 @@ const UnifiedFlipCard = ({
               onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }} 
               className="group relative transition-all active:scale-95"
             >
-              <img src="/icons/v11_trigger.png" alt="Intelligence Trigger" className="h-24 w-24 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
+              <img src="/icons/v12_trigger.png" alt="Intelligence Trigger" className="h-24 w-24 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-black text-rose-400 opacity-0 group-hover:opacity-100 transition-all uppercase tracking-widest">
                 트리거 정보 확인
               </div>
@@ -187,25 +187,29 @@ const UnifiedFlipCard = ({
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
           {/* Back Header Section */}
-          {/* Back Header - Trigger Icon Replacement */}
           <div className="absolute top-8 inset-x-0 flex flex-col items-center gap-2 px-8">
-            <img src="/icons/v11_trigger.png" alt="Intelligence" className="h-24 object-contain drop-shadow-[0_0_25px_rgba(244,63,94,0.3)]" />
+            <div className="absolute top-2 left-4">
+               <img src="/icons/v12_trigger.png" alt="Intelligence" className="h-16 object-contain drop-shadow-[0_0_20px_rgba(244,63,94,0.3)] brightness(1.1)" />
+            </div>
             
             {stockName && !hideName && (
-              <div className="flex items-center gap-3 mt-[-10px]">
-                <span className="text-sm font-black text-white/40 tracking-wider">({stockSymbol})</span>
-                {(triggerResults?.total_report_count || (triggerResults?.report_dates?.length || 0) > 0) && (
-                  <span className="text-[10px] font-black text-rose-500/60 flex items-center gap-1">
-                    <Search size={10} /> {triggerResults?.total_report_count || triggerResults?.report_dates?.length} 리포트
-                  </span>
-                )}
-                {triggerLoading && <Loader2 size={12} className="animate-spin text-rose-500/60" />}
+              <div className="flex flex-col items-center">
+                <h3 className="text-xl font-black text-white">{stockName}</h3>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-sm font-black text-white/40 tracking-wider">({stockSymbol})</span>
+                  {(triggerResults?.total_report_count || (triggerResults?.report_dates?.length || 0) > 0) && (
+                    <span className="text-[10px] font-black text-rose-500/60 flex items-center gap-1">
+                      <Search size={10} /> {triggerResults?.total_report_count || triggerResults?.report_dates?.length} 리포트
+                    </span>
+                  )}
+                  {triggerLoading && <Loader2 size={12} className="animate-spin text-rose-500/60" />}
+                </div>
               </div>
             )}
             
             <button 
               onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }} 
-              className="absolute top-2 right-2 p-3 bg-white/5 hover:bg-white/10 text-white rounded-full transition-all active:scale-90"
+              className="absolute top-0 right-4 p-3 bg-white/5 hover:bg-white/10 text-white rounded-full transition-all active:scale-90"
               title="차트로 돌아가기"
             >
               <BarChart2 size={18} className="text-rose-400" />
