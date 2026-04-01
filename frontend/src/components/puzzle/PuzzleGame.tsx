@@ -137,7 +137,7 @@ const UnifiedFlipCard = ({
           className="w-full bg-slate-900 border border-white/10 rounded-[3rem] p-4 sm:p-6 shadow-3xl relative overflow-hidden" 
           style={{ backfaceVisibility: "hidden", pointerEvents: isFlipped ? "none" : "auto", visibility: isFlipped ? "hidden" : "visible" }}
         >
-          {/* Header Section: Integrated for better spacing */}
+          {/* Header Section */}
           <div className="absolute top-4 inset-x-0 z-[200] flex flex-col items-center gap-4 px-4 sm:px-8">
             {stockName && !hideName && (
               <h3 
@@ -167,13 +167,18 @@ const UnifiedFlipCard = ({
               </div>
             )}
           </div>
-          <div className="mt-8 flex justify-center gap-16 z-[500] relative">
+
+          <div className="w-full h-[55vh] min-h-[400px] bg-black/40 rounded-[2.5rem] overflow-hidden pt-12 relative mt-28 sm:mt-32">
+            {chartContent}
+          </div>
+
+          <div className="mt-8 flex justify-center gap-16 z-[500]">
             <button 
               onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }} 
               className="group flex flex-col items-center gap-2 transition-all active:scale-95"
             >
-              <img src="/icons/v17_trigger.png" alt="Intelligence Trigger" className="w-16 h-16 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
-              <div className="whitespace-nowrap text-[10px] font-black text-rose-400 opacity-60 group-hover:opacity-100 transition-all uppercase tracking-[0.2em] ml-[-16px]">
+              <img src="/icons/v17_trigger.png" alt="Intelligence Trigger" className="w-20 h-20 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
+              <div className="whitespace-nowrap text-[11px] font-black text-rose-400 opacity-60 group-hover:opacity-100 transition-all uppercase tracking-[0.2em]">
                 트리거 클라우드
               </div>
             </button>
@@ -187,21 +192,18 @@ const UnifiedFlipCard = ({
                 }} 
                 className="group flex flex-col items-center gap-2 transition-all active:scale-95"
               >
-                <img src="/icons/v3_warp.png" alt="Time Warp" className="w-16 h-16 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
-                <div className="whitespace-nowrap text-[10px] font-black text-[#F08080] opacity-60 group-hover:opacity-100 transition-all uppercase tracking-[0.2em]">
+                <img src="/icons/v3_warp.png" alt="Time Warp" className="w-20 h-20 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(244,63,94,0.3)] transition-all group-hover:scale-110" />
+                <div className="whitespace-nowrap text-[11px] font-black text-[#F08080] opacity-60 group-hover:opacity-100 transition-all uppercase tracking-[0.2em]">
                   타임워프
                 </div>
               </button>
             )}
           </div>
-          <div className="w-full h-[55vh] min-h-[400px] bg-black/40 rounded-[2.5rem] overflow-hidden pt-12">
-            {chartContent}
-          </div>
         </div>
 
         {/* Back */}
         <div 
-          className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center justify-center shadow-3xl" 
+          className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center shadow-3xl overflow-hidden" 
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
           {/* Back Header Section */}
@@ -229,7 +231,8 @@ const UnifiedFlipCard = ({
               <BarChart2 size={18} className="text-rose-400" />
             </button>
           </div>
-          <div className="w-full flex-1 flex items-center justify-center">
+
+          <div className="w-full flex-1 flex flex-col items-center justify-center mt-20">
             {triggerLoading ? (
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="animate-spin text-rose-500" size={40} />
@@ -241,10 +244,10 @@ const UnifiedFlipCard = ({
                 </div>
               </div>
             ) : triggerResults ? (
-              <div className="relative w-full h-full flex items-center justify-center">
+              <div className="relative w-full flex-1 flex items-center justify-center">
                 <TriggerCloud data={triggerResults.cloud} />
                 {/* Fixed Report Dates as Footer */}
-                <div className="absolute bottom-2 right-4 flex items-center gap-2 opacity-40 select-none">
+                <div className="absolute bottom-[-10px] right-2 flex items-center gap-2 opacity-40 select-none">
                   {triggerResults?.report_dates?.slice(0, 3).map((d: string, i: number) => (
                     <span key={i} className="text-[8px] font-bold text-white tracking-tighter px-1.5 py-0.5 border border-white/10 rounded">
                       {d}
@@ -259,7 +262,10 @@ const UnifiedFlipCard = ({
               </div>
             )}
           </div>
-          <GapComponent comment={triggerResults?.gap_comment} />
+          
+          <div className="w-full mt-auto mb-2">
+            <GapComponent comment={triggerResults?.gap_comment} />
+          </div>
         </div>
       </motion.div>
     </div>

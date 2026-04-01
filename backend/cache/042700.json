@@ -1,0 +1,32 @@
+{
+  "cloud": [
+    {
+      "text": "자사주 소각",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "믹스 개선",
+      "value": 10.0,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment_score": 9.04796357521242e-81,
+  "price_change_20d": 5.6,
+  "gap_comment": "",
+  "report_dates": [
+    "Tue, 31 Mar 2026 07:14:00 GMT",
+    "Tue, 31 Mar 2026 00:29:03 GMT",
+    "Sun, 29 Mar 2026 02:17:00 GMT",
+    "Mon, 30 Mar 2026 07:04:49 GMT",
+    "Mon, 30 Mar 2026 07:00:00 GMT",
+    "25.07.22",
+    "25.01.31",
+    "24.11.13",
+    "24.07.31",
+    "24.07.01"
+  ],
+  "total_report_count": 53,
+  "is_fresh": true,
+  "timestamp": 1775027360.0569015
+}

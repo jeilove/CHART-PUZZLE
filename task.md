@@ -1,20 +1,14 @@
-# Task: Stock Chart Puzzle UI Finalization (v1.0.7)
+# Task: Stock Chart Puzzle UI Emergency Hotfix (v1.0.8)
 
-## 1. Search UI Stability
-- [x] Fix favorite star button unresponsiveness in search results (Z-index correction).
-- [x] Ensure search result rows are interactive even when overlapping other elements.
+## 1. Layout Restoration & correction
+- [x] Correct Trigger/Warp icon position: Move from top to **BELOW** the chart container.
+- [x] Restore Front-side Header: Re-implement Stock Name and Timeframe selector at the absolute top.
+- [x] Fix Front-side Spacing: Apply `mt-32` to chart container to prevent header overlap.
 
-## 2. Navigation & Icon Standardization
-- [x] Replace text-based "Blind Challenge Start" with `v3_puzzle.png`.
-- [x] Replace text-based "Time Warp" with `v3_warp.png`.
-- [x] Remove redundant "Back to Home" text buttons from top navigation.
-- [x] Remove "Back to Home" button from Time Warp result footer.
+## 2. Analysis Screen (Back) Recovery
+- [x] Restore "Intelligence Analysis" screen layout to stable state.
+- [x] Optimize vertical flow: Remove forced centering and use flexible spacing (`mt-20`, `mt-auto`).
+- [x] Ensure Trigger Cloud and Gap Index Analysis don't overlap.
 
-## 3. Intelligence UI Optimization
-- [x] Relocate Trigger Cloud and Time Warp icons to directly below the chart container.
-- [x] Remove Trigger icon from the back-side (Intelligence Analysis) header.
-- [x] Synchronize Time Warp state between components via Custom Events.
-
-## 4. Layout Restoration
-- [x] Ensure Trigger Analysis screen maintains its premium layout without regressions.
-- [x] Standardize button spacing and alignment for a balanced UI.
+## 3. Component Synchronization
+- [x] Maintain CustomEvent sync for Time Warp across all views.

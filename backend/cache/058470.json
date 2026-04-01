@@ -1,0 +1,52 @@
+{
+  "cloud": [
+    {
+      "text": "실적 전망",
+      "value": 10.000000000030989,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "Top Pick",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "재고 조정",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "고성장",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "어닝 서프라이즈",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "역성장",
+      "value": 10.0,
+      "sentiment": "negative"
+    }
+  ],
+  "sentiment_score": 1.7816729631100128e-30,
+  "price_change_20d": 3.67,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 06:35:00 GMT",
+    "Wed, 01 Apr 2026 05:14:36 GMT",
+    "Tue, 31 Mar 2026 08:06:50 GMT",
+    "Thu, 26 Mar 2026 07:30:32 GMT",
+    "Fri, 27 Mar 2026 07:44:07 GMT",
+    "26.03.31",
+    "26.03.24",
+    "26.02.11",
+    "25.11.21",
+    "25.11.17"
+  ],
+  "total_report_count": 78,
+  "is_fresh": true,
+  "timestamp": 1775027360.5055797
+}
