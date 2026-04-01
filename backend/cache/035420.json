@@ -1,42 +1,47 @@
 {
   "cloud": [
     {
-      "text": "수익성 개선",
-      "value": 15,
-      "sentiment": "positive"
-    },
-    {
-      "text": "Top Pick",
-      "value": 15,
-      "sentiment": "positive"
-    },
-    {
       "text": "긍정적",
-      "value": 25,
+      "value": 10.06096746565524,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "박스권",
+      "value": 10.060967465655157,
       "sentiment": "neutral"
     },
     {
       "text": "가시성",
-      "value": 15,
+      "value": 10.000004563526367,
       "sentiment": "neutral"
+    },
+    {
+      "text": "수익성 개선",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "Top Pick",
+      "value": 10.0,
+      "sentiment": "positive"
     }
   ],
-  "sentiment_score": 2,
-  "price_change_20d": -13.98,
-  "gap_comment": "호재 키워드 다수 출현 중이나 주가 미반영 상태 (매수 기회 분석 필요)",
+  "sentiment_score": 1.2496160138366262e-17,
+  "price_change_20d": 1.2,
+  "gap_comment": "",
   "report_dates": [
+    "Wed, 01 Apr 2026 05:14:36 GMT",
+    "Wed, 01 Apr 2026 01:29:35 GMT",
+    "Tue, 31 Mar 2026 20:17:30 GMT",
+    "Tue, 31 Mar 2026 03:00:00 GMT",
+    "Mon, 30 Mar 2026 19:34:29 GMT",
     "26.02.10",
     "26.02.09",
     "26.01.15",
     "26.01.14",
-    "26.01.12",
-    "25.11.28",
-    "25.11.18",
-    "25.11.06",
-    "25.11.05",
-    "25.11.03"
+    "26.01.12"
   ],
-  "total_report_count": 38,
+  "total_report_count": 43,
   "is_fresh": true,
-  "timestamp": 1774926939.5933375
+  "timestamp": 1775024640.41339
 }
