@@ -242,6 +242,7 @@ export default function Home() {
 
   const [searchTerm, setSearchTerm] = useState("");
   React.useEffect(() => {
+    let timeoutId: any;
     if (searchTerm.length >= 1) {
       const fetchApiSearch = async () => {
         setIsSearchLoading(true);
@@ -256,12 +257,24 @@ export default function Home() {
         }
       };
       
-      const timeoutId = setTimeout(fetchApiSearch, 300);
-      return () => clearTimeout(timeoutId);
+      timeoutId = setTimeout(fetchApiSearch, 300);
     } else {
       setApiResults([]);
       setIsSearchLoading(false);
     }
+
+    const handleTimeWarpEvent = (e: any) => {
+      if (e.detail?.triggered !== undefined) {
+        setIsTimeWarpTriggered(e.detail.triggered);
+        setView("GAME");
+      }
+    };
+    window.addEventListener('trigger-timewarp', handleTimeWarpEvent);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      window.removeEventListener('trigger-timewarp', handleTimeWarpEvent);
+    };
   }, [searchTerm]);
 
   const filteredStocks = Array.from(new Map([
@@ -506,7 +519,7 @@ export default function Home() {
                         {filteredStocks.map((stock) => {
                           const isSelected = selectedSearchSymbols.includes(stock.symbol);
                           return (
-                            <div key={stock.symbol} className="w-full flex items-center hover:bg-white/5 border-b border-white/5 group/row">
+                            <div key={stock.symbol} className="w-full flex items-center hover:bg-white/5 border-b border-white/5 group/row relative z-[60]">
                               <button 
                                 onClick={(e) => toggleSearchSelection(stock.symbol, e)}
                                 className="pl-4 pr-1 py-4 text-slate-600 hover:text-[#F08080] transition-colors"
@@ -545,15 +558,15 @@ export default function Home() {
           </motion.div>
         ) : view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="w-full flex items-center justify-center mb-6 px-4 relative h-16">
-              <Button variant="ghost" className="absolute left-4 text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
+            <div className="w-full flex items-center justify-between mb-6 px-4 relative h-16">
+              <div />
             </div>
             <PuzzleGame stockData={stockData} gridSize={2} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
           </motion.div>
         ) : (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
             <div className="w-full flex items-center justify-between mb-4 px-4">
-              <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
+              <div />
               
               <div className="flex items-center gap-1 sm:gap-4">
                 <button 
@@ -584,12 +597,19 @@ export default function Home() {
                 isTimeWarpTriggered={isTimeWarpTriggered}
               />
               
-              <div className="mt-12 flex justify-center z-[100]">
+              <div className="mt-12 flex justify-center gap-12 z-[100]">
                 <Button 
-                  onClick={() => setView("GAME")} 
-                  className="bg-[#F08080] hover:bg-[#F08080]/90 text-white font-black rounded-3xl h-16 px-14 shadow-2xl shadow-rose-500/30 flex items-center gap-2 text-lg active:scale-95 transition-all outline-none"
+                  onClick={() => { setView("GAME"); setIsTimeWarpTriggered(false); }} 
+                  className="bg-white/5 hover:bg-white/10 border border-white/20 p-2 h-auto rounded-3xl transition-all active:scale-95 group"
                 >
-                  <Play size={22} fill="currentColor" /> 블라인드 챌린지 시작
+                  <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
+                </Button>
+                
+                <Button 
+                  onClick={() => { setView("GAME"); setIsTimeWarpTriggered(true); }} 
+                  className="bg-white/5 hover:bg-white/10 border border-white/20 p-2 h-auto rounded-3xl transition-all active:scale-95 group"
+                >
+                  <img src="/icons/v3_warp.png" alt="TimeWarp" className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
                 </Button>
               </div>
             </div>

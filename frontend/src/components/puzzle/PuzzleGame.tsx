@@ -108,6 +108,7 @@ interface FlipCardProps {
   timeframe?: "D" | "W" | "M";
   setTimeframe?: (tf: "D" | "W" | "M") => void;
   onRefresh?: () => void; // 수동 갱신 함수 추가
+  isOnlyChart?: boolean;
 }
 
 const UnifiedFlipCard = ({ 
@@ -121,7 +122,8 @@ const UnifiedFlipCard = ({
   hideName, 
   timeframe, 
   setTimeframe,
-  onRefresh
+  onRefresh,
+  isOnlyChart
 }: FlipCardProps) => {
   return (
     <div className="w-full perspect-2000 relative z-10" style={{ perspective: "2000px" }}>
@@ -165,16 +167,32 @@ const UnifiedFlipCard = ({
               </div>
             )}
           </div>
-          <div className="absolute bottom-[60px] left-1/2 -translate-x-[calc(50%+20px)] z-500">
+          <div className="mt-8 flex justify-center gap-16 z-[500] relative">
             <button 
               onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }} 
-              className="group flex flex-col items-center gap-1.5 transition-all active:scale-95"
+              className="group flex flex-col items-center gap-2 transition-all active:scale-95"
             >
-              <img src="/icons/v17_trigger.png" alt="Intelligence Trigger" className="w-20 h-20 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
-              <div className="whitespace-nowrap text-[11px] font-black text-rose-400 opacity-60 group-hover:opacity-100 transition-all uppercase tracking-[0.2em] ml-[-16px]">
+              <img src="/icons/v17_trigger.png" alt="Intelligence Trigger" className="w-16 h-16 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
+              <div className="whitespace-nowrap text-[10px] font-black text-rose-400 opacity-60 group-hover:opacity-100 transition-all uppercase tracking-[0.2em] ml-[-16px]">
                 트리거 클라우드
               </div>
             </button>
+
+            {isOnlyChart && (
+              <button 
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  const event = new CustomEvent('trigger-timewarp', { detail: { triggered: true } });
+                  window.dispatchEvent(event);
+                }} 
+                className="group flex flex-col items-center gap-2 transition-all active:scale-95"
+              >
+                <img src="/icons/v3_warp.png" alt="Time Warp" className="w-16 h-16 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
+                <div className="whitespace-nowrap text-[10px] font-black text-[#F08080] opacity-60 group-hover:opacity-100 transition-all uppercase tracking-[0.2em]">
+                  타임워프
+                </div>
+              </button>
+            )}
           </div>
           <div className="w-full h-[55vh] min-h-[400px] bg-black/40 rounded-[2.5rem] overflow-hidden pt-12">
             {chartContent}
@@ -188,10 +206,6 @@ const UnifiedFlipCard = ({
         >
           {/* Back Header Section */}
           <div className="absolute top-8 inset-x-0 flex flex-col items-center gap-2 px-8">
-            <div className="absolute top-2 left-4">
-               <img src="/icons/v17_trigger.png" alt="Intelligence" className="h-16 object-contain drop-shadow-[0_0_20px_rgba(244,63,94,0.3)] brightness(1.1)" />
-            </div>
-            
             {stockName && !hideName && (
               <div className="flex flex-col items-center">
                 <h3 className="text-xl font-black text-white">{stockName}</h3>
@@ -523,6 +537,7 @@ export const PuzzleGame = ({
           stockSymbol={stockSymbol}
           stockName={stockName}
           hideName={false}
+          isOnlyChart={isOnlyChart}
           timeframe={timeframe}
           setTimeframe={setTimeframe}
           onRefresh={() => fetchTrigger(true)}
@@ -574,6 +589,7 @@ export const PuzzleGame = ({
                 stockSymbol={stockSymbol}
                 stockName={stockName}
                 hideName={false}
+                isOnlyChart={isOnlyChart}
                 timeframe={timeframe}
                 setTimeframe={setTimeframe}
                 onRefresh={() => fetchTrigger(true)}
@@ -638,6 +654,7 @@ export const PuzzleGame = ({
                 stockSymbol={stockSymbol}
                 stockName={stockName}
                 hideName={false}
+                isOnlyChart={false}
                 timeframe={timeframe}
                 setTimeframe={setTimeframe}
                 onRefresh={() => fetchTrigger(true)}
@@ -666,7 +683,7 @@ export const PuzzleGame = ({
                 <button onClick={() => setIsTimeWarpNewsOpen(!isTimeWarpNewsOpen)} className="w-full flex items-center justify-between p-4 text-white/40 hover:text-white"><span className="text-xs font-black uppercase tracking-widest">News Pulse</span><ChevronDown size={18}/></button>
                 <AnimatePresence>{isTimeWarpNewsOpen && <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} className="px-6 pb-6 space-y-2">{newsResults.map((n, i) => (<a key={i} href={n.link} target="_blank" className="block text-xs text-white/60 hover:text-white bg-white/5 p-3 rounded-xl line-clamp-1">{n.title}</a>))}</motion.div>}</AnimatePresence>
               </div>
-              <Button onClick={() => window.location.reload()} className="w-full h-16 bg-[#F08080] text-white text-lg font-black rounded-2xl mt-4 active:scale-95 transition-all shadow-2xl shadow-rose-900/20"><Home size={20} className="mr-2"/> 메인으로 돌아가기</Button>
+              <div className="h-8" />
             </motion.div>
           </motion.div>
         )}

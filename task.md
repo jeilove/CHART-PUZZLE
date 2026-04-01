@@ -1,19 +1,20 @@
-# 🧩 작업 목록 (TASK) - v0.8.0 (Stable Rollback)
+# Task: Stock Chart Puzzle UI Finalization (v1.0.7)
 
-## 🔄 현재 상태 (Current Status)
-- [x] **마일스톤 복구**: 가장 안정적이었던 업종 검색 완료 버전(`d0b471f`)으로 롤백 완료.
-- [x] **환경 초기화**: `.next` 캐시 삭제 및 `pnpm install`, `uv sync` 완료.
-- [x] **스크래퍼 안정화**: 구글 뉴스 RSS 피드 기반의 뉴스 수집 엔진 확인 (v0.8.0 기본값).
+## 1. Search UI Stability
+- [x] Fix favorite star button unresponsiveness in search results (Z-index correction).
+- [x] Ensure search result rows are interactive even when overlapping other elements.
 
-## 🛠️ 긴급 점검 항목 (Emergency Verification)
-- [ ] **퍼즐 게임 동작**: 이미지 분할 및 드래그 앤 드롭 동작 확인.
-- [ ] **데이터 연동**: 백엔드 주가 데이터 수집기(`main.py`)와 프론트엔드 연동 확인.
-- [ ] **트리거 분석**: 감성 키워드 가중치 모델 및 워드 클라우드 렌더링 확인.
+## 2. Navigation & Icon Standardization
+- [x] Replace text-based "Blind Challenge Start" with `v3_puzzle.png`.
+- [x] Replace text-based "Time Warp" with `v3_warp.png`.
+- [x] Remove redundant "Back to Home" text buttons from top navigation.
+- [x] Remove "Back to Home" button from Time Warp result footer.
 
-## 🔜 다음 작업 (Planned)
-- [ ] **가중치 모델 최적화**: 뉴스 표본 확대 및 감쇠 계수 미세 조정.
-- [ ] **모바일 대응**: 터치 인터페이스 및 레이아웃 최적화.
-- [ ] **UI 폴리싱**: 전반적인 애니메이션 및 글래스모피즘 효과 완성도 향상.
+## 3. Intelligence UI Optimization
+- [x] Relocate Trigger Cloud and Time Warp icons to directly below the chart container.
+- [x] Remove Trigger icon from the back-side (Intelligence Analysis) header.
+- [x] Synchronize Time Warp state between components via Custom Events.
 
-## 📝 기록
-- **2026-04-01**: 이전 세션 무한 루프/정체로 인한 d0b471f 버전으로의 하드 리셋 및 안정화 복구 작업 실시.
+## 4. Layout Restoration
+- [x] Ensure Trigger Analysis screen maintains its premium layout without regressions.
+- [x] Standardize button spacing and alignment for a balanced UI.
