@@ -242,7 +242,6 @@ export default function Home() {
 
   const [searchTerm, setSearchTerm] = useState("");
   React.useEffect(() => {
-    let timeoutId: any;
     if (searchTerm.length >= 1) {
       const fetchApiSearch = async () => {
         setIsSearchLoading(true);
@@ -257,24 +256,12 @@ export default function Home() {
         }
       };
       
-      timeoutId = setTimeout(fetchApiSearch, 300);
+      const timeoutId = setTimeout(fetchApiSearch, 300);
+      return () => clearTimeout(timeoutId);
     } else {
       setApiResults([]);
       setIsSearchLoading(false);
     }
-
-    const handleTimeWarpEvent = (e: any) => {
-      if (e.detail?.triggered !== undefined) {
-        setIsTimeWarpTriggered(e.detail.triggered);
-        setView("GAME");
-      }
-    };
-    window.addEventListener('trigger-timewarp', handleTimeWarpEvent);
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      window.removeEventListener('trigger-timewarp', handleTimeWarpEvent);
-    };
   }, [searchTerm]);
 
   const filteredStocks = Array.from(new Map([
@@ -479,7 +466,7 @@ export default function Home() {
                 
                 <AnimatePresence>
                   {(searchTerm || isSearchLoading) && (
-                    <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-16 left-0 w-full bg-[#161b22] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50">
+                    <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-16 left-0 w-full bg-[#161b22] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-[200]">
                       
                       {isSearchLoading && (
                         <div className="p-4 flex items-center justify-center gap-2 border-b border-white/5">
@@ -519,7 +506,7 @@ export default function Home() {
                         {filteredStocks.map((stock) => {
                           const isSelected = selectedSearchSymbols.includes(stock.symbol);
                           return (
-                            <div key={stock.symbol} className="w-full flex items-center hover:bg-white/5 border-b border-white/5 group/row relative z-[60]">
+                            <div key={stock.symbol} className="w-full flex items-center hover:bg-white/5 border-b border-white/5 group/row">
                               <button 
                                 onClick={(e) => toggleSearchSelection(stock.symbol, e)}
                                 className="pl-4 pr-1 py-4 text-slate-600 hover:text-[#F08080] transition-colors"
@@ -558,15 +545,15 @@ export default function Home() {
           </motion.div>
         ) : view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="w-full flex items-center justify-between mb-6 px-4 relative h-16">
-              <div />
+            <div className="w-full flex items-center justify-center mb-6 px-4 relative h-16">
+              <Button variant="ghost" className="absolute left-4 text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
             </div>
             <PuzzleGame stockData={stockData} gridSize={2} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
           </motion.div>
         ) : (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
             <div className="w-full flex items-center justify-between mb-4 px-4">
-              <div />
+              <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
               
               <div className="flex items-center gap-1 sm:gap-4">
                 <button 
@@ -597,19 +584,12 @@ export default function Home() {
                 isTimeWarpTriggered={isTimeWarpTriggered}
               />
               
-              <div className="mt-12 flex justify-center gap-12 z-[100]">
+              <div className="mt-12 flex justify-center z-[100]">
                 <Button 
-                  onClick={() => { setView("GAME"); setIsTimeWarpTriggered(false); }} 
-                  className="bg-white/5 hover:bg-white/10 border border-white/20 p-2 h-auto rounded-3xl transition-all active:scale-95 group"
+                  onClick={() => setView("GAME")} 
+                  className="bg-[#F08080] hover:bg-[#F08080]/90 text-white font-black rounded-3xl h-16 px-14 shadow-2xl shadow-rose-500/30 flex items-center gap-2 text-lg active:scale-95 transition-all outline-none"
                 >
-                  <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
-                </Button>
-                
-                <Button 
-                  onClick={() => { setView("GAME"); setIsTimeWarpTriggered(true); }} 
-                  className="bg-white/5 hover:bg-white/10 border border-white/20 p-2 h-auto rounded-3xl transition-all active:scale-95 group"
-                >
-                  <img src="/icons/v3_warp.png" alt="TimeWarp" className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
+                  <Play size={22} fill="currentColor" /> 블라인드 챌린지 시작
                 </Button>
               </div>
             </div>
@@ -617,64 +597,8 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <motion.div 
-        initial={{ y: 100 }} 
-        animate={{ y: 0 }} 
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9999 bg-black/60 backdrop-blur-3xl border border-white/10 rounded-full px-8 py-4 flex items-center gap-10 shadow-2xl shadow-black/80"
-      >
-        <button onClick={() => setView("HOME")} className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "HOME" ? "scale-110" : "opacity-40 hover:opacity-100"}`}>
-          <div className="relative">
-            <img src="/icons/v11_home.png" alt="Home" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "HOME" ? "drop-shadow(0 0 15px rgba(255,255,255,0.4))" : "none" }} />
-            {view === "HOME" && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
-          </div>
-          <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${view === "HOME" ? "text-[#F08080]" : "text-white/40"}`}>Home</span>
-        </button>
-        <button 
-          onClick={() => {
-            if (selectedStock) { setView("CHART"); setIsTimeWarpTriggered(false); }
-            else alert("먼저 종목을 선택해 주세요.");
-          }} 
-          className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "CHART" ? "scale-110" : "opacity-40 hover:opacity-100"}`}
-        >
-          <div className="relative">
-            <img src="/icons/v3_chart.png" alt="Chart" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "CHART" ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
-            {view === "CHART" && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
-          </div>
-          <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${view === "CHART" ? "text-[#F08080]" : "text-white/40"}`}>Chart</span>
-        </button>
-        <button 
-          onClick={() => {
-            if (selectedStock) { setView("GAME"); setIsTimeWarpTriggered(false); }
-            else alert("먼저 종목을 선택해 주세요.");
-          }} 
-          className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "GAME" && !isTimeWarpTriggered ? "scale-110" : "opacity-40 hover:opacity-100"}`}
-        >
-          <div className="relative">
-            <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: (view === "GAME" && !isTimeWarpTriggered) ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
-            {(view === "GAME" && !isTimeWarpTriggered) && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
-          </div>
-          <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${(view === "GAME" && !isTimeWarpTriggered) ? "text-[#F08080]" : "text-white/40"}`}>Puzzle</span>
-        </button>
-        <button 
-          onClick={() => {
-            if (selectedStock) {
-              setView("GAME");
-              setIsTimeWarpTriggered(true);
-            } else {
-              alert("먼저 종목을 선택해 주세요.");
-            }
-          }} 
-          className={`flex flex-col items-center gap-1.5 group transition-all relative ${isTimeWarpTriggered ? "scale-110" : "opacity-40 hover:opacity-100"}`}
-        >
-          <div className="relative">
-            <img src="/icons/v3_warp.png" alt="TimeWarp" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: isTimeWarpTriggered ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
-            {isTimeWarpTriggered && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
-          </div>
-          <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${isTimeWarpTriggered ? "text-[#F08080]" : "text-white/40"}`}>Warp</span>
-        </button>
-      </motion.div>
 
-      <footer className="mt-20 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-50 text-center w-full">VIBE CODING • CHART PUZZLE v0.8.5-stable</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-50 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v0.8.5-stable</footer>
     </main>
   );
 }

@@ -1,0 +1,30 @@
+{
+  "cloud": [
+    {
+      "text": "오버행",
+      "value": 16.074425416781878,
+      "sentiment": "negative"
+    },
+    {
+      "text": "흑자전환",
+      "value": 10.009118819655544,
+      "sentiment": "positive"
+    },
+    {
+      "text": "고성장",
+      "value": 10.0,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment_score": -0.6065306597126334,
+  "price_change_20d": 24.33,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 05:18:46 GMT",
+    "Tue, 24 Mar 2026 01:07:32 GMT",
+    "Mon, 30 Mar 2026 10:05:48 GMT"
+  ],
+  "total_report_count": 53,
+  "is_fresh": true,
+  "timestamp": 1775036549.2937615
+}

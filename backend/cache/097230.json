@@ -1,0 +1,55 @@
+{
+  "cloud": [
+    {
+      "text": "턴어라운드",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "리레이팅",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "일회성 비용",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "컨센서스 하회",
+      "value": 10.0,
+      "sentiment": "negative"
+    },
+    {
+      "text": "영업적자",
+      "value": 10.0,
+      "sentiment": "negative"
+    },
+    {
+      "text": "구조 개선",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "흑자전환",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "실적 전망",
+      "value": 10.0,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 8.444176196446599e-129,
+  "price_change_20d": 23.84,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 07:09:55 GMT",
+    "Wed, 01 Apr 2026 03:20:23 GMT",
+    "Wed, 01 Apr 2026 00:53:00 GMT"
+  ],
+  "total_report_count": 67,
+  "is_fresh": true,
+  "timestamp": 1775033054.716926
+}

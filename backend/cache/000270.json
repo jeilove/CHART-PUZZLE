@@ -32,21 +32,14 @@
     }
   ],
   "sentiment_score": 0.033373269960326066,
-  "price_change_20d": -2.11,
+  "price_change_20d": -0.89,
   "gap_comment": "",
   "report_dates": [
-    "Wed, 01 Apr 2026 01:10:16 GMT",
-    "Wed, 01 Apr 2026 00:36:35 GMT",
-    "Tue, 31 Mar 2026 23:08:41 GMT",
-    "Tue, 31 Mar 2026 21:03:13 GMT",
-    "Tue, 31 Mar 2026 01:33:36 GMT",
-    "26.02.26",
-    "26.02.04",
-    "26.01.29",
-    "26.01.19",
-    "26.01.14"
+    "Wed, 01 Apr 2026 08:44:24 GMT",
+    "Wed, 01 Apr 2026 08:39:41 GMT",
+    "Wed, 01 Apr 2026 08:00:02 GMT"
   ],
   "total_report_count": 40,
   "is_fresh": true,
-  "timestamp": 1775013713.2612004
+  "timestamp": 1775035186.6042614
 }

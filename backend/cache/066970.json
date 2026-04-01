@@ -1,57 +1,70 @@
 {
   "cloud": [
     {
+      "text": "어닝 서프라이즈",
+      "value": 19.048374180359595,
+      "sentiment": "positive"
+    },
+    {
+      "text": "신고가",
+      "value": 18.18730753077982,
+      "sentiment": "positive"
+    },
+    {
+      "text": "긍정적",
+      "value": 10.045165809426127,
+      "sentiment": "neutral"
+    },
+    {
       "text": "흑자전환",
-      "value": 20,
-      "sentiment": "positive"
-    },
-    {
-      "text": "턴어라운드",
-      "value": 15,
-      "sentiment": "positive"
-    },
-    {
-      "text": "독점적 지위",
-      "value": 15,
+      "value": 10.000002266433183,
       "sentiment": "positive"
     },
     {
       "text": "리레이팅",
-      "value": 15,
+      "value": 10.000002266180127,
+      "sentiment": "positive"
+    },
+    {
+      "text": "턴어라운드",
+      "value": 10.000002266180127,
+      "sentiment": "positive"
+    },
+    {
+      "text": "Shortage",
+      "value": 10.000000000417216,
+      "sentiment": "positive"
+    },
+    {
+      "text": "독점적 지위",
+      "value": 10.000000000000057,
       "sentiment": "positive"
     },
     {
       "text": "컨센서스 하회",
-      "value": 25,
+      "value": 10.0,
       "sentiment": "negative"
     },
     {
-      "text": "긍정적",
-      "value": 15,
-      "sentiment": "neutral"
+      "text": "고객사 다변화",
+      "value": 10.0,
+      "sentiment": "positive"
     },
     {
       "text": "가시성",
-      "value": 15,
+      "value": 10.0,
       "sentiment": "neutral"
     }
   ],
-  "sentiment_score": 2,
-  "price_change_20d": 33.99,
+  "sentiment_score": 1.7235688510350125,
+  "price_change_20d": 58.15,
   "gap_comment": "호재 키워드 반영 완료 및 단기 과열 양상 (추격 매수 주의)",
   "report_dates": [
-    "26.03.25",
-    "26.02.23",
-    "26.02.06",
-    "26.01.14",
-    "26.01.05",
-    "25.11.07",
-    "25.10.30",
-    "25.10.20",
-    "25.09.19",
-    "25.09.17"
+    "Wed, 01 Apr 2026 00:08:00 GMT",
+    "Tue, 31 Mar 2026 23:19:52 GMT",
+    "Tue, 31 Mar 2026 23:18:00 GMT"
   ],
-  "total_report_count": 43,
+  "total_report_count": 48,
   "is_fresh": true,
-  "timestamp": 1774922157.3418791
+  "timestamp": 1775030307.2115097
 }

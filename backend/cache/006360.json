@@ -1,0 +1,45 @@
+{
+  "cloud": [
+    {
+      "text": "긍정적",
+      "value": 10.000004129249447,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "부정적",
+      "value": 10.000000000000032,
+      "sentiment": "negative"
+    },
+    {
+      "text": "모멘텀 부재",
+      "value": 10.000000000000005,
+      "sentiment": "negative"
+    },
+    {
+      "text": "턴어라운드",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "일회성 비용",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "현금흐름 개선",
+      "value": 10.0,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment_score": -3.638524734733272e-15,
+  "price_change_20d": 49.6,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 05:20:05 GMT",
+    "Wed, 01 Apr 2026 01:28:54 GMT",
+    "Wed, 01 Apr 2026 00:24:09 GMT"
+  ],
+  "total_report_count": 46,
+  "is_fresh": true,
+  "timestamp": 1775033270.3946958
+}
