@@ -165,10 +165,10 @@ const UnifiedFlipCard = ({
               </div>
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-10 flex justify-center z-500">
+          <div className="absolute inset-x-0 bottom-[60px] flex justify-center z-500">
             <button 
               onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }} 
-              className="group flex flex-col items-center gap-3 transition-all active:scale-95"
+              className="group flex flex-col items-center gap-3 transition-all active:scale-95 ml-[-40px]"
             >
               <img src="/icons/v17_trigger.png" alt="Intelligence Trigger" className="h-24 w-24 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
               <div className="whitespace-nowrap text-[11px] font-black text-rose-400 opacity-60 group-hover:opacity-100 transition-all uppercase tracking-[0.2em]">
