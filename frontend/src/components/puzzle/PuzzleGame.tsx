@@ -207,7 +207,7 @@ const UnifiedFlipCard = ({
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
           {/* Back Header Section */}
-          <div className="absolute top-8 inset-x-0 flex flex-col items-center gap-2 px-8">
+          <div className="absolute top-8 inset-x-0 flex flex-col items-center gap-2 px-8 z-[200]">
             {stockName && !hideName && (
               <div className="flex flex-col items-center">
                 <h3 className="text-xl font-black text-white">{stockName}</h3>
@@ -231,7 +231,8 @@ const UnifiedFlipCard = ({
               <BarChart2 size={18} className="text-rose-400" />
             </button>
           </div>
-          <div className="w-full flex-1 flex items-center justify-center">
+          
+          <div className="w-full flex-1 flex items-center justify-center relative mt-16">
             {triggerLoading ? (
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="animate-spin text-rose-500" size={40} />
@@ -246,9 +247,9 @@ const UnifiedFlipCard = ({
               <div className="relative w-full h-full flex items-center justify-center">
                 <TriggerCloud data={triggerResults.cloud} />
                 {/* Fixed Report Dates as Footer */}
-                <div className="absolute bottom-2 right-4 flex items-center gap-2 opacity-40 select-none">
+                <div className="absolute bottom-[-15px] right-2 flex items-center gap-2 opacity-40 select-none z-[200]">
                   {triggerResults?.report_dates?.slice(0, 3).map((d: string, i: number) => (
-                    <span key={i} className="text-[8px] font-bold text-white tracking-tighter px-1.5 py-0.5 border border-white/10 rounded">
+                    <span key={i} className="text-[9px] font-bold text-white tracking-tighter px-1.5 py-0.5 border border-white/10 rounded">
                       {d}
                     </span>
                   ))}
