@@ -597,35 +597,43 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* 하단 탭바 (Tab Bar) */}
       <motion.div 
         initial={{ y: 100 }} 
         animate={{ y: 0 }} 
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full px-6 py-3 flex items-center gap-8 shadow-2xl shadow-black/50"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9999 bg-black/60 backdrop-blur-3xl border border-white/10 rounded-full px-8 py-4 flex items-center gap-10 shadow-2xl shadow-black/80"
       >
-        <button onClick={() => setView("HOME")} className={`flex flex-col items-center gap-1 group transition-all ${view === "HOME" ? "scale-110" : "opacity-40 hover:opacity-100"}`}>
-          <img src="/icons/홈으로_아이콘.png" alt="Home" className="w-8 h-8 object-contain transition-transform group-hover:scale-110" />
-          <span className={`text-[9px] font-black uppercase tracking-tighter ${view === "HOME" ? "text-[#F08080]" : "text-white/40"}`}>Home</span>
+        <button onClick={() => setView("HOME")} className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "HOME" ? "scale-110" : "opacity-40 hover:opacity-100"}`}>
+          <div className="relative">
+            <img src="/icons/홈으로_아이콘.png" alt="Home" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "HOME" ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
+            {view === "HOME" && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
+          </div>
+          <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${view === "HOME" ? "text-[#F08080]" : "text-white/40"}`}>Home</span>
         </button>
         <button 
           onClick={() => {
-            if (selectedStock) setView("CHART");
+            if (selectedStock) { setView("CHART"); setIsTimeWarpTriggered(false); }
             else alert("먼저 종목을 선택해 주세요.");
           }} 
-          className={`flex flex-col items-center gap-1 group transition-all ${view === "CHART" ? "scale-110" : "opacity-40 hover:opacity-100"}`}
+          className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "CHART" ? "scale-110" : "opacity-40 hover:opacity-100"}`}
         >
-          <img src="/icons/차트보기 아이콘.png" alt="Chart" className="w-8 h-8 object-contain transition-transform group-hover:scale-110" />
-          <span className={`text-[9px] font-black uppercase tracking-tighter ${view === "CHART" ? "text-[#F08080]" : "text-white/40"}`}>Chart</span>
+          <div className="relative">
+            <img src="/icons/차트보기 아이콘.png" alt="Chart" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "CHART" ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
+            {view === "CHART" && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
+          </div>
+          <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${view === "CHART" ? "text-[#F08080]" : "text-white/40"}`}>Chart</span>
         </button>
         <button 
           onClick={() => {
-            if (selectedStock) setView("GAME");
+            if (selectedStock) { setView("GAME"); setIsTimeWarpTriggered(false); }
             else alert("먼저 종목을 선택해 주세요.");
           }} 
-          className={`flex flex-col items-center gap-1 group transition-all ${view === "GAME" && !isTimeWarpTriggered ? "scale-110" : "opacity-40 hover:opacity-100"}`}
+          className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "GAME" && !isTimeWarpTriggered ? "scale-110" : "opacity-40 hover:opacity-100"}`}
         >
-          <img src="/icons/차트퍼즐_아이콘.png" alt="Puzzle" className="w-8 h-8 object-contain transition-transform group-hover:scale-110" />
-          <span className={`text-[9px] font-black uppercase tracking-tighter ${view === "GAME" && !isTimeWarpTriggered ? "text-[#F08080]" : "text-white/40"}`}>Puzzle</span>
+          <div className="relative">
+            <img src="/icons/차트퍼즐_아이콘.png" alt="Puzzle" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: (view === "GAME" && !isTimeWarpTriggered) ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
+            {(view === "GAME" && !isTimeWarpTriggered) && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
+          </div>
+          <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${(view === "GAME" && !isTimeWarpTriggered) ? "text-[#F08080]" : "text-white/40"}`}>Puzzle</span>
         </button>
         <button 
           onClick={() => {
@@ -636,10 +644,13 @@ export default function Home() {
               alert("먼저 종목을 선택해 주세요.");
             }
           }} 
-          className={`flex flex-col items-center gap-1 group transition-all ${isTimeWarpTriggered ? "scale-110" : "opacity-40 hover:opacity-100"}`}
+          className={`flex flex-col items-center gap-1.5 group transition-all relative ${isTimeWarpTriggered ? "scale-110" : "opacity-40 hover:opacity-100"}`}
         >
-          <img src="/icons/타임워프 아이콘.png" alt="TimeWarp" className="w-8 h-8 object-contain transition-transform group-hover:scale-110" />
-          <span className={`text-[9px] font-black uppercase tracking-tighter ${isTimeWarpTriggered ? "text-[#F08080]" : "text-white/40"}`}>Warp</span>
+          <div className="relative">
+            <img src="/icons/타임워프 아이콘.png" alt="TimeWarp" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: isTimeWarpTriggered ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
+            {isTimeWarpTriggered && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
+          </div>
+          <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${isTimeWarpTriggered ? "text-[#F08080]" : "text-white/40"}`}>Warp</span>
         </button>
       </motion.div>
 
