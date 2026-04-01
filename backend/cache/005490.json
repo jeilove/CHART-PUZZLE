@@ -1,33 +1,47 @@
 {
   "cloud": [
     {
-      "text": "턴어라운드",
-      "value": 15,
-      "sentiment": "positive"
+      "text": "역성장",
+      "value": 15.488116360940264,
+      "sentiment": "negative"
     },
     {
       "text": "컨센서스 하회",
-      "value": 15,
+      "value": 10.030275547453758,
       "sentiment": "negative"
     },
     {
       "text": "일회성 비용",
-      "value": 15,
+      "value": 10.030275547453758,
       "sentiment": "neutral"
     },
     {
+      "text": "턴어라운드",
+      "value": 10.022428677194858,
+      "sentiment": "positive"
+    },
+    {
       "text": "긍정적",
-      "value": 30,
+      "value": 10.000000000000032,
       "sentiment": "neutral"
     }
   ],
-  "sentiment_score": 0,
-  "price_change_20d": -16.95,
+  "sentiment_score": -0.5495963231199164,
+  "price_change_20d": 7.93,
   "gap_comment": "",
   "report_dates": [
+    "Wed, 01 Apr 2026 03:33:55 GMT",
+    "Wed, 01 Apr 2026 01:13:00 GMT",
+    "Tue, 31 Mar 2026 07:49:50 GMT",
+    "Thu, 26 Mar 2026 01:16:02 GMT",
+    "Thu, 26 Mar 2026 00:36:05 GMT",
     "26.03.26",
     "26.02.02",
-    "26.01.30"
+    "26.01.30",
+    "26.01.16",
+    "26.01.13"
   ],
-  "timestamp": 1774869885.2278645
+  "total_report_count": 55,
+  "is_fresh": true,
+  "timestamp": 1775022969.133369
 }
