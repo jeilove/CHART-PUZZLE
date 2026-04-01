@@ -604,7 +604,7 @@ export default function Home() {
       >
         <button onClick={() => setView("HOME")} className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "HOME" ? "scale-110" : "opacity-40 hover:opacity-100"}`}>
           <div className="relative">
-            <img src="/icons/v3_home.png" alt="Home" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "HOME" ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
+            <img src="/icons/v4_home.png" alt="Home" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "HOME" ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
             {view === "HOME" && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
           </div>
           <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${view === "HOME" ? "text-[#F08080]" : "text-white/40"}`}>Home</span>
