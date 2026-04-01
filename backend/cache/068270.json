@@ -2,37 +2,46 @@
   "cloud": [
     {
       "text": "수익성 개선",
-      "value": 30,
+      "value": 10.04700686739379,
       "sentiment": "positive"
     },
     {
-      "text": "컨센서스 하회",
-      "value": 25,
-      "sentiment": "negative"
-    },
-    {
-      "text": "일회성 비용",
-      "value": 20,
-      "sentiment": "neutral"
-    },
-    {
-      "text": "긍정적",
-      "value": 15,
-      "sentiment": "neutral"
+      "text": "캐시카우",
+      "value": 10.000004129249415,
+      "sentiment": "positive"
     },
     {
       "text": "가시성",
-      "value": 15,
+      "value": 10.000002266180127,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "컨센서스 하회",
+      "value": 10.0,
+      "sentiment": "negative"
+    },
+    {
+      "text": "긍정적",
+      "value": 10.0,
       "sentiment": "neutral"
     }
   ],
-  "sentiment_score": 1,
-  "price_change_20d": -15.51,
+  "sentiment_score": 0.004701099664320653,
+  "price_change_20d": 4.36,
   "gap_comment": "",
   "report_dates": [
-    "26/03/30",
+    "Wed, 01 Apr 2026 00:55:08 GMT",
+    "Wed, 01 Apr 2026 00:49:37 GMT",
+    "Tue, 31 Mar 2026 23:51:06 GMT",
+    "Tue, 31 Mar 2026 06:20:00 GMT",
+    "Sun, 29 Mar 2026 23:57:58 GMT",
     "26.03.30",
-    "26.02.12"
+    "26.02.12",
+    "26.02.06",
+    "26.01.06",
+    "26.01.05"
   ],
-  "timestamp": 1774869880.5624268
+  "total_report_count": 55,
+  "is_fresh": true,
+  "timestamp": 1775021340.707759
 }
