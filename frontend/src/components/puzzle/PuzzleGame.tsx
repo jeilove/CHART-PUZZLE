@@ -165,12 +165,12 @@ const UnifiedFlipCard = ({
               </div>
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-[60px] flex justify-center z-500">
+          <div className="absolute bottom-[60px] left-1/2 -translate-x-[calc(50%+20px)] z-500">
             <button 
               onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }} 
-              className="group flex flex-col items-center gap-3 transition-all active:scale-95 ml-[-40px]"
+              className="group flex flex-col items-center gap-1.5 transition-all active:scale-95"
             >
-              <img src="/icons/v17_trigger.png" alt="Intelligence Trigger" className="h-24 w-24 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
+              <img src="/icons/v17_trigger.png" alt="Intelligence Trigger" className="w-20 h-20 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
               <div className="whitespace-nowrap text-[11px] font-black text-rose-400 opacity-60 group-hover:opacity-100 transition-all uppercase tracking-[0.2em]">
                 트리거 클라우드
               </div>
