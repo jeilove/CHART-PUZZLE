@@ -2,27 +2,41 @@
   "cloud": [
     {
       "text": "최선호주",
-      "value": 15,
+      "value": 10.004097349789799,
       "sentiment": "positive"
     },
     {
-      "text": "비용 부담",
-      "value": 15,
-      "sentiment": "negative"
+      "text": "Re-rating",
+      "value": 10.000002504516372,
+      "sentiment": "positive"
     },
     {
       "text": "자사주 매입",
-      "value": 15,
+      "value": 10.0,
       "sentiment": "neutral"
+    },
+    {
+      "text": "비용 부담",
+      "value": 10.0,
+      "sentiment": "negative"
     }
   ],
-  "sentiment_score": 0,
-  "price_change_20d": -30.34,
+  "sentiment_score": 0.000409985430617019,
+  "price_change_20d": -3.99,
   "gap_comment": "",
   "report_dates": [
-    "26/03/30",
+    "Wed, 01 Apr 2026 01:00:09 GMT",
+    "Wed, 01 Apr 2026 00:30:23 GMT",
+    "Wed, 01 Apr 2026 00:17:41 GMT",
+    "Tue, 31 Mar 2026 08:40:16 GMT",
+    "Sun, 29 Mar 2026 08:41:05 GMT",
     "26.03.16",
-    "26.03.03"
+    "26.03.03",
+    "26.02.27",
+    "26.02.19",
+    "26.01.30"
   ],
-  "timestamp": 1774869857.3917382
+  "total_report_count": 41,
+  "is_fresh": true,
+  "timestamp": 1775012218.180293
 }

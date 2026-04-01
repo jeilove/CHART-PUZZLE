@@ -215,7 +215,7 @@ const UnifiedFlipCard = ({
                 분석 소스 데이터 확인 중...
               </div>
             )}
-            {triggerResults?.report_dates?.map((d: string, i: number) => (
+            {triggerResults?.report_dates?.slice(0, 3).map((d: string, i: number) => (
               <span 
                 key={i} 
                 className="text-[9px] font-bold text-white/30 tracking-tighter bg-white/5 px-2 py-0.5 rounded-md border border-white/5 hover:border-rose-500/30 transition-colors"

@@ -71,6 +71,7 @@ export default function Home() {
   const [selectedSearchSymbols, setSelectedSearchSymbols] = useState<string[]>([]);
   const [targetAddGroupId, setTargetAddGroupId] = useState<string>("");
   const [activeFilterGroupId, setActiveFilterGroupId] = useState<string | null>(null);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
 
   React.useEffect(() => {
     console.log("%c VIBE CODING • CHART PUZZLE v0.6.0-multiselect ", "background: #F08080; color: white; font-weight: bold; padding: 4px 8px; border-radius: 6px;");
@@ -244,19 +245,25 @@ export default function Home() {
 
   const [searchTerm, setSearchTerm] = useState("");
   React.useEffect(() => {
-    if (searchTerm.length >= 2) {
+    if (searchTerm.length >= 1) {
       const fetchApiSearch = async () => {
+        setIsSearchLoading(true);
         try {
           const res = await fetch(`http://127.0.0.1:8000/api/search?q=${encodeURIComponent(searchTerm)}`);
           if (res.ok) {
             const data = await res.json();
             setApiResults(data.results || []);
           }
-        } catch (e) {}
+        } catch (e) {} finally {
+          setIsSearchLoading(false);
+        }
       };
-      fetchApiSearch();
+      
+      const timeoutId = setTimeout(fetchApiSearch, 300);
+      return () => clearTimeout(timeoutId);
     } else {
       setApiResults([]);
+      setIsSearchLoading(false);
     }
   }, [searchTerm]);
 
@@ -267,7 +274,7 @@ export default function Home() {
       (s.industry && s.industry.includes(searchTerm))
     ),
     ...apiResults
-  ].map(s => [s.symbol, s])).values()).slice(0, 12);
+  ].map(s => [s.symbol, s])).values()).slice(0, 40);
 
   return (
     <main className="min-h-screen bg-[#0d1117] text-slate-200 flex flex-col items-center justify-center p-4 overflow-hidden relative font-sans">
@@ -430,8 +437,15 @@ export default function Home() {
                 />
                 
                 <AnimatePresence>
-                  {searchTerm && (
+                  {(searchTerm || isSearchLoading) && (
                     <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-16 left-0 w-full bg-[#161b22] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50">
+                      
+                      {isSearchLoading && (
+                        <div className="p-4 flex items-center justify-center gap-2 border-b border-white/5">
+                          <Loader2 size={16} className="animate-spin text-[#F08080]" />
+                          <span className="text-xs text-white/40">검색 중...</span>
+                        </div>
+                      )}
                       
                       {/* 다중 선택 관리 바 */}
                       {selectedSearchSymbols.length > 0 && (

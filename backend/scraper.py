@@ -204,29 +204,26 @@ def search_stock(query):
     네이버 자동완성 API 및 내부 업종 DB를 사용하여 종목명/코드/업종 통합 검색 (v0.8.0)
     """
     if not query: return []
-    query = query.strip().upper()
+    query = query.strip().replace(" ", "").upper()
     
     results_map = {} # symbol -> {name, symbol, industry} 중복 방지용
     
     # 1. 내부 업종 DB에서 매칭되는 종목 먼저 검색 (업종명/종목명/코드 통합 검색)
     if INDUSTRY_MAP:
         for code, info in INDUSTRY_MAP.items():
-            # info = {"name": "...", "industry": "..."}
-            name = info.get("name", "")
-            industry = info.get("industry", "")
+            name = info.get("name", "").replace(" ", "").upper()
+            industry = info.get("industry", "").replace(" ", "").upper()
             
-            # 검색어가 업종명, 종목명, 종목코드 중 하나에라도 포함되면 결과에 추가
-            if (query in industry.upper() or 
-                query in name.upper() or 
+            if (query in industry or 
+                query in name or 
                 query in code.upper()):
                 results_map[code] = {
-                    "name": name,
+                    "name": info.get("name"),
                     "symbol": code,
-                    "industry": industry
+                    "industry": info.get("industry")
                 }
             
-            # 너무 많은 결과 방지를 위해 1차적으로 30개 제한
-            if len(results_map) >= 30:
+            if len(results_map) >= 50:
                 break
 
     try:
@@ -486,7 +483,7 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
         "sentiment_score": sentiment_score,
         "price_change_20d": round(price_change, 2),
         "gap_comment": gap_comment,
-        "report_dates": sorted_dates[:10],
+        "report_dates": sorted_dates[:3],
         "total_report_count": len(sorted_dates),
         "is_fresh": True
     }

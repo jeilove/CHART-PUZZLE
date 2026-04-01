@@ -1,0 +1,27 @@
+{
+  "cloud": [
+    {
+      "text": "실적 전망",
+      "value": 10.0,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment_score": 0,
+  "price_change_20d": -5.32,
+  "gap_comment": "",
+  "report_dates": [
+    "Tue, 31 Mar 2026 07:03:18 GMT",
+    "Tue, 31 Mar 2026 01:30:56 GMT",
+    "Thu, 19 Mar 2026 07:00:00 GMT",
+    "Sun, 29 Mar 2026 08:59:17 GMT",
+    "Fri, 27 Mar 2026 12:13:01 GMT",
+    "25.11.21",
+    "25.11.18",
+    "25.10.15",
+    "25.05.16",
+    "25.02.27"
+  ],
+  "total_report_count": 28,
+  "is_fresh": true,
+  "timestamp": 1774961236.2681315
+}
