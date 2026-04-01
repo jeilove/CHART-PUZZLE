@@ -203,7 +203,7 @@ const UnifiedFlipCard = ({
 
         {/* Back */}
         <div 
-          className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center shadow-3xl overflow-hidden" 
+          className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center justify-center shadow-3xl" 
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
           {/* Back Header Section */}
@@ -231,8 +231,7 @@ const UnifiedFlipCard = ({
               <BarChart2 size={18} className="text-rose-400" />
             </button>
           </div>
-
-          <div className="w-full flex-1 flex flex-col items-center justify-center mt-20">
+          <div className="w-full flex-1 flex items-center justify-center">
             {triggerLoading ? (
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="animate-spin text-rose-500" size={40} />
@@ -244,10 +243,10 @@ const UnifiedFlipCard = ({
                 </div>
               </div>
             ) : triggerResults ? (
-              <div className="relative w-full flex-1 flex items-center justify-center">
+              <div className="relative w-full h-full flex items-center justify-center">
                 <TriggerCloud data={triggerResults.cloud} />
                 {/* Fixed Report Dates as Footer */}
-                <div className="absolute bottom-[-10px] right-2 flex items-center gap-2 opacity-40 select-none">
+                <div className="absolute bottom-2 right-4 flex items-center gap-2 opacity-40 select-none">
                   {triggerResults?.report_dates?.slice(0, 3).map((d: string, i: number) => (
                     <span key={i} className="text-[8px] font-bold text-white tracking-tighter px-1.5 py-0.5 border border-white/10 rounded">
                       {d}
@@ -262,10 +261,7 @@ const UnifiedFlipCard = ({
               </div>
             )}
           </div>
-          
-          <div className="w-full mt-auto mb-2">
-            <GapComponent comment={triggerResults?.gap_comment} />
-          </div>
+          <GapComponent comment={triggerResults?.gap_comment} />
         </div>
       </motion.div>
     </div>

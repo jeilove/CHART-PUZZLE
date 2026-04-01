@@ -1,28 +1,57 @@
 {
   "cloud": [
     {
-      "text": "믹스 개선",
-      "value": 15,
+      "text": "가시성",
+      "value": 10.022428677194858,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "가격 상승",
+      "value": 10.022428677194858,
       "sentiment": "positive"
     },
     {
       "text": "실적 전망",
-      "value": 15,
+      "value": 10.00224867324179,
       "sentiment": "neutral"
     },
     {
-      "text": "가시성",
-      "value": 15,
-      "sentiment": "neutral"
+      "text": "믹스 개선",
+      "value": 10.00000000013888,
+      "sentiment": "positive"
+    },
+    {
+      "text": "수요 둔화",
+      "value": 10.00000000013888,
+      "sentiment": "negative"
+    },
+    {
+      "text": "경쟁 심화",
+      "value": 10.00000000013888,
+      "sentiment": "negative"
+    },
+    {
+      "text": "비중확대",
+      "value": 10.000000000000004,
+      "sentiment": "positive"
     }
   ],
-  "sentiment_score": 1,
-  "price_change_20d": -17.72,
+  "sentiment_score": 0.0022428677055982035,
+  "price_change_20d": 5.18,
   "gap_comment": "",
   "report_dates": [
+    "Wed, 01 Apr 2026 06:36:01 GMT",
+    "Tue, 31 Mar 2026 22:00:21 GMT",
+    "Tue, 31 Mar 2026 04:56:00 GMT",
+    "Tue, 31 Mar 2026 03:47:00 GMT",
+    "Mon, 30 Mar 2026 20:00:00 GMT",
+    "26.04.01",
     "26.03.25",
     "26.03.23",
-    "26.03.16"
+    "26.03.16",
+    "26.03.05"
   ],
-  "timestamp": 1774869824.5407689
+  "total_report_count": 55,
+  "is_fresh": true,
+  "timestamp": 1775027672.3266735
 }
