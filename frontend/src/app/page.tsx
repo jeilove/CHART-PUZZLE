@@ -9,6 +9,68 @@ import {
 } from "lucide-react";
 import { PuzzleGame } from "@/components/puzzle/PuzzleGame";
 import { motion, AnimatePresence } from "framer-motion";
+import StockHeatmap from "@/components/ui/StockHeatmap";
+
+// 1.1.0: TradingView 히트맵 위젯 컴포넌트
+function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
+  React.useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      "exchanges": [],
+      "dataSource": dataSource,
+      "grouping": "sector",
+      "blockSize": "market_cap_basic",
+      "blockColor": "change",
+      "locale": "kr",
+      "symbolUrl": "",
+      "colorTheme": "dark",
+      "hasTopBar": false,
+      "isDataSetEnabled": false,
+      "isZoomEnabled": true,
+      "hasSymbolTooltip": true,
+      "width": "100%",
+      "height": "100%"
+    });
+    const container = document.getElementById(`tradingview-heatmap-${dataSource}`);
+    if (container) {
+      container.innerHTML = "";
+      container.appendChild(script);
+    }
+  }, [dataSource]);
+
+  return (
+    <div className="w-full h-full bg-black/20 overflow-hidden" id={`tradingview-heatmap-${dataSource}`}>
+      <div className="tradingview-widget-container__widget"></div>
+    </div>
+  );
+}
+
+// 1.1.0: 실시간 시장 데이터 연동 커스텀 히트맵
+function LiveMarketHeatmap({ type }: { type: string }) {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    async function load() {
+      try {
+        setLoading(true);
+        const res = await fetch(`http://127.0.0.1:8000/api/market/heatmap?type=${type}&pages=2`);
+        if (!res.ok) throw new Error("Fetch failed");
+        const json = await res.json();
+        setData(json);
+      } catch (e) {
+        console.error(`${type} data fetch error:`, e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [type]);
+
+  return <StockHeatmap title={type} data={data} loading={loading} />;
+}
 
 // 테스트를 위한 Mock 주가 데이터 (KOSPI 200/KOSDAQ 150 컨셉)
 const MOCK_STOCK_DATA = Array.from({ length: 60 }, (_, i) => {
@@ -502,30 +564,32 @@ export default function Home() {
               </AnimatePresence>
             </div>
 
-            {/* 2. 시장 정보 히트맵 섹션 (자리 잡기) */}
+            {/* 2. 시장 정보 히트맵 섹션 (실시간 연동) */}
             <div className="w-full mb-10 overflow-x-auto no-scrollbar">
               <div className="flex items-center gap-2 mb-4 text-[10px] font-black text-[#F08080] uppercase tracking-widest pl-1">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                U.S. MARKETS CLOSED
+                MARKET OVERVIEW (KST)
               </div>
-              <div className="flex gap-4 min-w-full pb-2">
+              <div className="flex gap-4 min-w-full pb-2 px-1">
                 {[
-                  { name: "S&P 500", value: "6,575.32", change: "+0.72%", color: "emerald-400" },
-                  { name: "KOSPI", value: "2,741.08", change: "-0.15%", color: "rose-400" },
-                  { name: "KOSDAQ", value: "891.56", change: "+0.32%", color: "emerald-400" }
+                  { name: "S&P 500", type: "SPX500", mode: "widget" },
+                  { name: "KOSPI", type: "KOSPI", mode: "custom" },
+                  { name: "KOSDAQ", type: "KOSDAQ", mode: "custom" }
                 ].map((index, idx) => (
-                  <div key={idx} className="min-w-[140px] flex-1 bg-[#1c2128] border border-white/5 rounded-2xl p-4 shadow-xl">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-[11px] font-bold text-gray-400">{index.name}</span>
-                    </div>
-                    <div className="mb-1">
-                      <div className={`w-full h-8 bg-gradient-to-r from-transparent via-${index.color}/10 to-transparent relative overflow-hidden mb-1`}>
-                        <svg className="absolute bottom-0 left-0 w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
-                          <path d={`M0,15 Q25,${idx%2===0?5:18} 50,${idx%2===0?15:5} T100,10`} fill="none" stroke={idx%2===0?"#34d399":"#fb7185"} strokeWidth="1.5" />
-                        </svg>
+                  <div key={idx} className="min-w-[200px] flex-1 bg-[#1c2128] border border-white/5 rounded-2xl p-4 shadow-xl flex flex-col h-[280px]">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-[11px] font-black text-gray-400 tracking-wider uppercase">{index.name}</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                        <span className="text-[9px] text-gray-500 font-bold">LIVE</span>
                       </div>
-                      <p className="text-sm font-black text-white">{index.value}</p>
-                      <p className={`text-[10px] font-bold text-${index.color}`}>{index.change}</p>
+                    </div>
+                    <div className="flex-1 bg-black/40 rounded-xl overflow-hidden border border-white/5 relative">
+                      {index.mode === "widget" ? (
+                        <TradingViewHeatmapWidget dataSource={index.type} />
+                      ) : (
+                        <LiveMarketHeatmap type={index.type} />
+                      )}
                     </div>
                   </div>
                 ))}

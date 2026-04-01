@@ -495,3 +495,64 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
         print(f"[{symbol}] Analysis returned empty. Skipping long-term cache.")
         
     return result
+
+def fetch_market_heatmap(type="KOSPI", pages=2):
+    """
+    네이버 증권 시가총액 상위 페이지에서 히트맵용 데이터를 수집 (v1.1.0)
+    - type: KOSPI (0), KOSDAQ (1)
+    - pages: 수집할 페이지 수 (기본 2페이지 = 100종목)
+    """
+    sosok = 1 if type == "KOSDAQ" else 0
+    base_url = "https://finance.naver.com/sise/sise_market_sum.naver"
+    
+    stocks = []
+    
+    for page in range(1, pages + 1):
+        try:
+            url = f"{base_url}?sosok={sosok}&page={page}"
+            resp = requests.get(url, headers=HEADERS, timeout=5)
+            # EUC-KR 디코딩 (전역설정된 iconv와 유사하게 처리)
+            resp.encoding = 'euc-kr' 
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            
+            # 테이블의 모든 tr 요소 순회
+            table_rows = soup.select('table.type_2 tbody tr')
+            for row in table_rows:
+                title_tag = row.select_one('a.tltle')
+                if not title_tag:
+                    continue
+                    
+                name = title_tag.text.strip()
+                ticker = title_tag.get('href').split('code=')[-1]
+                
+                # 수치 데이터 추출 (td.number)
+                # 2: 등락률, 4: 시가총액(억)
+                nums = row.select('td.number')
+                if len(nums) < 5:
+                    continue
+                    
+                change_text = nums[2].text.replace('%', '').replace(',', '').strip()
+                market_cap_text = nums[4].text.replace(',', '').strip()
+                
+                # 전일비 이미지(ico_up, ico_down)로 부호 보정
+                is_down = "ico_down" in str(nums[1])
+                change = float(change_text)
+                if is_down and change > 0:
+                    change = -change
+                
+                market_cap = int(market_cap_text)
+                
+                stocks.append({
+                    "name": name,
+                    "ticker": ticker,
+                    "value": market_cap, # d3-hierarchy 용 value
+                    "change": change
+                })
+                
+            # 부부 차단 방지용 딜레이
+            time.sleep(0.1)
+        except Exception as e:
+            print(f"Heatmap scrape error (Page {page}): {e}")
+            break
+            
+    return stocks
