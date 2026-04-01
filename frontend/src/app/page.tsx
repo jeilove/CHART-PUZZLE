@@ -604,7 +604,7 @@ export default function Home() {
       >
         <button onClick={() => setView("HOME")} className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "HOME" ? "scale-110" : "opacity-40 hover:opacity-100"}`}>
           <div className="relative">
-            <img src="/icons/홈으로_아이콘.png" alt="Home" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "HOME" ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
+            <img src="/icons/v2_home.png" alt="Home" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "HOME" ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
             {view === "HOME" && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
           </div>
           <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${view === "HOME" ? "text-[#F08080]" : "text-white/40"}`}>Home</span>
@@ -617,7 +617,7 @@ export default function Home() {
           className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "CHART" ? "scale-110" : "opacity-40 hover:opacity-100"}`}
         >
           <div className="relative">
-            <img src="/icons/차트보기 아이콘.png" alt="Chart" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "CHART" ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
+            <img src="/icons/v2_chart.png" alt="Chart" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: view === "CHART" ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
             {view === "CHART" && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
           </div>
           <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${view === "CHART" ? "text-[#F08080]" : "text-white/40"}`}>Chart</span>
@@ -630,7 +630,7 @@ export default function Home() {
           className={`flex flex-col items-center gap-1.5 group transition-all relative ${view === "GAME" && !isTimeWarpTriggered ? "scale-110" : "opacity-40 hover:opacity-100"}`}
         >
           <div className="relative">
-            <img src="/icons/차트퍼즐_아이콘.png" alt="Puzzle" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: (view === "GAME" && !isTimeWarpTriggered) ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
+            <img src="/icons/v2_puzzle.png" alt="Puzzle" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: (view === "GAME" && !isTimeWarpTriggered) ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
             {(view === "GAME" && !isTimeWarpTriggered) && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
           </div>
           <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${(view === "GAME" && !isTimeWarpTriggered) ? "text-[#F08080]" : "text-white/40"}`}>Puzzle</span>
@@ -647,7 +647,7 @@ export default function Home() {
           className={`flex flex-col items-center gap-1.5 group transition-all relative ${isTimeWarpTriggered ? "scale-110" : "opacity-40 hover:opacity-100"}`}
         >
           <div className="relative">
-            <img src="/icons/타임워프 아이콘.png" alt="TimeWarp" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: isTimeWarpTriggered ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
+            <img src="/icons/v2_warp.png" alt="TimeWarp" className="w-10 h-10 object-contain transition-all group-hover:scale-110" style={{ filter: isTimeWarpTriggered ? "drop-shadow(0 0 12px rgba(240,128,128,0.6))" : "none" }} />
             {isTimeWarpTriggered && <motion.div layoutId="tab-dot" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#F08080] rounded-full shadow-[0_0_8px_#F08080]" />}
           </div>
           <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${isTimeWarpTriggered ? "text-[#F08080]" : "text-white/40"}`}>Warp</span>

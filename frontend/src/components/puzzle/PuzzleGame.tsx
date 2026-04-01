@@ -234,7 +234,7 @@ const UnifiedFlipCard = ({
             <span className="text-[11px] font-black uppercase tracking-widest text-white">차트로 돌아가기</span>
           </button>
           <div className="absolute top-10 left-12">
-            <img src="/icons/트리거_아이콘.png" alt="Intelligence" className="h-14 object-contain shadow-2xl" style={{ filter: "drop-shadow(0 0 15px rgba(244,63,94,0.4))" }} />
+            <img src="/icons/v2_trigger.png" alt="Intelligence" className="h-14 object-contain shadow-2xl" style={{ filter: "drop-shadow(0 0 15px rgba(244,63,94,0.4))" }} />
           </div>
           <div className="w-full flex-1 flex items-center justify-center">
             {triggerLoading ? (
