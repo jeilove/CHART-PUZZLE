@@ -532,49 +532,16 @@ export default function Home() {
                 </AnimatePresence>
               </div>
 
-              <Button 
-                onClick={() => {
-                  const randomStock = STOCK_LIST[Math.floor(Math.random() * STOCK_LIST.length)];
-                  selectStock(randomStock.name, randomStock.symbol);
-                }} 
-                className="w-full h-16 bg-[#F08080] hover:bg-[#F08080]/90 text-white rounded-2xl text-lg font-black flex items-center justify-center gap-2"
-              >
-                <Play size={20} fill="currentColor" /> 블라인드 챌린지 시작
-              </Button>
             </div>
           </motion.div>
         ) : view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
             <div className="w-full flex items-center justify-center mb-6 px-4 relative h-16">
-              <Button variant="ghost" className="absolute left-4 text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
             </div>
             <PuzzleGame stockData={stockData} gridSize={2} stockName={selectedStock?.name} stockSymbol={selectedStock?.symbol} />
           </motion.div>
         ) : (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="w-full flex items-center justify-between mb-4 px-4">
-              <Button variant="ghost" className="text-gray-400 hover:text-white" onClick={() => setView("HOME")}><ChevronLeft className="mr-1" /> 홈으로</Button>
-              
-              <div className="flex items-center gap-1 sm:gap-4">
-                <button 
-                  onClick={handlePrevFavorite}
-                  disabled={flatFavorites.length <= 1}
-                  className="p-1 sm:p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white disabled:opacity-20 transition-all"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <div className="w-4 sm:w-12 h-px" />
-                <button 
-                  onClick={handleNextFavorite}
-                  disabled={flatFavorites.length <= 1}
-                  className="p-1 sm:p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white disabled:opacity-20 transition-all"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-
-              <div className="w-20" />
-            </div>
             <div className="w-full min-h-[70vh] h-auto bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible">
               <PuzzleGame 
                 stockData={stockData} 
@@ -582,23 +549,107 @@ export default function Home() {
                 stockName={selectedStock?.name} 
                 stockSymbol={selectedStock?.symbol} 
                 isTimeWarpTriggered={isTimeWarpTriggered}
+                onPrevFavorite={handlePrevFavorite}
+                onNextFavorite={handleNextFavorite}
+                hasMultipleFavorites={flatFavorites.length > 1}
               />
               
-              <div className="mt-12 flex justify-center z-[100]">
-                <Button 
-                  onClick={() => setView("GAME")} 
-                  className="bg-[#F08080] hover:bg-[#F08080]/90 text-white font-black rounded-3xl h-16 px-14 shadow-2xl shadow-rose-500/30 flex items-center gap-2 text-lg active:scale-95 transition-all outline-none"
-                >
-                  <Play size={22} fill="currentColor" /> 블라인드 챌린지 시작
-                </Button>
-              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-50 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v0.8.5-stable</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v1.0.42</footer>
+
+      {/* 범용 하단 탭바 (Bottom Tab Bar) */}
+      <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
+        <motion.div 
+          initial={{ y: 100 }} 
+          animate={{ y: 0 }} 
+          className="max-w-md mx-auto bg-black/60 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-2 flex items-center justify-around shadow-3xl pointer-events-auto"
+        >
+          {/* 홈으로 */}
+          <button 
+            onClick={() => { setView("HOME"); setIsTimeWarpTriggered(false); }}
+            className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "HOME" ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
+          >
+            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+              <img src="/icons/v11_home.png" alt="HOME" className="w-full h-full object-contain" />
+            </div>
+            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">HOME</span>
+          </button>
+
+          {/* 차트보기 */}
+          <button 
+            onClick={() => {
+              if (!selectedStock) {
+                const flatFavs = [...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
+                if (flatFavs.length > 0) {
+                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "CHART");
+                  return;
+                }
+                alert("분석할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
+                return;
+              }
+              setView("CHART");
+              setIsTimeWarpTriggered(false);
+            }}
+            className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "CHART" && !isTimeWarpTriggered ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
+          >
+            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+              <img src="/icons/v3_chart.png" alt="CHART" className="w-full h-full object-contain" />
+            </div>
+            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">CHART</span>
+          </button>
+
+          {/* 차트퍼즐 */}
+          <button 
+            onClick={() => {
+              if (!selectedStock) {
+                const flatFavs = [...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
+                if (flatFavs.length > 0) {
+                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "GAME");
+                  return;
+                }
+                alert("퍼즐을 진행할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
+                return;
+              }
+              setView("GAME");
+            }}
+            className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "GAME" ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
+          >
+            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+              <img src="/icons/v3_puzzle.png" alt="PUZZLE" className="w-full h-full object-contain" />
+            </div>
+            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">PUZZLE</span>
+          </button>
+
+          {/* 타임워프 */}
+          <button 
+            onClick={() => {
+              if (!selectedStock) {
+                const flatFavs = [...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
+                if (flatFavs.length > 0) {
+                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "CHART");
+                  setIsTimeWarpTriggered(true);
+                  return;
+                }
+                alert("타임워프를 실행할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
+                return;
+              }
+              setIsTimeWarpTriggered(true);
+              setView("CHART");
+            }}
+            className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${isTimeWarpTriggered ? "bg-white/15 ring-1 ring-white/20 shadow-lg shadow-rose-500/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
+          >
+            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+              <img src="/icons/v3_warp.png" alt="WARP" className="w-full h-full object-contain" />
+            </div>
+            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">WARP</span>
+          </button>
+        </motion.div>
+      </div>
     </main>
   );
 }

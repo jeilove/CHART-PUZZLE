@@ -4,7 +4,7 @@ import React, { useState, useRef, useMemo, useEffect } from "react";
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay } from "@dnd-kit/core";
 import { StockChart, StockChartHandle } from "../charts/StockChart";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings, ChevronLeft, ChevronDown, CloudLightning, Loader2, Play } from "lucide-react";
+import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings, ChevronLeft, ChevronRight, ChevronDown, CloudLightning, Loader2, Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TriggerCloud } from "./TriggerCloud";
 
@@ -109,6 +109,9 @@ interface FlipCardProps {
   setTimeframe?: (tf: "D" | "W" | "M") => void;
   onRefresh?: () => void;
   onNewsClick?: (open?: boolean) => void;
+  onPrevFavorite?: () => void;
+  onNextFavorite?: () => void;
+  hasMultipleFavorites?: boolean;
 }
 
 const UnifiedFlipCard = ({ 
@@ -123,7 +126,10 @@ const UnifiedFlipCard = ({
   timeframe, 
   setTimeframe,
   onRefresh,
-  onNewsClick
+  onNewsClick,
+  onPrevFavorite,
+  onNextFavorite,
+  hasMultipleFavorites
 }: FlipCardProps) => {
   return (
     <div className="w-full perspect-2000 relative z-10" style={{ perspective: "2000px" }}>
@@ -140,50 +146,68 @@ const UnifiedFlipCard = ({
           {/* Header Section: Integrated for better spacing */}
           <div className="absolute top-4 inset-x-0 z-[200] flex flex-col items-center gap-4 px-4 sm:px-8">
             {stockName && !hideName && (
-              <h3 
-                className={`text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2 cursor-pointer hover:text-rose-400 transition-colors group text-center ${triggerLoading ? "animate-pulse opacity-60" : ""}`}
-                onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
-                title="클릭하여 데이터 강제 갱신"
-              >
-                <div className="flex flex-wrap items-center justify-center gap-x-2">
-                  <span>{stockName}</span>
-                  <span className="text-[11px] sm:text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
-                  
-                  {/* Trigger & News Pulse Icons */}
-                  {/* Trigger & News Pulse Icons - Enhanced Glassmorphism */}
-                  <div className="flex items-center gap-1.5 pointer-events-auto bg-white/5 border border-white/10 px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg shadow-black/20">
+              <div className="flex flex-col items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-2 sm:gap-6">
+                  {hasMultipleFavorites && onPrevFavorite && (
                     <button 
-                      onClick={(e) => { e.stopPropagation(); setIsFlipped(true); onNewsClick?.(false); }}
-                      className="group/trigger relative"
-                      title="트리거 클라우드 보기"
+                      onClick={(e) => { e.stopPropagation(); onPrevFavorite(); }}
+                      className="p-1 sm:p-2 text-white/30 hover:text-white transition-all active:scale-95"
                     >
-                      <div className="absolute inset-0 bg-rose-500/20 blur-xl opacity-0 group-hover/trigger:opacity-100 transition-opacity" />
-                      <img 
-                        src="/icons/v17_trigger.png" 
-                        alt="Trigger" 
-                        className="h-7 sm:h-9 w-7 sm:w-9 object-cover rounded-full drop-shadow-xl transition-all group-hover/trigger:scale-110 active:scale-95" 
-                      />
+                      <ChevronLeft size={36} strokeWidth={3} />
                     </button>
-                    
-                    <div className="w-px h-4 bg-white/10" />
+                  )}
 
+                  <h3 
+                    className={`text-xl sm:text-2xl font-black text-white flex flex-col items-center cursor-pointer hover:text-rose-400 transition-colors group text-center ${triggerLoading ? "animate-pulse opacity-60" : ""}`}
+                    onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
+                    title="Refresh Data"
+                  >
+                    <span>{stockName}</span>
+                    <span className="text-[11px] sm:text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60 mt-0.5">({stockSymbol})</span>
+                  </h3>
+
+                  {hasMultipleFavorites && onNextFavorite && (
                     <button 
-                      onClick={(e) => { e.stopPropagation(); onNewsClick?.(); }}
-                      className="group/pulse relative"
-                      title="뉴스 펄스 보기"
+                      onClick={(e) => { e.stopPropagation(); onNextFavorite(); }}
+                      className="p-1 sm:p-2 text-white/30 hover:text-white transition-all active:scale-95"
                     >
-                      <div className="absolute inset-0 bg-blue-500/20 blur-xl opacity-0 group-hover/pulse:opacity-100 transition-opacity" />
-                      <img 
-                        src="/icons/v18_pulse.png" 
-                        alt="News Pulse" 
-                        className="h-7 sm:h-9 w-7 sm:w-9 object-cover rounded-full drop-shadow-xl transition-all group-hover/pulse:scale-110 active:scale-95" 
-                      />
+                      <ChevronRight size={36} strokeWidth={3} />
                     </button>
-                  </div>
-
-                  {triggerLoading ? <Loader2 size={14} className="animate-spin text-rose-500" /> : <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />}
+                  )}
                 </div>
-              </h3>
+                
+                {/* Trigger & News Pulse Icons - Enhanced Glassmorphism */}
+                <div className="flex items-center gap-1.5 pointer-events-auto bg-white/5 border border-white/10 px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg shadow-black/20">
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setIsFlipped(true); onNewsClick?.(false); }}
+                    className="group/trigger relative"
+                    title="Trigger Cloud"
+                  >
+                    <div className="absolute inset-0 bg-rose-500/20 blur-xl opacity-0 group-hover/trigger:opacity-100 transition-opacity" />
+                    <img 
+                      src="/icons/v17_trigger.png" 
+                      alt="Trigger" 
+                      className="h-7 sm:h-9 w-7 sm:w-9 object-cover rounded-full drop-shadow-xl transition-all group-hover/trigger:scale-110 active:scale-95" 
+                    />
+                  </button>
+                  
+                  <div className="w-px h-4 bg-white/10" />
+
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onNewsClick?.(); }}
+                    className="group/pulse relative"
+                    title="News Pulse"
+                  >
+                    <div className="absolute inset-0 bg-blue-500/20 blur-xl opacity-0 group-hover/pulse:opacity-100 transition-opacity" />
+                    <img 
+                      src="/icons/v18_pulse.png" 
+                      alt="News Pulse" 
+                      className="h-7 sm:h-9 w-7 sm:w-9 object-cover rounded-full drop-shadow-xl transition-all group-hover/pulse:scale-110 active:scale-95" 
+                    />
+                  </button>
+                  {triggerLoading && <Loader2 size={14} className="animate-spin text-rose-500 ml-1.5" />}
+                </div>
+              </div>
             )}
 
             {setTimeframe && (
@@ -194,7 +218,7 @@ const UnifiedFlipCard = ({
                     onClick={() => setTimeframe(tf)} 
                     className={`w-14 h-12 rounded-xl text-base font-black transition-all flex items-center justify-center ${timeframe === tf ? "bg-white text-slate-900 shadow-lg scale-105" : "text-white/40 hover:text-white"}`}
                   >
-                    {tf === "D" ? "일" : tf === "W" ? "주" : "월"}
+                    {tf === "D" ? "D" : tf === "W" ? "W" : "M"}
                   </button>
                 ))}
               </div>
@@ -318,7 +342,10 @@ export const PuzzleGame = ({
   stockSymbol = "", 
   isOnlyChart = false, 
   gridSize: initialGridSize = 3,
-  isTimeWarpTriggered = false 
+  isTimeWarpTriggered = false,
+  onPrevFavorite,
+  onNextFavorite,
+  hasMultipleFavorites = false
 }: { 
   stockData: any[]; 
   stockName?: string; 
@@ -326,6 +353,9 @@ export const PuzzleGame = ({
   isOnlyChart?: boolean; 
   gridSize?: number;
   isTimeWarpTriggered?: boolean;
+  onPrevFavorite?: () => void;
+  onNextFavorite?: () => void;
+  hasMultipleFavorites?: boolean;
 }) => {
   const [pieces, setPieces]           = useState<PieceState[]>([]);
   const [pieceImages, setPieceImages] = useState<string[]>([]);
@@ -518,28 +548,6 @@ export const PuzzleGame = ({
     return `${mins.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}s`;
   };
 
-  if (isOnlyChart) {
-    return (
-      <div className="w-full flex flex-col items-center max-w-4xl px-4 relative pb-20">
-
-        <UnifiedFlipCard 
-          isFlipped={isFlipped}
-          setIsFlipped={setIsFlipped}
-          chartContent={<StockChart ref={chartRef} data={quizData} />}
-          triggerLoading={isTriggerLoading}
-          triggerResults={triggerResults}
-          stockSymbol={stockSymbol}
-          stockName={stockName}
-          hideName={false}
-          timeframe={timeframe}
-          setTimeframe={setTimeframe}
-          onRefresh={() => fetchTrigger(true)}
-          onNewsClick={(p) => setIsNewsOpen(p !== undefined ? p : !isNewsOpen)}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="w-full flex flex-col items-center pb-6 relative overflow-x-hidden min-h-[85vh]">
       {/* Global News Overlay - Always on Top */}
@@ -560,6 +568,29 @@ export const PuzzleGame = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {isOnlyChart ? (
+        <div className="w-full flex flex-col items-center max-w-4xl px-4 relative pb-20">
+            <UnifiedFlipCard 
+              isFlipped={isFlipped}
+              setIsFlipped={setIsFlipped}
+              chartContent={<StockChart ref={chartRef} data={quizData} />}
+              triggerLoading={isTriggerLoading}
+              triggerResults={triggerResults}
+              stockSymbol={stockSymbol}
+              stockName={stockName}
+              hideName={false}
+              timeframe={timeframe}
+              setTimeframe={setTimeframe}
+              onRefresh={() => fetchTrigger(true)}
+              onNewsClick={(p) => setIsNewsOpen(p !== undefined ? p : !isNewsOpen)}
+              onPrevFavorite={onPrevFavorite}
+              onNextFavorite={onNextFavorite}
+              hasMultipleFavorites={hasMultipleFavorites}
+            />
+        </div>
+      ) : (
+        <>
       {!isPlaying ? (
         <div className="w-full flex flex-col items-center animate-in fade-in duration-700 max-w-2xl px-4 grow h-full">
           {stockName && (
@@ -576,16 +607,29 @@ export const PuzzleGame = ({
           <div className="w-full p-2 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md mb-4 h-[60vh] min-h-[400px]">
              <StockChart ref={chartRef} data={stockData} />
           </div>
-          <div className="w-full mt-4 flex items-center justify-between gap-2 p-1.5 bg-black/60 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-3xl z-10 sm:max-w-md mx-auto">
-            <Button onClick={(e) => { e.stopPropagation(); startPuzzle(); }} disabled={isCapturing} className="w-28 h-12 text-[13px] font-black bg-[#F08080] text-white rounded-xl active:scale-95">
+          <div className="w-full mt-4 flex items-center justify-center gap-3 p-2 bg-black/40 rounded-[1.5rem] border border-white/10 shadow-2xl backdrop-blur-3xl z-10 sm:max-w-xs mx-auto">
+            <Button 
+              onClick={(e) => { e.stopPropagation(); startPuzzle(); }} 
+              disabled={isCapturing} 
+              className="flex-1 h-12 text-[13px] font-black bg-[#F08080] hover:bg-[#F08080]/90 hover:scale-105 active:scale-95 transition-all duration-300 text-white rounded-xl shadow-lg hover:shadow-rose-500/40"
+            >
+              {isCapturing ? <Loader2 size={16} className="animate-spin mr-2" /> : <Play size={16} className="mr-2" />}
               {isCapturing ? "분할.." : "퍼즐 시작"}
             </Button>
-            <select value={gridSize} onChange={(e) => setGridSize(Number(e.target.value))} className="w-24 h-12 bg-white/5 text-white text-[11px] font-black rounded-xl border border-white/20 outline-none text-center appearance-none cursor-pointer">
-              <option value={2} className="bg-slate-900">2x2</option><option value={3} className="bg-slate-900">3x3</option><option value={4} className="bg-slate-900">4x4</option>
-            </select>
-            <Button onClick={(e) => { e.stopPropagation(); setIsPlaying(true); setIsSolved(true); setIsQuizOpen(true); }} className="flex-1 h-12 text-[13px] font-black bg-white/5 text-blue-400 border border-blue-500/20 rounded-xl active:scale-95">
-              <Timer size={16} className="mr-1" /> 타임 워프
-            </Button>
+            <div className="relative group">
+              <select 
+                value={gridSize} 
+                onChange={(e) => setGridSize(Number(e.target.value))} 
+                className="w-20 h-12 bg-white/5 text-white text-[11px] font-black rounded-xl border border-white/20 outline-none text-center appearance-none cursor-pointer hover:bg-white/10 transition-colors"
+              >
+                <option value={2} className="bg-slate-900">2x2</option>
+                <option value={3} className="bg-slate-900">3x3</option>
+                <option value={4} className="bg-slate-900">4x4</option>
+              </select>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+                <ChevronDown size={12} className="text-white" />
+              </div>
+            </div>
           </div>
         </div>
       ) : isSolved && !isQuizOpen ? (
@@ -605,6 +649,9 @@ export const PuzzleGame = ({
                 setTimeframe={setTimeframe}
                 onRefresh={() => fetchTrigger(true)}
                 onNewsClick={(p) => setIsNewsOpen(p !== undefined ? p : !isNewsOpen)}
+                onPrevFavorite={onPrevFavorite}
+                onNextFavorite={onNextFavorite}
+                hasMultipleFavorites={hasMultipleFavorites}
               />
             </div>
             <div className="w-full max-w-sm flex flex-col gap-3 mt-[75px]">
@@ -644,14 +691,13 @@ export const PuzzleGame = ({
             </Button>
           </div>
         </div>
-      )}
+      )}</>)}
 
       {/* 퀴즈 모달 */}
       <AnimatePresence>
         {isQuizOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[6000] bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center pt-4 pb-8 px-6 overflow-y-auto">
             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-2xl flex flex-col items-center gap-4">
-              <div className="w-full flex justify-start"><Button variant="ghost" className="text-white/20 hover:text-white flex items-center p-0 h-auto" onClick={() => window.location.reload()}><ChevronLeft size={16} className="mr-1"/>홈으로</Button></div>
               
               {quizFeedback && (
                 <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className={`w-full p-6 rounded-3xl border-2 flex flex-col items-center gap-2 shadow-2xl ${quizFeedback.isCorrect ? "bg-emerald-500/20 border-emerald-500/40" : "bg-rose-500/20 border-rose-500/40"}`}>
@@ -678,6 +724,9 @@ export const PuzzleGame = ({
                 setTimeframe={setTimeframe}
                 onRefresh={() => fetchTrigger(true)}
                 onNewsClick={(p) => setIsNewsOpen(p !== undefined ? p : !isNewsOpen)}
+                onPrevFavorite={onPrevFavorite}
+                onNextFavorite={onNextFavorite}
+                hasMultipleFavorites={hasMultipleFavorites}
               />
 
 
@@ -700,7 +749,6 @@ export const PuzzleGame = ({
                 </div>
               )}
 
-              <Button onClick={() => window.location.reload()} className="w-full h-16 bg-[#F08080] text-white text-lg font-black rounded-2xl mt-4 active:scale-95 transition-all shadow-2xl shadow-rose-900/20"><Home size={20} className="mr-2"/> 메인으로 돌아가기</Button>
             </motion.div>
           </motion.div>
         )}
