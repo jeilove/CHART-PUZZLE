@@ -170,7 +170,7 @@ const UnifiedFlipCard = ({
               onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }} 
               className="group relative transition-all active:scale-95"
             >
-              <img src="/icons/v15_trigger.png" alt="Intelligence Trigger" className="h-24 w-24 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
+              <img src="/icons/v16_trigger.png" alt="Intelligence Trigger" className="h-24 w-24 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-black text-rose-400 opacity-0 group-hover:opacity-100 transition-all uppercase tracking-widest">
                 트리거 정보 확인
               </div>
@@ -189,7 +189,7 @@ const UnifiedFlipCard = ({
           {/* Back Header Section */}
           <div className="absolute top-8 inset-x-0 flex flex-col items-center gap-2 px-8">
             <div className="absolute top-2 left-4">
-               <img src="/icons/v15_trigger.png" alt="Intelligence" className="h-16 object-contain drop-shadow-[0_0_20px_rgba(244,63,94,0.3)] brightness(1.1)" />
+               <img src="/icons/v16_trigger.png" alt="Intelligence" className="h-16 object-contain drop-shadow-[0_0_20px_rgba(244,63,94,0.3)] brightness(1.1)" />
             </div>
             
             {stockName && !hideName && (
