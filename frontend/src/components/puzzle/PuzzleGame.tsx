@@ -165,12 +165,15 @@ const UnifiedFlipCard = ({
               </div>
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-6 flex justify-center z-500">
+          <div className="absolute inset-x-0 bottom-10 flex justify-center z-500">
             <button 
               onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }} 
-              className="px-8 py-4 bg-[#F08080] text-white text-[13px] font-black rounded-full shadow-2xl active:scale-95 flex items-center gap-3 border border-white/10"
+              className="group relative transition-all active:scale-95"
             >
-              <CloudLightning size={16} /> 트리거 정보 확인 (FLIP)
+              <img src="/icons/v7_trigger.png" alt="Intelligence Trigger" className="h-24 w-24 object-contain shadow-2xl drop-shadow-[0_0_20px_rgba(240,128,128,0.4)] transition-all group-hover:scale-110" />
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-black text-rose-400 opacity-0 group-hover:opacity-100 transition-all uppercase tracking-widest">
+                트리거 정보 확인
+              </div>
             </button>
           </div>
           <div className="w-full h-[55vh] min-h-[400px] bg-black/40 rounded-[2.5rem] overflow-hidden pt-12">
@@ -184,57 +187,29 @@ const UnifiedFlipCard = ({
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
           {/* Back Header Section */}
-          <div className="absolute top-4 inset-x-0 z-[200] flex flex-col items-center gap-4 px-4 sm:px-8">
+          {/* Back Header - Trigger Icon Replacement */}
+          <div className="absolute top-8 inset-x-0 flex flex-col items-center gap-2 px-8">
+            <img src="/icons/v7_trigger.png" alt="Intelligence" className="h-24 object-contain drop-shadow-[0_0_25px_rgba(244,63,94,0.3)]" />
+            
             {stockName && !hideName && (
-              <h3 
-                className={`text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2 cursor-pointer hover:text-rose-400 transition-colors group text-center ${triggerLoading ? "animate-pulse opacity-60" : ""}`}
-                onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
-                title="클릭하여 데이터 강제 갱신"
-              >
-                <div className="flex flex-wrap items-center justify-center gap-x-2">
-                  <span>{stockName}</span>
-                  <span className="text-[11px] sm:text-sm font-bold text-white/40 tracking-wider group-hover:text-rose-400/60">({stockSymbol})</span>
-                  {triggerLoading ? <Loader2 size={14} className="animate-spin text-rose-500" /> : <RefreshCw size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />}
-                </div>
-              </h3>
-            )}
-          </div>
-          <div 
-            className="absolute bottom-28 right-12 flex flex-col items-end gap-1.5 pointer-events-none select-none z-50 text-right"
-          >
-            {(triggerResults?.total_report_count || (triggerResults?.report_dates?.length || 0) > 0) ? (
-              <div 
-                className="flex items-center gap-1.5 text-[9px] font-black text-white/90 mb-2 border-b border-rose-500/30 pb-1.5 animate-in fade-in slide-in-from-right duration-500"
-                title={`총 ${triggerResults?.total_report_count || triggerResults?.report_dates?.length}건의 리포트 및 뉴스를 수집해 분석했습니다.`}
-              >
-                <Search size={12} className="text-rose-400 animate-pulse" />
-                분석 리포트 {triggerResults?.total_report_count || triggerResults?.report_dates?.length}건
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5 text-[8px] font-bold text-white/20 mb-2 italic">
-                분석 소스 데이터 확인 중...
+              <div className="flex items-center gap-3 mt-[-10px]">
+                <span className="text-sm font-black text-white/40 tracking-wider">({stockSymbol})</span>
+                {(triggerResults?.total_report_count || (triggerResults?.report_dates?.length || 0) > 0) && (
+                  <span className="text-[10px] font-black text-rose-500/60 flex items-center gap-1">
+                    <Search size={10} /> {triggerResults?.total_report_count || triggerResults?.report_dates?.length} 리포트
+                  </span>
+                )}
+                {triggerLoading && <Loader2 size={12} className="animate-spin text-rose-500/60" />}
               </div>
             )}
-            {triggerResults?.report_dates?.slice(0, 3).map((d: string, i: number) => (
-              <span 
-                key={i} 
-                className="text-[9px] font-bold text-white/30 tracking-tighter bg-white/5 px-2 py-0.5 rounded-md border border-white/5 hover:border-rose-500/30 transition-colors"
-                title={`${d} 발행 리포트 포함`}
-              >
-                {d}
-              </span>
-            ))}
-          </div>
-          <button 
-            onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }} 
-            className="absolute top-8 right-10 flex items-center gap-2 px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-2xl border border-white/20 transition-all z-9999 active:scale-95 group shadow-2xl cursor-pointer"
-            style={{ transform: "translateZ(100px)" }}
-          >
-            <BarChart2 size={20} className="text-blue-400 group-hover:rotate-12 transition-transform" />
-            <span className="text-[11px] font-black uppercase tracking-widest text-white">차트로 돌아가기</span>
-          </button>
-          <div className="absolute top-10 left-12">
-            <img src="/icons/v6_trigger.png" alt="Intelligence" className="h-14 object-contain shadow-2xl" style={{ filter: "drop-shadow(0 0 15px rgba(244,63,94,0.6)) brightness(1.2)" }} />
+            
+            <button 
+              onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }} 
+              className="absolute top-2 right-2 p-3 bg-white/5 hover:bg-white/10 text-white rounded-full transition-all active:scale-90"
+              title="차트로 돌아가기"
+            >
+              <BarChart2 size={18} className="text-rose-400" />
+            </button>
           </div>
           <div className="w-full flex-1 flex items-center justify-center">
             {triggerLoading ? (
@@ -248,7 +223,17 @@ const UnifiedFlipCard = ({
                 </div>
               </div>
             ) : triggerResults ? (
-              <TriggerCloud data={triggerResults.cloud} />
+              <div className="relative w-full h-full flex items-center justify-center">
+                <TriggerCloud data={triggerResults.cloud} />
+                {/* Fixed Report Dates as Footer */}
+                <div className="absolute bottom-2 right-4 flex items-center gap-2 opacity-40 select-none">
+                  {triggerResults?.report_dates?.slice(0, 3).map((d: string, i: number) => (
+                    <span key={i} className="text-[8px] font-bold text-white tracking-tighter px-1.5 py-0.5 border border-white/10 rounded">
+                      {d}
+                    </span>
+                  ))}
+                </div>
+              </div>
             ) : (
               <div className="text-white/40 font-bold italic text-sm flex items-center gap-3 bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
                 <Search size={18} className="text-rose-500 animate-pulse" />
