@@ -7,16 +7,16 @@ timeout /t 2 /nobreak >nul
 
 echo [2/2] Starting Frontend (3000)...
 cd /d "%BASE_DIR%frontend"
-start /b pnpm dev
+start /b pnpm dev --port 3000
 
 echo Waiting for servers to initialize...
-timeout /t 5 /nobreak >nul
+timeout /t 8 /nobreak >nul
 
 echo Launching browser...
 start http://localhost:3000
 echo.
 echo ==========================================
 echo Stock Chart Puzzle is now running.
-echo Please Keep this window open.
+echo Please keep this window open.
 echo ==========================================
 pause

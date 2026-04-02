@@ -1,14 +1,14 @@
 @echo off
 echo [Stock Chart Puzzle] Starting Development Environment...
 
-:: Backend start in a new window
-start "Backend (FastAPI)" cmd /c "cd backend && uv run uvicorn main:app --reload --port 8000"
+:: Backend start
+start "Backend (FastAPI)" cmd /c "cd backend && .venv\Scripts\python main.py"
 
-:: Frontend start in a new window
-start "Frontend (Next.js)" cmd /c "cd frontend && pnpm dev"
+:: Frontend start
+start "Frontend (Next.js)" cmd /c "cd frontend && pnpm dev --port 3000"
 
 :: Wait for a bit and open browser
-timeout /t 5
+timeout /t 10
 start http://localhost:3000
 
 echo.

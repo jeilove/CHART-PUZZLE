@@ -23,7 +23,7 @@ export default function StockHeatmap({ data, loading }: StockHeatmapProps) {
     const height = 480;
 
     const root = useMemo(() => {
-        if (!data || data.length === 0) return null;
+        if (!data || !Array.isArray(data) || data.length === 0) return null;
 
         const validData = data.filter(d => 
             typeof d.value === 'number' && !isNaN(d.value) && d.value > 0 &&
