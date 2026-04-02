@@ -12,6 +12,7 @@ import {
 import { PuzzleGame } from "@/components/puzzle/PuzzleGame";
 import { motion, AnimatePresence } from "framer-motion";
 import StockHeatmap from "@/components/ui/StockHeatmap";
+import { TriggerAnalysis } from "@/components/ui/TriggerAnalysis";
 
 // 1.1.0: TradingView 히트맵 위젯 컴포넌트
 function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
@@ -160,7 +161,7 @@ function ProjectApp() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [view, setView] = useState<"HOME" | "GAME" | "CHART">("HOME");
+  const [view, setView] = useState<"HOME" | "GAME" | "CHART" | "TRIGGER">("HOME");
   const [puzzleKey, setPuzzleKey] = useState(0);
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [stockData, setStockData] = useState<any[]>(MOCK_STOCK_DATA);
@@ -210,7 +211,7 @@ function ProjectApp() {
     const s = searchParams.get("s");   // navigate에서 "s"로 씀
     const w = searchParams.get("w") === "1";  // navigate에서 "w"로 씀
 
-    const targetView = (v && ["HOME", "GAME", "CHART"].includes(v)) ? v as "HOME" | "GAME" | "CHART" : "HOME";
+    const targetView = (v && ["HOME", "GAME", "CHART", "TRIGGER"].includes(v)) ? v as "HOME" | "GAME" | "CHART" | "TRIGGER" : "HOME";
     setView(targetView);
     setIsTimeWarpTriggered(w);
 
@@ -900,6 +901,10 @@ function ProjectApp() {
               key={puzzleKey}
             />
           </motion.div>
+        ) : view === "TRIGGER" ? (
+          <motion.div key="trigger" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
+            <TriggerAnalysis />
+          </motion.div>
         ) : (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
             <div className="w-full min-h-[70vh] h-auto bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible">
@@ -1011,6 +1016,17 @@ function ProjectApp() {
               <img src="/icons/v3_warp.png" alt="WARP" className="w-full h-full object-contain" />
             </div>
             <span className="text-[10px] font-black text-white tracking-widest mt-0.5">WARP</span>
+          </button>
+
+          {/* 트리거 */}
+          <button 
+            onClick={() => navigate("TRIGGER")}
+            className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "TRIGGER" ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
+          >
+            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+              <img src="/icons/v3_trigger.png" alt="TRIGGER" className="w-full h-full object-contain" />
+            </div>
+            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">TRIGGER</span>
           </button>
         </motion.div>
       </div>

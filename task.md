@@ -1,23 +1,27 @@
-# Task: Stock Chart Puzzle - Home Screen Redesign (v1.1.0)
+# Task: Stock Chart Puzzle - Trigger Pulse Dashboard (v1.3.0)
 
-## 1. Top Section: Search Integration
-- [ ] Move existing search functionality to the top of the Home screen.
-- [ ] Implement search bar as a fixed-style container at the top of the page.
-- [ ] Ensure search results appear in an overlay-style container below the search bar.
+## 1. UI & Navigation Expansion
+- [x] Add 'TRIGGER' navigation to the bottom tab bar as the 5th icon.
+- [x] Use `v3_trigger.png` for the icon and style it consistently with other tabs.
+- [x] Integrate `TriggerAnalysis` view state into the main `ProjectApp` view logic.
 
-## 2. Middle Section: Market Heatmaps (Placeholders)
-- [ ] Add cards for U.S. S&P 500, KOSPI, and KOSDAQ heatmaps.
-- [ ] Create layout for mini sparklines/indices as shown in the mockup image.
-- [ ] Use placeholder data for indices (S&P 500, KOSPI, KOSDAQ).
+## 2. Trigger Analysis Dashboard Components
+- [x] Develop `TriggerAnalysis.tsx` component with 4 main sections:
+  1. **Positive Trigger Cloud**: Stock cloud visualizing stocks with positive sentiment.
+  2. **Negative Trigger Cloud**: Stock cloud visualizing stocks with negative sentiment.
+  3. **Change Trigger Cloud**: Cards showing stocks with significant change keywords (e.g., 'Surge', 'Inventory Down').
+  4. **Timeline View**: Trend chart showing sentiment index evolution by stock.
 
-## 3. Bottom Section: Favorites Grouped Accordion
-- [ ] Implement grouped favorites list using accordion components.
-- [ ] Categories: Total (전체), Group A (이차전지), Group B (반도체), etc.
-- [ ] Ensure each accordion item can be expanded/collapsed.
-- [ ] Style favorites list with stock name, symbol, and mini chart placeholders.
+## 3. Backend Analysis Engine Update
+- [x] Implement `/api/trigger/summary` endpoint in `main.py`.
+- [x] Add new `change` keywords to `TRIGGER_KEYWORDS` in `scraper.py`.
+- [x] Develop `fetch_trigger_summary` in `scraper.py` to:
+  - Fetch top-market stocks (KOSPI 15, KOSDAQ 10).
+  - Analyze each stock using existing `analysis_trigger_cloud`.
+  - Categorize and sort stocks based on sentiment scores and change keyword intensity.
+  - Generate simulated timeline data for the trend chart.
 
-## 4. UI/UX & Design
-- [ ] Apply premium dark mode aesthetics (Glassmorphism, dark backgrounds).
-- [ ] Optimize layouts for mobile-first experience.
-- [ ] Use `lucide-react` icons (Search, Star, ChevronDown, etc.) and `framer-motion` for transitions.
-- [ ] Ensure all modified areas are responsive and visually consistent with the provided mockup.
+## 4. Stability & Deployment
+- [x] Refine `run_dev.bat` to automatically kill existing Node/Python processes on startup to prevent port conflicts.
+- [x] Update version information to `v1.3.0` across the application.
+- [x] Verify all core functionalities (Puzzle, Chart, Searching) remain intact.

@@ -51,6 +51,11 @@ def get_trigger_analysis(symbol: str, name: str, refresh: bool = False):
     result = analysis_trigger_cloud(symbol, name, force_refresh=refresh)
     return result
 
+@app.get("/api/trigger/summary")
+def get_trigger_summary(refresh: bool = False):
+    from scraper import fetch_trigger_summary
+    return fetch_trigger_summary(force_refresh=refresh)
+
 @app.get("/api/market/heatmap")
 def get_market_heatmap(type: str = "KOSPI", pages: int = 2):
     """
