@@ -20,7 +20,7 @@ export function TriggerAnalysis() {
     try {
       // 실제 API가 아직 없으므로 일단 mock 데이터를 로드하거나 
       // 나중에 구현할 /api/trigger/summary를 호출함
-      const res = await fetch(`http://127.0.0.1:8000/api/trigger/summary${refresh ? "?refresh=true" : ""}`);
+      const res = await fetch(`http://127.0.0.1:8000/api/trigger-summary${refresh ? "?refresh=true" : ""}`);
       if (res.ok) {
         const json = await res.json();
         setData(json);
