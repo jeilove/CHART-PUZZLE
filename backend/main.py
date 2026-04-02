@@ -45,16 +45,16 @@ def get_news_keywords(stock_name: str):
     news = fetch_news_keywords(stock_name)
     return {"stock_name": stock_name, "news": news}
 
+@app.get("/api/trigger/summary")
+def get_trigger_summary(refresh: bool = False):
+    from scraper import fetch_trigger_summary
+    return fetch_trigger_summary(force_refresh=refresh)
+
 @app.get("/api/trigger/{symbol}")
 def get_trigger_analysis(symbol: str, name: str, refresh: bool = False):
     from scraper import analysis_trigger_cloud
     result = analysis_trigger_cloud(symbol, name, force_refresh=refresh)
     return result
-
-@app.get("/api/trigger/summary")
-def get_trigger_summary(refresh: bool = False):
-    from scraper import fetch_trigger_summary
-    return fetch_trigger_summary(force_refresh=refresh)
 
 @app.get("/api/market/heatmap")
 def get_market_heatmap(type: str = "KOSPI", pages: int = 2):

@@ -180,9 +180,9 @@ function ProjectApp() {
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   const [isTimeWarpTriggered, setIsTimeWarpTriggered] = useState(false);
   
-  // v0.6.0 버전 정보 콘솔 출력
+  // v1.3.0 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v0.6.1 ", 
+    console.log("%c Stock Chart Puzzle %c v1.3.0 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
