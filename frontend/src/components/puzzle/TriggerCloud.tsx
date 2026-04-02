@@ -4,17 +4,23 @@ import React from "react";
 import { TagCloud } from "react-tagcloud";
 import { motion } from "framer-motion";
 
-interface Tag {
+interface TagData {
   text: string;
   value: number;
   sentiment: string;
 }
 
 interface TriggerCloudProps {
-  data: Tag[];
+  data: TagData[];
+  sentiment?: {
+    positive: string[];
+    neutral: string[];
+    negative: string[];
+  };
+  volatility?: number;
 }
 
-export const TriggerCloud = ({ data }: TriggerCloudProps) => {
+export const TriggerCloud = ({ data, sentiment, volatility }: TriggerCloudProps) => {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-40 text-white/20 italic text-sm">
@@ -23,11 +29,9 @@ export const TriggerCloud = ({ data }: TriggerCloudProps) => {
     );
   }
 
-  // react-tagcloud requires 'value' and 'count' to be compatible with various TS definitions
-  // and some versions expect value to be a string or number. Let's make it robust.
+  // react-tagcloud requires 'value' (string) and 'count' (number)
   const formattedTags = data.map(tag => ({
-    text: tag.text,
-    value: tag.value,
+    value: tag.text,
     count: tag.value,
     sentiment: tag.sentiment
   }));
@@ -42,21 +46,18 @@ export const TriggerCloud = ({ data }: TriggerCloudProps) => {
     <motion.div 
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-4 sm:p-8 flex flex-col items-center justify-center w-full min-h-[150px]"
+      className="p-4 sm:px-8 flex flex-col items-center justify-center w-full h-full"
     >
       <TagCloud
         minSize={12}
         maxSize={32}
         tags={formattedTags}
-        className="text-center font-bold tracking-tight cursor-default select-none"
-        style={{
-          lineHeight: "1.6",
-        }}
+        className="text-center font-bold tracking-tight cursor-default select-none leading-relaxed"
         renderer={(tag: any, size: number) => {
           const color = colorMapper(tag);
           return (
             <span
-              key={tag.text}
+              key={tag.value}
               style={{
                 fontSize: `${size}px`,
                 color: color,
@@ -72,6 +73,40 @@ export const TriggerCloud = ({ data }: TriggerCloudProps) => {
           );
         }}
       />
+
+      {/* 감성 분석 및 변동성 정보 하단 섹션 */}
+      {sentiment && (
+        <div className="w-full mt-6 pt-6 border-t border-white/5 space-y-3">
+          {sentiment.positive.length > 0 && (
+            <div className="flex items-start gap-2">
+              <span className="text-[10px] font-black text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded whitespace-nowrap">긍정</span>
+              <p className="text-[10px] text-gray-400 leading-relaxed font-bold">{sentiment.positive.join(", ")}</p>
+            </div>
+          )}
+          {sentiment.neutral.length > 0 && (
+            <div className="flex items-start gap-2">
+              <span className="text-[10px] font-black text-white bg-white/10 px-2 py-0.5 rounded whitespace-nowrap">보통</span>
+              <p className="text-[10px] text-gray-400 leading-relaxed font-bold">{sentiment.neutral.join(", ")}</p>
+            </div>
+          )}
+          {sentiment.negative.length > 0 && (
+            <div className="flex items-start gap-2">
+              <span className="text-[10px] font-black text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded whitespace-nowrap">부정</span>
+              <p className="text-[10px] text-gray-400 leading-relaxed font-bold">{sentiment.negative.join(", ")}</p>
+            </div>
+          )}
+          
+          {volatility !== undefined && (
+            <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+              <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] whitespace-nowrap">최근 주가 변동성</span>
+              <span className="text-[11px] font-black text-slate-300 font-mono bg-white/5 px-2 py-0.5 rounded">
+                {volatility > 0 ? "+" : ""}{volatility}%
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 };

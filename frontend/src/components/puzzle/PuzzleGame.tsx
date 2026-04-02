@@ -276,7 +276,11 @@ const UnifiedFlipCard = ({
               </div>
             ) : triggerResults ? (
               <div className="relative w-full h-full flex items-center justify-center">
-                <TriggerCloud data={triggerResults.cloud} />
+                <TriggerCloud 
+                  data={triggerResults.cloud} 
+                  sentiment={triggerResults.sentiment}
+                  volatility={triggerResults.price_change_20d}
+                />
                 {/* Recent Report Dates (Fixed Footer) */}
                 <div className="absolute bottom-4 right-4 flex items-center gap-2 opacity-60 select-none z-[210]">
                   {triggerResults?.report_dates?.slice(0, 3).map((d: string, i: number) => (

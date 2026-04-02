@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -119,7 +120,11 @@ const STOCK_LIST: (Stock & { industry: string })[] = [
   { name: "NAVER", symbol: "035420", industry: "IT서비스" },
 ];
 
-export default function Home() {
+function ProjectApp() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [view, setView] = useState<"HOME" | "GAME" | "CHART">("HOME");
   const [puzzleKey, setPuzzleKey] = useState(0);
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
@@ -145,6 +150,52 @@ export default function Home() {
   const [isGroupSelectorOpen, setIsGroupSelectorOpen] = useState(false);
   const [newGroupInputOpen, setNewGroupInputOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
+
+  // URL 네비게이션 헬퍼
+  const navigate = (v: string, s?: string, w?: boolean) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("view", v);
+    if (s) params.set("symbol", s); else params.delete("symbol");
+    if (w) params.set("warp", "true"); else params.delete("warp");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // URL 파라미터 감지 및 상태 동기화
+  React.useEffect(() => {
+    const v = searchParams.get("view");
+    const s = searchParams.get("symbol");
+    const w = searchParams.get("warp") === "true";
+
+    if (v && ["HOME", "GAME", "CHART"].includes(v)) {
+      if (v !== view) setView(v as any);
+    } else {
+      if (view !== "HOME") setView("HOME");
+    }
+
+    if (s) {
+      if (!selectedStock || selectedStock.symbol !== s) {
+        const found = STOCK_LIST.find(st => st.symbol === s);
+        if (found) {
+          // 데이터도 함께 불러오기 위해 selectStock 호출 (다만 URL 무한 순환 방지를 위해 quiet 모드)
+          setSelectedStock(found);
+          const loadData = async () => {
+            try {
+              const res = await fetch(`http://127.0.0.1:8000/api/stock/${s}`);
+              if (res.ok) {
+                const result = await res.json();
+                if (result.data) setStockData(result.data);
+              }
+            } catch (e) {}
+          };
+          loadData();
+        }
+      }
+    } else {
+      if (selectedStock) setSelectedStock(null);
+    }
+
+    if (w !== isTimeWarpTriggered) setIsTimeWarpTriggered(w);
+  }, [searchParams]);
 
   React.useEffect(() => {
     console.log("%c VIBE CODING • CHART PUZZLE v0.6.0-multiselect ", "background: #F08080; color: white; font-weight: bold; padding: 4px 8px; border-radius: 6px;");
@@ -280,6 +331,7 @@ export default function Home() {
   };
 
   const selectStock = async (name: string, symbol: string, mode: "GAME" | "CHART" = "GAME") => {
+    // API 호출 및 기본적인 상태 변경 수행 후 URL 업데이트
     setIsLoading(true);
     setIsDrawerOpen(false);
     try {
@@ -291,8 +343,9 @@ export default function Home() {
       setStockData(MOCK_STOCK_DATA);
     } finally {
       setSelectedStock({ name, symbol });
-      setView(mode);
       setIsLoading(false);
+      // URL 업데이트 (useEffect에서 setView 등을 최종 처리)
+      navigate(mode, symbol, mode === "CHART" && isTimeWarpTriggered);
       if (mode === "GAME") setIsTimeWarpTriggered(false);
     }
   };
@@ -660,25 +713,54 @@ export default function Home() {
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                       <div className="px-5 pb-4 space-y-1 border-t border-white/5">
                         {ungroupedStocks.length > 0 ? ungroupedStocks.map((fav) => (
-                          <div key={fav.symbol} onClick={() => selectStock(fav.name, fav.symbol, "CHART")} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 cursor-pointer transition-colors group/item">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gradient-to-tr from-rose-500/10 to-rose-400/20 rounded-xl flex items-center justify-center">
-                                <span className="text-[10px] font-black text-rose-400 group-hover/item:scale-110 transition-transform">{fav.name[0]}</span>
-                              </div>
-                              <div>
-                                <p className="text-sm font-black text-white leading-tight">{fav.name}</p>
+                          <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative">
+                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART")}>
+                              <div className="flex flex-col">
+                                <p className="text-sm font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors">{fav.name}</p>
                                 <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">{fav.symbol}</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-4">
-                              <div className="w-16 h-8 opacity-40 group-hover/item:opacity-100 transition-opacity">
-                                <svg className="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
-                                  <path d="M0,15 Q25,8 50,12 T100,5" fill="none" stroke="#2dd4bf" strokeWidth="2" />
-                                </svg>
+
+                            {/* 우측 아이콘 및 정보 영역 */}
+                            <div className="flex items-center gap-6">
+                              {/* 3종 숏컷 아이콘 */}
+                              <div className="flex items-center gap-2">
+                                <button 
+                                  onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
+                                  className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                  title="Chart"
+                                >
+                                  <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-1.5" />
+                                </button>
+                                <button 
+                                  onClick={() => selectStock(fav.name, fav.symbol, "GAME")}
+                                  className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                  title="Puzzle"
+                                >
+                                  <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-full h-full object-contain p-1.5" />
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    setIsTimeWarpTriggered(true);
+                                    selectStock(fav.name, fav.symbol, "CHART");
+                                  }}
+                                  className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                  title="Time Warp"
+                                >
+                                  <img src="/icons/v3_warp.png" alt="Warp" className="w-full h-full object-contain p-1.5" />
+                                </button>
                               </div>
-                              <div className="text-right">
-                                <p className="text-sm font-black text-white">145.23</p>
-                                <div className="bg-rose-500/20 text-rose-400 text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5">-1.28%</div>
+
+                              <div className="flex items-center gap-4">
+                                <div className="w-16 h-8 opacity-40 group-hover/item:opacity-70 transition-opacity hidden sm:block">
+                                  <svg className="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                    <path d="M0,15 Q25,8 50,12 T100,5" fill="none" stroke="#2dd4bf" strokeWidth="2" />
+                                  </svg>
+                                </div>
+                                <div className="text-right min-w-[60px]">
+                                  <p className="text-sm font-black text-white">145.23</p>
+                                  <div className="bg-rose-500/20 text-rose-400 text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5">-1.28%</div>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -708,25 +790,54 @@ export default function Home() {
                       <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                         <div className="px-5 pb-4 space-y-1 border-t border-white/5">
                           {group.stocks.length > 0 ? group.stocks.map((fav) => (
-                            <div key={fav.symbol} onClick={() => selectStock(fav.name, fav.symbol, "CHART")} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 cursor-pointer transition-colors group/item">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-tr from-emerald-500/10 to-emerald-400/20 rounded-xl flex items-center justify-center">
-                                  <span className="text-[10px] font-black text-emerald-400">{fav.name[0]}</span>
-                                </div>
-                                <div>
-                                  <p className="text-sm font-black text-white leading-tight">{fav.name}</p>
+                            <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative">
+                              <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART")}>
+                                <div className="flex flex-col">
+                                  <p className="text-sm font-black text-slate-100 leading-tight group-hover/item:text-emerald-400 transition-colors">{fav.name}</p>
                                   <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">{fav.symbol}</p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-4">
-                                <div className="w-16 h-8 opacity-40 group-hover/item:opacity-100 transition-opacity">
-                                  <svg className="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
-                                    <path d="M0,5 Q25,18 50,8 T100,12" fill="none" stroke="#fb7185" strokeWidth="2" />
-                                  </svg>
+
+                              {/* 우측 아이콘 및 정보 영역 */}
+                              <div className="flex items-center gap-6">
+                                {/* 3종 숏컷 아이콘 */}
+                                <div className="flex items-center gap-2">
+                                  <button 
+                                    onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
+                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    title="Chart"
+                                  >
+                                    <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-1.5" />
+                                  </button>
+                                  <button 
+                                    onClick={() => selectStock(fav.name, fav.symbol, "GAME")}
+                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    title="Puzzle"
+                                  >
+                                    <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-full h-full object-contain p-1.5" />
+                                  </button>
+                                  <button 
+                                    onClick={() => {
+                                      setIsTimeWarpTriggered(true);
+                                      selectStock(fav.name, fav.symbol, "CHART");
+                                    }}
+                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    title="Time Warp"
+                                  >
+                                    <img src="/icons/v3_warp.png" alt="Warp" className="w-full h-full object-contain p-1.5" />
+                                  </button>
                                 </div>
-                                <div className="text-right">
-                                  <p className="text-sm font-black text-white">313.49</p>
-                                  <div className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5">+1.24%</div>
+
+                                <div className="flex items-center gap-4">
+                                  <div className="w-16 h-8 opacity-40 group-hover/item:opacity-70 transition-opacity hidden sm:block">
+                                    <svg className="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                      <path d="M0,5 Q25,18 50,8 T100,12" fill="none" stroke="#fb7185" strokeWidth="2" />
+                                    </svg>
+                                  </div>
+                                  <div className="text-right min-w-[60px]">
+                                    <p className="text-sm font-black text-white">313.49</p>
+                                    <div className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5">+1.24%</div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -786,7 +897,7 @@ export default function Home() {
         >
           {/* 홈으로 */}
           <button 
-            onClick={() => { setView("HOME"); setIsTimeWarpTriggered(false); }}
+            onClick={() => navigate("HOME")}
             className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "HOME" ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
           >
             <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
@@ -807,8 +918,7 @@ export default function Home() {
                 alert("분석할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
                 return;
               }
-              setView("CHART");
-              setIsTimeWarpTriggered(false);
+              navigate("CHART", selectedStock.symbol, false);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "CHART" && !isTimeWarpTriggered ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
           >
@@ -833,7 +943,7 @@ export default function Home() {
                 alert("퍼즐을 진행할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
                 return;
               }
-              setView("GAME");
+              navigate("GAME", selectedStock.symbol);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "GAME" ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
           >
@@ -851,13 +961,13 @@ export default function Home() {
                 if (flatFavs.length > 0) {
                   selectStock(flatFavs[0].name, flatFavs[0].symbol, "CHART");
                   setIsTimeWarpTriggered(true);
+                  // selectStock 내부에서 navigate가 호출됨
                   return;
                 }
                 alert("타임워프를 실행할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
                 return;
               }
-              setIsTimeWarpTriggered(true);
-              setView("CHART");
+              navigate("CHART", selectedStock.symbol, true);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${isTimeWarpTriggered ? "bg-white/15 ring-1 ring-white/20 shadow-lg shadow-rose-500/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
           >
@@ -962,6 +1072,19 @@ export default function Home() {
       )}
     </AnimatePresence>
     </>
+  );
+}
+
+// v1.3.0: URL 내비게이션(뒤로가기 지원)을 위한 Suspense 래퍼
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+        <Loader2 className="animate-spin text-rose-400" size={32} />
+      </div>
+    }>
+      <ProjectApp />
+    </Suspense>
   );
 }
 

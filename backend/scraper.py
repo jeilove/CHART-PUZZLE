@@ -478,8 +478,20 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
 
     sorted_dates = sorted(list(set(all_dates)), reverse=True)
     
+    # 결과 정제 및 감성 분석 리스트 추출
+    positive_words = [t["text"] for t in cloud_data if t["sentiment"] == "positive"][:5]
+    neutral_words = [t["text"] for t in cloud_data if t["sentiment"] == "neutral"][:5]
+    negative_words = [t["text"] for t in cloud_data if t["sentiment"] == "negative"][:5]
+
     result = {
+        "symbol": symbol,
+        "name": stock_name,
         "cloud": cloud_data[:20],
+        "sentiment": {
+            "positive": positive_words,
+            "neutral": neutral_words,
+            "negative": negative_words
+        },
         "sentiment_score": sentiment_score,
         "price_change_20d": round(price_change, 2),
         "gap_comment": gap_comment,
