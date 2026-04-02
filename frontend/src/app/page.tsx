@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   Search, Play, ChevronLeft, ChevronRight, Loader2, Star, Menu, X, Trash2, 
-  GripVertical, Plus, Edit3, Check, CheckSquare, Square, Filter, ChevronDown 
+  GripVertical, Plus, Edit3, Check, CheckSquare, Square, Filter, ChevronDown,
+  Bell, LayoutGrid, TrendingUp
 } from "lucide-react";
 import { PuzzleGame } from "@/components/puzzle/PuzzleGame";
 import { motion, AnimatePresence } from "framer-motion";
@@ -581,42 +582,32 @@ export default function Home() {
                 />
               </button>
 
-              <AnimatePresence>
-                {isMarketExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="overflow-hidden"
-                  >
-                    <div className="grid grid-cols-1 gap-4 pb-2">
-                      {[
-                        { name: "S&P 500", type: "SPX500", mode: "widget" },
-                        { name: "KOSPI", type: "KOSPI", mode: "custom" },
-                        { name: "KOSDAQ", type: "KOSDAQ", mode: "custom" }
-                      ].map((index, idx) => (
-                        <div key={idx} className="bg-[#1c2128] border border-white/5 rounded-2xl p-4 shadow-xl flex flex-col h-[240px]">
-                          <div className="flex justify-between items-center mb-3">
-                            <span className="text-[11px] font-black text-gray-400 tracking-wider uppercase">{index.name}</span>
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                              <span className="text-[9px] text-gray-500 font-bold">LIVE</span>
-                            </div>
-                          </div>
-                          <div className="flex-1 bg-black/40 rounded-xl overflow-hidden border border-white/5 relative">
-                            {index.mode === "widget" ? (
-                              <TradingViewHeatmapWidget dataSource={index.type} />
-                            ) : (
-                              <LiveMarketHeatmap type={index.type} />
-                            )}
-                          </div>
+              {isMarketExpanded && (
+                <div className="grid grid-cols-1 gap-4 pb-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  {[
+                    { name: "S&P 500", type: "SPX500", mode: "widget" },
+                    { name: "KOSPI", type: "KOSPI", mode: "custom" },
+                    { name: "KOSDAQ", type: "KOSDAQ", mode: "custom" }
+                  ].map((index, idx) => (
+                    <div key={idx} className="bg-[#1c2128] border border-white/5 rounded-2xl p-4 shadow-xl flex flex-col h-[240px]">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-[11px] font-black text-gray-400 tracking-wider uppercase">{index.name}</span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                          <span className="text-[9px] text-gray-500 font-bold">LIVE</span>
                         </div>
-                      ))}
+                      </div>
+                      <div className="flex-1 bg-black/40 rounded-xl overflow-hidden border border-white/5 relative">
+                        {index.mode === "widget" ? (
+                          <TradingViewHeatmapWidget dataSource={index.type} />
+                        ) : (
+                          <LiveMarketHeatmap type={index.type} />
+                        )}
+                      </div>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 3. 즐겨찾기 아코디언 섹션 */}

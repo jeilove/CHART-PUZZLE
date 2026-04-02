@@ -1,0 +1,40 @@
+{
+  "cloud": [
+    {
+      "text": "신고가",
+      "value": 20.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "가시성",
+      "value": 10.055165644207607,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "믹스 개선",
+      "value": 10.004097349789799,
+      "sentiment": "positive"
+    },
+    {
+      "text": "수익성 개선",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "턴어라운드",
+      "value": 10.0,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment_score": 1.0004097349789798,
+  "price_change_20d": 61.43,
+  "gap_comment": "호재 키워드 반영 완료 및 단기 과열 양상 (추격 매수 주의)",
+  "report_dates": [
+    "Wed, 01 Apr 2026 09:13:21 GMT",
+    "Wed, 01 Apr 2026 07:10:26 GMT",
+    "Wed, 01 Apr 2026 01:10:38 GMT"
+  ],
+  "total_report_count": 51,
+  "is_fresh": true,
+  "timestamp": 1775092943.9483957
+}
