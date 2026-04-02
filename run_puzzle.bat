@@ -1,5 +1,12 @@
 @echo off
 set "BASE_DIR=%~dp0"
+
+:: [Cleanup] Kill existing processes before start
+echo Cleaning up existing processes...
+taskkill /F /IM node.exe /T 2>nul
+taskkill /F /IM python.exe /T 2>nul
+taskkill /F /IM uvicorn.exe /T 2>nul
+timeout /t 1 /nobreak >nul
 echo [1/2] Starting Backend (8000)...
 cd /d "%BASE_DIR%backend"
 start /b .venv\Scripts\python main.py

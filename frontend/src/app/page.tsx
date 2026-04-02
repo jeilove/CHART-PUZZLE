@@ -142,6 +142,9 @@ export default function Home() {
   // v1.1.0 홈 화면 아코디언 상태
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ "all": true });
   const [isMarketExpanded, setIsMarketExpanded] = useState(true);
+  const [isGroupSelectorOpen, setIsGroupSelectorOpen] = useState(false);
+  const [newGroupInputOpen, setNewGroupInputOpen] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
 
   React.useEffect(() => {
     console.log("%c VIBE CODING • CHART PUZZLE v0.6.0-multiselect ", "background: #F08080; color: white; font-weight: bold; padding: 4px 8px; border-radius: 6px;");
@@ -346,7 +349,8 @@ export default function Home() {
   ].map(s => [s.symbol, s])).values()).slice(0, 40);
 
   return (
-    <main className="min-h-screen bg-[#0d1117] text-slate-200 flex flex-col items-center justify-center p-4 overflow-hidden relative font-sans">
+    <>
+      <main className="min-h-screen bg-[#0d1117] text-slate-200 flex flex-col items-center justify-center p-4 overflow-hidden relative font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#F08080]/5 rounded-full blur-[140px]" />
       
       {view === "HOME" && (
@@ -552,13 +556,36 @@ export default function Home() {
                     )}
                     <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
                       {filteredStocks.map((stock) => (
-                        <button key={stock.symbol} onClick={() => selectStock(stock.name, stock.symbol, "CHART")} className="w-full px-4 py-4 text-left flex items-center justify-between hover:bg-white/5 border-b border-white/5">
-                          <div>
-                            <span className="font-bold text-slate-200">{stock.name}</span>
-                            <span className="ml-2 text-xs text-slate-500 font-mono italic">{stock.symbol}</span>
+                        <div key={stock.symbol} className="w-full px-4 py-4 flex items-center gap-4 hover:bg-white/5 border-b border-white/5 transition-colors">
+                          <button 
+                            onClick={(e) => toggleSearchSelection(stock.symbol, e)}
+                            className="text-[#F08080]"
+                          >
+                            {selectedSearchSymbols.includes(stock.symbol) ? (
+                              <CheckSquare size={20} className="fill-[#F08080]/10" />
+                            ) : (
+                              <Square size={20} className="opacity-30" />
+                            )}
+                          </button>
+                          <div className="flex-1">
+                            <span className="font-bold text-slate-200 block">{stock.name}</span>
+                            <span className="text-[10px] text-slate-500 font-mono italic uppercase tracking-wider">{stock.symbol}</span>
                           </div>
-                          <Star size={16} className={ungroupedStocks.find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : "text-gray-600"} />
-                        </button>
+                          <button 
+                            onClick={(e) => {
+                              // 현재 선택된 종목이 없거나, 클릭한 종목이 선택 목록에 없다면 해당 종목을 선택 목록에 추가/교체
+                              if (selectedSearchSymbols.length === 0 || !selectedSearchSymbols.includes(stock.symbol)) {
+                                setSelectedSearchSymbols(prev => 
+                                  prev.includes(stock.symbol) ? prev : [...prev, stock.symbol]
+                                );
+                              }
+                              setIsGroupSelectorOpen(true);
+                            }}
+                            className="p-2 bg-white/5 rounded-xl text-gray-500 hover:text-yellow-500 transition-all active:scale-95"
+                          >
+                            <Star size={18} className={ungroupedStocks.find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : ""} />
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </motion.div>
@@ -842,5 +869,104 @@ export default function Home() {
         </motion.div>
       </div>
     </main>
+
+    {/* 프리미엄 그룹 선택 바텀 시트 */}
+    <AnimatePresence>
+      {isGroupSelectorOpen && (
+        <>
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setIsGroupSelectorOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[5000]"
+          />
+          <motion.div 
+            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed bottom-0 inset-x-0 bg-[#1c2128] border-t border-white/10 rounded-t-[2.5rem] z-[5001] p-8 pb-12 shadow-2xl overflow-hidden max-w-lg mx-auto"
+          >
+            <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8 opacity-50" />
+            
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-black text-white tracking-tight">Select lists</h2>
+              <button 
+                onClick={() => setIsGroupSelectorOpen(false)}
+                className="p-2 text-gray-500 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-3 mb-8 overflow-y-auto max-h-[300px] no-scrollbar">
+              {favoriteGroups.map(group => (
+                <button 
+                  key={group.id}
+                  onClick={() => {
+                    setTargetAddGroupId(group.id);
+                    // 즉시 실행하거나 Done 버튼으로 실행
+                  }}
+                  className={`w-full p-5 rounded-2xl flex items-center justify-between transition-all border ${targetAddGroupId === group.id ? 'bg-[#F08080]/10 border-[#F08080] text-[#F08080]' : 'bg-white/5 border-white/5 text-gray-400 opacity-60 hover:opacity-100'}`}
+                >
+                  <span className="font-bold text-sm">{group.name}</span>
+                  {targetAddGroupId === group.id && <Check size={18} />}
+                </button>
+              ))}
+
+              {newGroupInputOpen ? (
+                <div className="flex items-center gap-2 p-2">
+                  <Input 
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    placeholder="New list name..."
+                    className="flex-1 bg-black/40 border-white/10 h-11 rounded-xl text-sm"
+                    autoFocus
+                  />
+                  <button 
+                    onClick={() => {
+                      if (newGroupName) {
+                        const id = Date.now().toString();
+                        saveGroups([{ id, name: newGroupName, stocks: [] }, ...favoriteGroups]);
+                        setTargetAddGroupId(id);
+                        setNewGroupName("");
+                        setNewGroupInputOpen(false);
+                      }
+                    }}
+                    className="p-3 bg-[#F08080] text-white rounded-xl shadow-lg shadow-[#F08080]/20"
+                  >
+                    <Check size={18} />
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setNewGroupInputOpen(true)}
+                  className="w-full p-4 flex items-center gap-3 text-gray-500 hover:text-white transition-colors group"
+                >
+                  <div className="w-5 h-5 flex items-center justify-center border border-dashed border-gray-600 rounded group-hover:border-white">
+                    <Plus size={14} />
+                  </div>
+                  <span className="text-sm font-bold">Create new list</span>
+                </button>
+              )}
+            </div>
+
+            <button 
+              onClick={() => {
+                handleMultiAdd();
+                setIsGroupSelectorOpen(false);
+              }}
+              className="w-full py-4 bg-[#F08080] text-white rounded-2xl text-sm font-black tracking-widest shadow-xl shadow-[#F08080]/20 active:scale-[0.98] transition-all"
+            >
+              Done
+            </button>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+    </>
+  );
+}
+
+function HomeIcon({ size }: { size: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
   );
 }
