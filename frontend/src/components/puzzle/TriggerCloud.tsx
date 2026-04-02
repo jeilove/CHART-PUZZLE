@@ -30,10 +30,11 @@ export const TriggerCloud = ({ data, sentiment, volatility }: TriggerCloudProps)
   }
 
   // react-tagcloud requires 'value' (string) and 'count' (number)
+  // 방어적 프로그래밍: 데이터가 예상 형식이 아닐 경우를 대비
   const formattedTags = data.map(tag => ({
-    value: tag.text,
-    count: tag.value,
-    sentiment: tag.sentiment
+    value: tag.text || (tag as any).value || "Unknown",
+    count: tag.value || (tag as any).count || 0,
+    sentiment: tag.sentiment || "neutral"
   }));
 
   const colorMapper = (tag: any) => {
@@ -51,7 +52,7 @@ export const TriggerCloud = ({ data, sentiment, volatility }: TriggerCloudProps)
       <TagCloud
         minSize={12}
         maxSize={32}
-        tags={formattedTags}
+        tags={formattedTags as any}
         className="text-center font-bold tracking-tight cursor-default select-none leading-relaxed"
         renderer={(tag: any, size: number) => {
           const color = colorMapper(tag);
@@ -68,7 +69,7 @@ export const TriggerCloud = ({ data, sentiment, volatility }: TriggerCloudProps)
               }}
               className="hover:scale-110 transition-transform"
             >
-              {tag.text}
+              {tag.value}
             </span>
           );
         }}

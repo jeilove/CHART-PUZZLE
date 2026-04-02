@@ -17,9 +17,6 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.0.0)
-      '@types/react-tagcloud':
-        specifier: ^2.3.2
-        version: 2.3.2
       '@types/uuid':
         specifier: ^11.0.0
         version: 11.0.0
@@ -84,6 +81,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.14)
+      '@types/react-tagcloud':
+        specifier: ^2.3.2
+        version: 2.3.2
       eslint:
         specifier: ^9
         version: 9.39.4(jiti@2.6.1)
