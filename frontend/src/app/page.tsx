@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -140,6 +140,7 @@ export default function Home() {
   
   // v1.1.0 홈 화면 아코디언 상태
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ "all": true });
+  const [isMarketExpanded, setIsMarketExpanded] = useState(true);
 
   React.useEffect(() => {
     console.log("%c VIBE CODING • CHART PUZZLE v0.6.0-multiselect ", "background: #F08080; color: white; font-weight: bold; padding: 4px 8px; border-radius: 6px;");
@@ -564,36 +565,58 @@ export default function Home() {
               </AnimatePresence>
             </div>
 
-            {/* 2. 시장 정보 히트맵 섹션 (실시간 연동) */}
-            <div className="w-full mb-10 overflow-x-auto no-scrollbar">
-              <div className="flex items-center gap-2 mb-4 text-[10px] font-black text-[#F08080] uppercase tracking-widest pl-1">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                MARKET OVERVIEW (KST)
-              </div>
-              <div className="flex gap-4 min-w-full pb-2 px-1">
-                {[
-                  { name: "S&P 500", type: "SPX500", mode: "widget" },
-                  { name: "KOSPI", type: "KOSPI", mode: "custom" },
-                  { name: "KOSDAQ", type: "KOSDAQ", mode: "custom" }
-                ].map((index, idx) => (
-                  <div key={idx} className="min-w-[200px] flex-1 bg-[#1c2128] border border-white/5 rounded-2xl p-4 shadow-xl flex flex-col h-[280px]">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-[11px] font-black text-gray-400 tracking-wider uppercase">{index.name}</span>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                        <span className="text-[9px] text-gray-500 font-bold">LIVE</span>
-                      </div>
+            {/* 2. 시장 정보 히트맵 섹션 (아코디언 적용 및 1행 3열 레이아웃) */}
+            <div className="w-full mb-10 px-1">
+              <button 
+                onClick={() => setIsMarketExpanded(!isMarketExpanded)}
+                className="w-full flex items-center justify-between group mb-4"
+              >
+                <div className="flex items-center gap-2 text-[10px] font-black text-[#F08080] uppercase tracking-widest pl-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                  MARKET OVERVIEW (KST)
+                </div>
+                <ChevronDown 
+                  size={16} 
+                  className={`text-gray-500 transition-transform duration-300 ${isMarketExpanded ? "rotate-0" : "-rotate-90"}`} 
+                />
+              </button>
+
+              <AnimatePresence>
+                {isMarketExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="grid grid-cols-1 gap-4 pb-2">
+                      {[
+                        { name: "S&P 500", type: "SPX500", mode: "widget" },
+                        { name: "KOSPI", type: "KOSPI", mode: "custom" },
+                        { name: "KOSDAQ", type: "KOSDAQ", mode: "custom" }
+                      ].map((index, idx) => (
+                        <div key={idx} className="bg-[#1c2128] border border-white/5 rounded-2xl p-4 shadow-xl flex flex-col h-[240px]">
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="text-[11px] font-black text-gray-400 tracking-wider uppercase">{index.name}</span>
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                              <span className="text-[9px] text-gray-500 font-bold">LIVE</span>
+                            </div>
+                          </div>
+                          <div className="flex-1 bg-black/40 rounded-xl overflow-hidden border border-white/5 relative">
+                            {index.mode === "widget" ? (
+                              <TradingViewHeatmapWidget dataSource={index.type} />
+                            ) : (
+                              <LiveMarketHeatmap type={index.type} />
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex-1 bg-black/40 rounded-xl overflow-hidden border border-white/5 relative">
-                      {index.mode === "widget" ? (
-                        <TradingViewHeatmapWidget dataSource={index.type} />
-                      ) : (
-                        <LiveMarketHeatmap type={index.type} />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* 3. 즐겨찾기 아코디언 섹션 */}
