@@ -184,11 +184,7 @@ const UnifiedFlipCard = ({
                     title="Trigger Cloud"
                   >
                     <div className="absolute inset-0 bg-rose-500/20 blur-xl opacity-0 group-hover/trigger:opacity-100 transition-opacity" />
-                    <img 
-                      src="/icons/v17_trigger.png" 
-                      alt="Trigger" 
-                      className="h-7 sm:h-9 w-7 sm:w-9 object-cover rounded-full drop-shadow-xl transition-all group-hover/trigger:scale-110 active:scale-95" 
-                    />
+                    <CloudLightning className="h-7 sm:h-9 w-7 sm:w-9 text-rose-400 drop-shadow-[0_0_8px_rgba(251,113,133,0.4)] transition-all group-hover/trigger:scale-110" />
                   </button>
                   
                   <div className="w-px h-4 bg-white/10" />
@@ -199,11 +195,7 @@ const UnifiedFlipCard = ({
                     title="News Pulse"
                   >
                     <div className="absolute inset-0 bg-blue-500/20 blur-xl opacity-0 group-hover/pulse:opacity-100 transition-opacity" />
-                    <img 
-                      src="/icons/v18_pulse.png" 
-                      alt="News Pulse" 
-                      className="h-7 sm:h-9 w-7 sm:w-9 object-cover rounded-full drop-shadow-xl transition-all group-hover/pulse:scale-110 active:scale-95" 
-                    />
+                    <Newspaper className="h-7 sm:h-9 w-7 sm:w-9 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)] transition-all group-hover/pulse:scale-110" />
                   </button>
                   {triggerLoading && <Loader2 size={14} className="animate-spin text-rose-500 ml-1.5" />}
                 </div>
