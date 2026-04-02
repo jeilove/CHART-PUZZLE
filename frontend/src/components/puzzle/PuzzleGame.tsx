@@ -239,7 +239,13 @@ const UnifiedFlipCard = ({
           <div className="absolute top-8 inset-x-0 !z-[250] flex flex-col items-center gap-2 px-8 pointer-events-none">
             {stockName && !hideName && (
               <div className="flex flex-col items-center pointer-events-auto">
-                <h3 className="text-xl font-black text-white">{stockName}</h3>
+                <h3 className="text-xl font-bold text-white truncate flex items-center gap-2">
+                  {stockName}
+                  <div className="flex items-center gap-1.5 ml-1">
+                    <CloudLightning className="w-4 h-4 text-rose-400 opacity-60" />
+                    <Newspaper className="w-4 h-4 text-blue-400 opacity-60" />
+                  </div>
+                </h3>
                 <div className="flex items-center gap-3 mt-1">
                   <span className="text-sm font-black text-white/40 tracking-wider">({stockSymbol})</span>
                   

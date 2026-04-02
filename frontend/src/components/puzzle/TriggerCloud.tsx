@@ -76,21 +76,21 @@ export const TriggerCloud = ({ data, sentiment, volatility }: TriggerCloudProps)
       />
 
       {/* 감성 분석 및 변동성 정보 하단 섹션 */}
-      {sentiment && (
+      {(sentiment || volatility !== undefined) && (
         <div className="w-full mt-6 pt-6 border-t border-white/5 space-y-3">
-          {sentiment.positive.length > 0 && (
+          {sentiment && sentiment.positive.length > 0 && (
             <div className="flex items-start gap-2">
               <span className="text-[10px] font-black text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded whitespace-nowrap">긍정</span>
               <p className="text-[10px] text-gray-400 leading-relaxed font-bold">{sentiment.positive.join(", ")}</p>
             </div>
           )}
-          {sentiment.neutral.length > 0 && (
+          {sentiment && sentiment.neutral.length > 0 && (
             <div className="flex items-start gap-2">
               <span className="text-[10px] font-black text-white bg-white/10 px-2 py-0.5 rounded whitespace-nowrap">보통</span>
               <p className="text-[10px] text-gray-400 leading-relaxed font-bold">{sentiment.neutral.join(", ")}</p>
             </div>
           )}
-          {sentiment.negative.length > 0 && (
+          {sentiment && sentiment.negative.length > 0 && (
             <div className="flex items-start gap-2">
               <span className="text-[10px] font-black text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded whitespace-nowrap">부정</span>
               <p className="text-[10px] text-gray-400 leading-relaxed font-bold">{sentiment.negative.join(", ")}</p>
@@ -105,6 +105,10 @@ export const TriggerCloud = ({ data, sentiment, volatility }: TriggerCloudProps)
                 {volatility > 0 ? "+" : ""}{volatility}%
               </span>
             </div>
+          )}
+          
+          {!(sentiment && (sentiment.positive.length > 0 || sentiment.neutral.length > 0 || sentiment.negative.length > 0)) && volatility === undefined && (
+            <p className="text-[10px] text-white/5 text-center italic">상세 분석 데이터를 불러오는 중...</p>
           )}
         </div>
       )}

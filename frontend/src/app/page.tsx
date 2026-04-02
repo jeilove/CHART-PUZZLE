@@ -144,6 +144,14 @@ function ProjectApp() {
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   const [isTimeWarpTriggered, setIsTimeWarpTriggered] = useState(false);
   
+  // v0.6.0 버전 정보 콘솔 출력
+  useEffect(() => {
+    console.log("%c Stock Chart Puzzle %c v0.6.0 ", 
+      "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
+      "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
+    );
+  }, []);
+
   // v1.1.0 홈 화면 아코디언 상태
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ "all": true });
   const [isMarketExpanded, setIsMarketExpanded] = useState(true);
