@@ -206,7 +206,6 @@ function ProjectApp() {
   }, [searchParams]);
 
   React.useEffect(() => {
-    console.log("%c VIBE CODING • CHART PUZZLE v0.6.0-multiselect ", "background: #F08080; color: white; font-weight: bold; padding: 4px 8px; border-radius: 6px;");
     
     const savedGroups = localStorage.getItem("puzzle-favorite-groups");
     const oldFavs = localStorage.getItem("puzzle-favorites");
@@ -568,7 +567,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v0.6.0</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v0.6.1</p>
               </div>
             </motion.div>
           </>

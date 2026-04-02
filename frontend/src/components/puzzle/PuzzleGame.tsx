@@ -4,7 +4,7 @@ import React, { useState, useRef, useMemo, useEffect } from "react";
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay } from "@dnd-kit/core";
 import { StockChart, StockChartHandle } from "../charts/StockChart";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings, ChevronLeft, ChevronRight, ChevronDown, CloudLightning, Loader2, Play } from "lucide-react";
+import { RefreshCw, CheckCircle2, Newspaper, X, TrendingUp, TrendingDown, Timer, Award, Search, Home, BarChart2, Settings, ChevronLeft, ChevronRight, ChevronDown, CloudLightning, Loader2, Play, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TriggerCloud } from "./TriggerCloud";
 
@@ -184,7 +184,11 @@ const UnifiedFlipCard = ({
                     title="Trigger Cloud"
                   >
                     <div className="absolute inset-0 bg-rose-500/20 blur-xl opacity-0 group-hover/trigger:opacity-100 transition-opacity" />
-                    <CloudLightning className="h-7 sm:h-9 w-7 sm:w-9 text-rose-400 drop-shadow-[0_0_8px_rgba(251,113,133,0.4)] transition-all group-hover/trigger:scale-110" />
+                    <img 
+                      src="/icons/v17_trigger.png" 
+                      alt="Trigger" 
+                      className="h-7 sm:h-9 w-7 sm:w-9 object-cover rounded-full drop-shadow-xl transition-all group-hover/trigger:scale-110 active:scale-95" 
+                    />
                   </button>
                   
                   <div className="w-px h-4 bg-white/10" />
@@ -195,7 +199,11 @@ const UnifiedFlipCard = ({
                     title="News Pulse"
                   >
                     <div className="absolute inset-0 bg-blue-500/20 blur-xl opacity-0 group-hover/pulse:opacity-100 transition-opacity" />
-                    <Newspaper className="h-7 sm:h-9 w-7 sm:w-9 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)] transition-all group-hover/pulse:scale-110" />
+                    <img 
+                      src="/icons/v18_pulse.png" 
+                      alt="News Pulse" 
+                      className="h-7 sm:h-9 w-7 sm:w-9 object-cover rounded-full drop-shadow-xl transition-all group-hover/pulse:scale-110 active:scale-95" 
+                    />
                   </button>
                   {triggerLoading && <Loader2 size={14} className="animate-spin text-rose-500 ml-1.5" />}
                 </div>
@@ -234,8 +242,8 @@ const UnifiedFlipCard = ({
                 <h3 className="text-xl font-bold text-white truncate flex items-center gap-2">
                   {stockName}
                   <div className="flex items-center gap-1.5 ml-1">
-                    <CloudLightning className="w-4 h-4 text-rose-400 opacity-60" />
-                    <Newspaper className="w-4 h-4 text-blue-400 opacity-60" />
+                    <img src="/icons/v17_trigger.png" alt="Trigger" className="w-4 h-4 object-cover rounded-full opacity-60" />
+                    <img src="/icons/v18_pulse.png" alt="News" className="w-4 h-4 object-cover rounded-full opacity-60" />
                   </div>
                 </h3>
                 <div className="flex items-center gap-3 mt-1">
@@ -413,8 +421,9 @@ export const PuzzleGame = ({
     if (!chartRef.current) return;
     setIsCapturing(true);
     try {
-      const sourceCanvas = chartRef.current.getCanvas();
-      if (!sourceCanvas) throw new Error("Canvas capture failed");
+      if (typeof document === 'undefined') return;
+      const sourceCanvas = chartRef.current?.getCanvas();
+      if (!sourceCanvas) return;
       const SQUARE_SIZE = 512;
       const squareCanvas = document.createElement("canvas");
       squareCanvas.width = SQUARE_SIZE;

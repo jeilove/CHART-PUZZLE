@@ -49,31 +49,36 @@ export const TriggerCloud = ({ data, sentiment, volatility }: TriggerCloudProps)
       animate={{ opacity: 1, scale: 1 }}
       className="p-4 sm:px-8 flex flex-col items-center justify-center w-full h-full"
     >
-      <TagCloud
-        minSize={12}
-        maxSize={32}
-        tags={formattedTags as any}
-        className="text-center font-bold tracking-tight cursor-default select-none leading-relaxed"
-        renderer={(tag: any, size: number) => {
-          const color = colorMapper(tag);
-          return (
-            <span
-              key={tag.value}
-              style={{
-                fontSize: `${size}px`,
-                color: color,
-                margin: '0 8px',
-                display: 'inline-block',
-                textShadow: tag.sentiment !== 'neutral' ? `0 0 10px ${color}44` : 'none',
-                transition: 'all 0.3s'
-              }}
-              className="hover:scale-110 transition-transform"
-            >
-              {tag.value}
-            </span>
-          );
-        }}
-      />
+      {formattedTags.length > 0 ? (
+        <TagCloud
+          minSize={12}
+          maxSize={32}
+          tags={formattedTags as any}
+          className="text-center font-bold tracking-tight cursor-default select-none leading-relaxed"
+          renderer={(tag: any, size: number) => {
+            const color = colorMapper(tag);
+            return (
+              <span
+                key={tag.value}
+                style={{
+                  fontSize: `${size}px`,
+                  color: color,
+                  margin: "4px",
+                  display: "inline-block",
+                  textShadow: `0 0 10px ${color}33`,
+                  padding: "2px 4px",
+                  borderRadius: "4px"
+                }}
+                className="hover:scale-110 transition-transform active:scale-95 py-1 px-2"
+              >
+                {tag.value}
+              </span>
+            );
+          }}
+        />
+      ) : (
+        <div className="h-[200px] flex items-center justify-center text-white/20 italic text-sm">트리거 분석 데이터를 기다리는 중...</div>
+      )}
 
       {/* 감성 분석 및 변동성 정보 하단 섹션 */}
       {(sentiment || volatility !== undefined) && (
