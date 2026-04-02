@@ -1,0 +1,42 @@
+{
+  "symbol": "329180",
+  "name": "HD현대중공업",
+  "cloud": [
+    {
+      "text": "일회성 비용",
+      "value": 10.060967465655157,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "시너지",
+      "value": 10.01007822888754,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "수익성 개선",
+      "value": 10.0,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "수익성 개선"
+    ],
+    "neutral": [
+      "일회성 비용",
+      "시너지"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 8.088782738491285e-35,
+  "price_change_20d": -21.65,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 07:58:32 GMT",
+    "Wed, 01 Apr 2026 07:00:00 GMT",
+    "Wed, 01 Apr 2026 00:40:35 GMT"
+  ],
+  "total_report_count": 59,
+  "is_fresh": true,
+  "timestamp": 1775111274.8786442
+}

@@ -1,13 +1,15 @@
 {
+  "symbol": "018260",
+  "name": "삼성에스디에스",
   "cloud": [
     {
       "text": "컨센서스 부합",
-      "value": 10.00000000013888,
+      "value": 10.000000000125663,
       "sentiment": "neutral"
     },
     {
       "text": "실적 전망",
-      "value": 10.000000000000004,
+      "value": 10.000000000000002,
       "sentiment": "neutral"
     },
     {
@@ -26,15 +28,27 @@
       "sentiment": "positive"
     }
   ],
-  "sentiment_score": 3.523724125319117e-23,
-  "price_change_20d": -0.06,
+  "sentiment": {
+    "positive": [
+      "고성장",
+      "기업가치 제고",
+      "수익성 개선"
+    ],
+    "neutral": [
+      "컨센서스 부합",
+      "실적 전망"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 3.188397439424765e-23,
+  "price_change_20d": -9.77,
   "gap_comment": "",
   "report_dates": [
-    "Wed, 21 Jan 2026 08:00:00 GMT",
     "Wed, 18 Mar 2026 07:00:00 GMT",
-    "Tue, 24 Mar 2026 23:24:02 GMT"
+    "Thu, 02 Apr 2026 07:12:46 GMT",
+    "Thu, 02 Apr 2026 07:09:37 GMT"
   ],
   "total_report_count": 54,
   "is_fresh": true,
-  "timestamp": 1775038401.315817
+  "timestamp": 1775121845.407017
 }

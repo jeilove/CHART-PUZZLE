@@ -15,8 +15,30 @@ import StockHeatmap from "@/components/ui/StockHeatmap";
 
 // 1.1.0: TradingView 히트맵 위젯 컴포넌트
 function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const isMounted = React.useRef(false);
+
   React.useEffect(() => {
+    isMounted.current = true;
+
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+    container.innerHTML = "";
+
+    // TradingView 스크립트 삽입 전 div wrapper 생성 (스크립트가 참조할 DOM 구조 유지)
+    const wrapper = document.createElement("div");
+    wrapper.className = "tradingview-widget-container";
+    wrapper.style.width = "100%";
+    wrapper.style.height = "100%";
+
+    const widgetDiv = document.createElement("div");
+    widgetDiv.className = "tradingview-widget-container__widget";
+    widgetDiv.style.height = "100%";
+    wrapper.appendChild(widgetDiv);
+
     const script = document.createElement("script");
+    script.type = "text/javascript";
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js";
     script.async = true;
     script.innerHTML = JSON.stringify({
@@ -35,17 +57,30 @@ function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
       "width": "100%",
       "height": "100%"
     });
-    const container = document.getElementById(`tradingview-heatmap-${dataSource}`);
-    if (container) {
-      container.innerHTML = "";
-      container.appendChild(script);
+
+    // 스크립트 에러를 조용히 처리 (TradingView 내부 에러가 React overlay를 오염시키지 않도록)
+    script.onerror = () => {};
+
+    wrapper.appendChild(script);
+
+    // isMounted 확인 후 삽입 (cleanup이 먼저 실행된 경우 삽입 차단)
+    if (isMounted.current && containerRef.current) {
+      containerRef.current.appendChild(wrapper);
     }
+
+    return () => {
+      isMounted.current = false;
+      // cleanup: wrapper 제거 (스크립트 실행 이전에 DOM 제거)
+      try {
+        if (container && wrapper.parentNode === container) {
+          container.removeChild(wrapper);
+        }
+      } catch (_) {}
+    };
   }, [dataSource]);
 
   return (
-    <div className="w-full h-full bg-black/20 overflow-hidden" id={`tradingview-heatmap-${dataSource}`}>
-      <div className="tradingview-widget-container__widget"></div>
-    </div>
+    <div ref={containerRef} className="w-full h-full bg-black/20 overflow-hidden" />
   );
 }
 
@@ -159,50 +194,43 @@ function ProjectApp() {
   const [newGroupInputOpen, setNewGroupInputOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
 
-  // URL 네비게이션 헬퍼
-  const navigate = (v: string, s?: string, w?: boolean) => {
-    const params = new URLSearchParams(searchParams.toString());
+  // URL 네비게이션 헬퍼: router.push만 담당하며 setView 등은 아래 useEffect에서 처리
+  const navigate = React.useCallback((v: string, s?: string, w: boolean = false) => {
+    const params = new URLSearchParams();
     params.set("view", v);
-    if (s) params.set("symbol", s); else params.delete("symbol");
-    if (w) params.set("warp", "true"); else params.delete("warp");
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  };
+    if (s) params.set("s", s);
+    params.set("w", w ? "1" : "0");
+    setIsDrawerOpen(false);
+    router.push(`${pathname}?${params.toString()}`);
+  }, [pathname, router]);
 
-  // URL 파라미터 감지 및 상태 동기화
+  // URL 파라미터 감지 및 상태 동기화 (navigate의 유일한 처리 지점)
   React.useEffect(() => {
     const v = searchParams.get("view");
-    const s = searchParams.get("symbol");
-    const w = searchParams.get("warp") === "true";
+    const s = searchParams.get("s");   // navigate에서 "s"로 씀
+    const w = searchParams.get("w") === "1";  // navigate에서 "w"로 씀
 
-    if (v && ["HOME", "GAME", "CHART"].includes(v)) {
-      if (v !== view) setView(v as any);
-    } else {
-      if (view !== "HOME") setView("HOME");
-    }
+    const targetView = (v && ["HOME", "GAME", "CHART"].includes(v)) ? v as "HOME" | "GAME" | "CHART" : "HOME";
+    setView(targetView);
+    setIsTimeWarpTriggered(w);
 
     if (s) {
-      if (!selectedStock || selectedStock.symbol !== s) {
-        const found = STOCK_LIST.find(st => st.symbol === s);
-        if (found) {
-          // 데이터도 함께 불러오기 위해 selectStock 호출 (다만 URL 무한 순환 방지를 위해 quiet 모드)
-          setSelectedStock(found);
-          const loadData = async () => {
-            try {
-              const res = await fetch(`http://127.0.0.1:8000/api/stock/${s}`);
-              if (res.ok) {
-                const result = await res.json();
-                if (result.data) setStockData(result.data);
-              }
-            } catch (e) {}
-          };
-          loadData();
-        }
+      const allStocks = [...STOCK_LIST, ...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
+      const found = allStocks.find(st => st.symbol === s);
+      if (found && (!selectedStock || selectedStock.symbol !== s)) {
+        setSelectedStock(found);
+        const loadData = async () => {
+          try {
+            const res = await fetch(`http://127.0.0.1:8000/api/stock/${s}`);
+            if (res.ok) {
+              const result = await res.json();
+              if (result.data) setStockData(result.data);
+            }
+          } catch (e) {}
+        };
+        loadData();
       }
-    } else {
-      if (selectedStock) setSelectedStock(null);
     }
-
-    if (w !== isTimeWarpTriggered) setIsTimeWarpTriggered(w);
   }, [searchParams]);
 
   React.useEffect(() => {
@@ -893,7 +921,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v1.0.42</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v0.6.1</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
@@ -926,6 +954,7 @@ function ProjectApp() {
                 return;
               }
               navigate("CHART", selectedStock.symbol, false);
+              setIsTimeWarpTriggered(false);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "CHART" && !isTimeWarpTriggered ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
           >

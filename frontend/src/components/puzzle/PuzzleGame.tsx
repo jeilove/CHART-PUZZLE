@@ -205,7 +205,6 @@ const UnifiedFlipCard = ({
                       className="h-7 sm:h-9 w-7 sm:w-9 object-cover rounded-full drop-shadow-xl transition-all group-hover/pulse:scale-110 active:scale-95" 
                     />
                   </button>
-                  {triggerLoading && <Loader2 size={14} className="animate-spin text-rose-500 ml-1.5" />}
                 </div>
               </div>
             )}
@@ -390,6 +389,7 @@ export const PuzzleGame = ({
   const [isFlipped, setIsFlipped] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [quizFeedback, setQuizFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
+  const [isTriggerOpen, setIsTriggerOpen] = useState(false);
   const chartRef = useRef<StockChartHandle>(null);
   const quizChartRef = useRef<StockChartHandle>(null);
 
@@ -398,6 +398,11 @@ export const PuzzleGame = ({
   useEffect(() => {
     if (isTimeWarpTriggered) {
       setIsQuizOpen(true);
+    } else {
+      // 차트 탭 클릭 등으로 isTimeWarpTriggered가 false로 바뀌면 퀴즈 모달 닫기
+      setIsQuizOpen(false);
+      setQuizFeedback(null);
+      setShowResult(false);
     }
   }, [isTimeWarpTriggered]);
 
@@ -585,6 +590,45 @@ export const PuzzleGame = ({
         )}
       </AnimatePresence>
 
+      {/* Trigger Cloud 패널 오버레이 */}
+      <AnimatePresence>
+        {isTriggerOpen && (
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -50, opacity: 0 }}
+            className="fixed top-20 left-8 z-[8000] w-[240px] sm:w-[320px]"
+          >
+            <div className="bg-slate-950/90 backdrop-blur-3xl border border-white/10 rounded-3xl p-6 shadow-3xl">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Trigger Cloud</span>
+                <button onClick={() => setIsTriggerOpen(false)}><X size={16} className="text-white/20" /></button>
+              </div>
+              {isTriggerLoading ? (
+                <div className="flex items-center justify-center h-20">
+                  <Loader2 size={20} className="animate-spin text-rose-400" />
+                </div>
+              ) : triggerResults?.cloud?.length > 0 ? (
+                <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
+                  {triggerResults.cloud.map((tag: any, i: number) => (
+                    <span key={i} className={`text-xs font-bold px-2 py-1 rounded-lg ${
+                      tag.sentiment === 'positive' ? 'text-rose-400 bg-rose-500/10' : 
+                      tag.sentiment === 'negative' ? 'text-blue-400 bg-blue-500/10' : 
+                      'text-white/60 bg-white/5'
+                    }`}>{tag.text || tag.value}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[11px] text-white/30 text-center py-4">트리거 분석 데이터가 없습니다</p>
+              )}
+              {triggerResults?.gap_comment && (
+                <p className="mt-3 text-[10px] text-white/40 leading-relaxed border-t border-white/5 pt-3">{triggerResults.gap_comment}</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {isOnlyChart ? (
         <div className="w-full flex flex-col items-center max-w-4xl px-4 relative pb-20">
             <UnifiedFlipCard 
@@ -608,42 +652,48 @@ export const PuzzleGame = ({
       ) : (
         <>
       {!isPlaying ? (
-        <div className="w-full flex flex-col items-center animate-in fade-in duration-700 max-w-2xl px-4 grow h-full">
-          {stockName && (
-            <h3 
-              className="text-2xl font-black text-white flex items-center gap-2 mb-6 cursor-pointer hover:text-rose-400 transition-colors group"
-              onClick={() => fetchTrigger(true)}
-              title="클릭하여 데이터 강제 갱신"
-            >
-              {stockName}
-              <span className="text-sm font-bold text-white/40 tracking-wider">({stockSymbol})</span>
-              <RefreshCw size={14} className="ml-1 opacity-60 group-hover:opacity-100 transition-opacity" />
-            </h3>
-          )}
-          <div className="w-full p-2 bg-white/5 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md mb-4 h-[60vh] min-h-[400px]">
-             <StockChart ref={chartRef} data={stockData} />
-          </div>
-          <div className="w-full mt-4 flex items-center justify-center gap-3 p-2 bg-black/40 rounded-[1.5rem] border border-white/10 shadow-2xl backdrop-blur-3xl z-10 sm:max-w-xs mx-auto">
+        <div className="w-full flex flex-col items-center animate-in fade-in duration-700 max-w-4xl px-4 grow h-full gap-4">
+          {/* UnifiedFlipCard: 차트 화면과 동일한 플립 방식으로 트리거/뉴스 표시 */}
+          <UnifiedFlipCard
+            isFlipped={isFlipped}
+            setIsFlipped={setIsFlipped}
+            chartContent={<StockChart ref={chartRef} data={stockData} timeframe={timeframe} />}
+            triggerLoading={isTriggerLoading}
+            triggerResults={triggerResults}
+            stockSymbol={stockSymbol}
+            stockName={stockName}
+            hideName={false}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+            onRefresh={() => fetchTrigger(true)}
+            onNewsClick={(p) => setIsNewsOpen(p !== undefined ? p : !isNewsOpen)}
+            onPrevFavorite={onPrevFavorite}
+            onNextFavorite={onNextFavorite}
+            hasMultipleFavorites={hasMultipleFavorites}
+          />
+
+          {/* 퍼즐 시작 컨트롤 */}
+          <div className="w-full flex items-center justify-center gap-3 p-2 bg-black/40 rounded-[2.5rem] border border-white/10 shadow-2xl backdrop-blur-3xl z-10 sm:max-w-md mx-auto">
             <Button 
               onClick={(e) => { e.stopPropagation(); startPuzzle(); }} 
               disabled={isCapturing} 
-              className="flex-1 h-12 text-[13px] font-black bg-[#F08080] hover:bg-[#F08080]/90 hover:scale-105 active:scale-95 transition-all duration-300 text-white rounded-xl shadow-lg hover:shadow-rose-500/40"
+              className="flex-1 h-14 text-base font-black bg-[#F08080] hover:bg-[#F08080]/90 hover:scale-[1.02] active:scale-95 transition-all duration-300 text-white rounded-[1.5rem] shadow-lg hover:shadow-rose-500/40"
             >
-              {isCapturing ? <Loader2 size={16} className="animate-spin mr-2" /> : <Play size={16} className="mr-2" />}
-              {isCapturing ? "분할.." : "퍼즐 시작"}
+              {isCapturing ? <Loader2 size={20} className="animate-spin mr-3" /> : <Play size={20} className="mr-3" />}
+              {isCapturing ? "분할중..." : "퍼즐 시작"}
             </Button>
             <div className="relative group">
               <select 
                 value={gridSize} 
                 onChange={(e) => setGridSize(Number(e.target.value))} 
-                className="w-20 h-12 bg-white/5 text-white text-[11px] font-black rounded-xl border border-white/20 outline-none text-center appearance-none cursor-pointer hover:bg-white/10 transition-colors"
+                className="w-24 h-14 bg-white/5 text-white text-sm font-black rounded-[1.5rem] border border-white/20 outline-none text-center appearance-none cursor-pointer hover:bg-white/10 transition-colors"
               >
                 <option value={2} className="bg-slate-900">2x2</option>
                 <option value={3} className="bg-slate-900">3x3</option>
                 <option value={4} className="bg-slate-900">4x4</option>
               </select>
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
-                <ChevronDown size={12} className="text-white" />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+                <ChevronDown size={14} className="text-white" />
               </div>
             </div>
           </div>
@@ -678,7 +728,23 @@ export const PuzzleGame = ({
           </motion.div>
         </AnimatePresence>
       ) : (
-        <div className="w-full flex flex-col items-center gap-4 relative -mt-2">
+        <div className="w-full flex flex-col items-center gap-4 relative -mt-6">
+          {/* Playing Header with icons below code */}
+          <div className="w-full flex flex-col items-center gap-2 p-4 max-w-4xl">
+            {stockName && (
+              <div className="flex flex-col items-center gap-1.5">
+                <h3 className="text-base sm:text-xl font-black text-white">{stockName}</h3>
+                <span className="text-[10px] sm:text-xs font-bold text-white/40 tracking-wider">({stockSymbol})</span>
+                
+                {/* Icons Capsule moved here */}
+                <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full backdrop-blur-md opacity-60">
+                  <img src="/icons/v17_trigger.png" alt="Trigger" className="h-5 w-5 object-cover rounded-full" />
+                  <div className="w-px h-3 bg-white/10" />
+                  <img src="/icons/v18_pulse.png" alt="News" className="h-5 w-5 object-cover rounded-full" />
+                </div>
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-6 px-6 py-2 bg-black/40 backdrop-blur-md rounded-2xl border border-white/5 shadow-2xl mb-2">
             <div className="flex items-center gap-2"><Timer size={14} className="text-yellow-500" /><span className="text-lg font-black text-white font-mono">{formatTime(seconds)}</span></div>
             <div className="w-[1px] h-4 bg-white/10" /><div className="flex items-center gap-2"><RefreshCw size={14} className="text-blue-400" /><span className="text-lg font-black text-white font-mono">{moves}</span></div>
