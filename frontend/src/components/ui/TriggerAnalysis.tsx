@@ -14,6 +14,7 @@ interface TriggerSummary {
 export function TriggerAnalysis() {
   const [data, setData] = useState<TriggerSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedSymbol, setSelectedSymbol] = useState("MARKET");
 
   const fetchSummary = async (refresh = false) => {
     setLoading(true);
@@ -128,7 +129,7 @@ export function TriggerAnalysis() {
             Change Intensity Cloud
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {data?.change_stocks.slice(0, 12).map((s, i) => (
+            {(data?.change_stocks || []).slice(0, 12).map((s, i) => (
               <div key={s.symbol} className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center hover:bg-white/10 transition-all border-b-2 border-b-blue-500/20">
                 <span className="text-sm font-black text-white mb-1">{s.name}</span>
                 <div className="px-2 py-0.5 bg-blue-500/20 rounded text-[9px] font-bold text-blue-300 uppercase">
@@ -140,45 +141,109 @@ export function TriggerAnalysis() {
         </section>
 
         {/* 4. Timeline View */}
-        <section className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-xl md:col-span-2">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <Calendar size={16} />
-              Sentiment Evolution Timeline
-            </h3>
-            <div className="flex gap-2">
-               <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-[9px] text-slate-500 font-bold uppercase">Positive</span>
-               </div>
-               <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-rose-500" />
-                  <span className="text-[9px] text-slate-500 font-bold uppercase">Negative</span>
-               </div>
+        <section className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-xl md:col-span-2 relative group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-rose-500/5 pointer-events-none" />
+          
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 relative z-10">
+            <div>
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-1">
+                <Calendar size={16} />
+                Sentiment Evolution Timeline
+              </h3>
+              <p className="text-[10px] text-slate-600 font-bold tracking-tight">
+                {selectedSymbol === "MARKET" ? "시장 전체 감성 평균" : `${data?.trends?.find(t => t.symbol === selectedSymbol)?.name || "분석 대기 중"} 감성 추세`}
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="relative group/select">
+                <select 
+                  value={selectedSymbol}
+                  onChange={(e) => setSelectedSymbol(e.target.value)}
+                  className="bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-[11px] font-black text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 appearance-none pr-8 cursor-pointer hover:bg-black/60 transition-all"
+                >
+                  <option value="MARKET">🌐 Market Pulse</option>
+                  {(data?.trends || []).map(t => (
+                    <option key={t.symbol} value={t.symbol}>{t.name}</option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                  <Activity size={12} />
+                </div>
+              </div>
+              
+              <div className="hidden sm:flex gap-2">
+                 <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                 </div>
+                 <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
+                 </div>
+              </div>
             </div>
           </div>
           
-          <div className="h-[240px] w-full flex items-end justify-between gap-2 px-2 relative mb-6">
-            {/* Simple Mock Chart - Real chart would use a library like recharts or a custom SVG path */}
-            <div className="absolute inset-0 border-b border-white/10 h-[50%]" />
-            {data?.trends[0]?.data.map((point, idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center group/p relative h-full">
-                <motion.div 
-                   initial={{ height: 0 }}
-                   animate={{ height: `${50 + (point.score * 10)}%` }}
-                   className={`w-full max-w-[12px] rounded-t-full transition-all ${point.score > 0 ? "bg-emerald-500/40 group-hover/p:bg-emerald-500/60" : "bg-rose-500/40 group-hover/p:bg-rose-500/60"}`}
-                />
-                {idx % 3 === 0 && (
-                  <span className="text-[8px] text-slate-600 font-bold mt-2 absolute -bottom-6 rotate-45">{point.date.slice(5)}</span>
-                )}
-                <div className="absolute opacity-0 group-hover/p:opacity-100 bg-white text-black text-[9px] font-black px-2 py-1 rounded bottom-full mb-2 z-10 whitespace-nowrap pointer-events-none">
-                  {point.score.toFixed(1)}
+          <div className="h-[240px] w-full flex items-center justify-between gap-1 sm:gap-2 px-2 relative mb-6 z-10">
+            {/* Center Baseline */}
+            <div className="absolute left-0 right-0 top-1/2 border-t border-white/10 z-0" />
+            
+            {(() => {
+              // Calculate or pick data
+              let plotData: { date: string; score: number }[] = [];
+              const trends = data?.trends || [];
+              
+              if (selectedSymbol === "MARKET" && trends.length > 0) {
+                // Ensure all trends have internal data arrays
+                const validTrends = trends.filter(t => Array.isArray(t.data));
+                if (validTrends.length > 0) {
+                  plotData = validTrends[0].data.map((point, idx) => {
+                    let sum = 0;
+                    validTrends.forEach(t => {
+                        const score = t.data[idx]?.score;
+                        sum += (typeof score === 'number' ? score : 0);
+                    });
+                    return { date: point.date, score: sum / validTrends.length };
+                  });
+                }
+              } else {
+                const found = trends.find(t => t.symbol === selectedSymbol);
+                plotData = (found?.data || []) as { date: string; score: number }[];
+              }
+
+              if (plotData.length === 0) {
+                return (
+                  <div className="absolute inset-0 flex items-center justify-center text-white/5 italic text-[10px] uppercase tracking-widest">
+                    No timeline data available for selection
+                  </div>
+                );
+              }
+
+              return plotData.map((point, idx) => (
+                <div key={idx} className="flex-1 flex flex-col items-center group/p relative h-full">
+                  <motion.div 
+                     initial={{ height: 0 }}
+                     animate={{ height: `${Math.min(95, Math.abs(point.score || 0) * 20)}%` }}
+                     transition={{ type: "spring", damping: 20 }}
+                     className={`w-full max-w-[14px] absolute transition-all z-10 ${
+                        (point.score || 0) >= 0 
+                          ? "bottom-1/2 bg-gradient-to-t from-emerald-500/40 to-emerald-500 rounded-t-lg" 
+                          : "top-1/2 bg-gradient-to-b from-rose-500/40 to-rose-500 rounded-b-lg"
+                     }`}
+                  />
+                  {idx % 3 === 0 && (
+                    <span className="text-[8px] text-slate-600 font-bold absolute -bottom-10 opacity-60 tracking-tighter">{(point.date || "").slice(5)}</span>
+                  )}
+                  <div className={`absolute opacity-0 group-hover/p:opacity-100 bg-white/90 backdrop-blur-md text-black text-[9px] font-black px-2 py-1 rounded z-20 whitespace-nowrap shadow-xl border border-white/20 transition-all scale-75 group-hover/p:scale-100 ${
+                    (point.score || 0) >= 0 ? "bottom-[calc(50%+10px)]" : "top-[calc(50%+10px)]"
+                  }`}>
+                    {(point.score || 0) > 0 ? "+" : ""}{(point.score || 0).toFixed(2)}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ));
+            })()}
           </div>
-          <div className="mt-12 text-center">
-             <p className="text-[9px] text-slate-600 italic">종목별 감성 지수의 시계열 변화를 분석하여 추세를 파악합니다.</p>
+          <div className="mt-12 text-center border-t border-white/5 pt-4">
+             <p className="text-[9px] text-slate-600 italic tracking-tight uppercase font-bold opacity-60">Selection-based Sentiment Analytics & Growth Trajectory</p>
           </div>
         </section>
       </div>

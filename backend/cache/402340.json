@@ -1,0 +1,97 @@
+{
+  "symbol": "402340",
+  "name": "SK스퀘어",
+  "cloud": [
+    {
+      "text": "하락",
+      "value": 34.56192259233946,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "강세",
+      "value": 19.048374180359595,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "약세",
+      "value": 18.18730753077982,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "서프라이즈",
+      "value": 10.01836304777029,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "축소",
+      "value": 10.000002266305792,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "자사주 매입",
+      "value": 10.000000000000004,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "자사주 소각",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "반등",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "증가",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "턴어라운드",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "상승",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "확대",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "리레이팅",
+      "value": 10.0,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "자사주 소각",
+      "턴어라운드",
+      "리레이팅"
+    ],
+    "neutral": [
+      "하락",
+      "강세",
+      "약세",
+      "서프라이즈",
+      "축소"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 2.877356685343851e-22,
+  "price_change_20d": -17.05,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 01:33:47 GMT",
+    "Tue, 31 Mar 2026 12:30:00 GMT",
+    "Tue, 31 Mar 2026 07:52:10 GMT"
+  ],
+  "total_report_count": 53,
+  "is_fresh": true,
+  "timestamp": 1775130974.6147177
+}

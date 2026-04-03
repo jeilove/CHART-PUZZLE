@@ -1,42 +1,66 @@
 {
+  "symbol": "207940",
+  "name": "삼성바이오로직스",
   "cloud": [
     {
       "text": "리레이팅",
-      "value": 10.00003051125558,
+      "value": 10.00002760772572,
       "sentiment": "positive"
     },
     {
+      "text": "서프라이즈",
+      "value": 10.000005566174114,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "하락",
+      "value": 10.000000000129093,
+      "sentiment": "neutral"
+    },
+    {
       "text": "실적 전망",
-      "value": 10.000000000017007,
+      "value": 10.000000000015389,
       "sentiment": "neutral"
     },
     {
       "text": "중립",
-      "value": 10.000000000000052,
+      "value": 10.000000000000046,
       "sentiment": "neutral"
     },
     {
       "text": "고성장",
       "value": 10.0,
       "sentiment": "positive"
+    },
+    {
+      "text": "상승",
+      "value": 10.0,
+      "sentiment": "neutral"
     }
   ],
-  "sentiment_score": 3.0511255580365737e-06,
-  "price_change_20d": 4.16,
+  "sentiment": {
+    "positive": [
+      "리레이팅",
+      "고성장"
+    ],
+    "neutral": [
+      "서프라이즈",
+      "하락",
+      "실적 전망",
+      "중립",
+      "상승"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 2.7607725720373405e-06,
+  "price_change_20d": -3.76,
   "gap_comment": "",
   "report_dates": [
-    "Wed, 01 Apr 2026 02:44:08 GMT",
-    "Tue, 31 Mar 2026 23:42:33 GMT",
-    "Tue, 31 Mar 2026 23:37:32 GMT",
-    "Mon, 30 Mar 2026 22:01:00 GMT",
-    "Mon, 30 Mar 2026 07:00:00 GMT",
-    "26.01.22",
-    "26.01.09",
-    "26.01.07",
-    "25.12.23",
-    "25.12.18"
+    "Wed, 01 Apr 2026 23:53:28 GMT",
+    "Wed, 01 Apr 2026 23:45:00 GMT",
+    "Wed, 01 Apr 2026 07:07:00 GMT"
   ],
-  "total_report_count": 36,
+  "total_report_count": 34,
   "is_fresh": true,
-  "timestamp": 1775023103.7202013
+  "timestamp": 1775130938.5565925
 }

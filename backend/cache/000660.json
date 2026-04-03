@@ -1,57 +1,98 @@
 {
+  "symbol": "000660",
+  "name": "SK하이닉스",
   "cloud": [
     {
-      "text": "가시성",
-      "value": 10.022428677194858,
+      "text": "증가",
+      "value": 40,
       "sentiment": "neutral"
     },
     {
-      "text": "가격 상승",
-      "value": 10.022428677194858,
+      "text": "상향",
+      "value": 40,
+      "sentiment": "positive"
+    },
+    {
+      "text": "상승",
+      "value": 40,
+      "sentiment": "positive"
+    },
+    {
+      "text": "확대",
+      "value": 40,
+      "sentiment": "positive"
+    },
+    {
+      "text": "비용 부담",
+      "value": 40,
+      "sentiment": "negative"
+    },
+    {
+      "text": "부담",
+      "value": 40,
+      "sentiment": "negative"
+    },
+    {
+      "text": "가시성",
+      "value": 36.46012607307645,
       "sentiment": "positive"
     },
     {
       "text": "실적 전망",
-      "value": 10.00224867324179,
+      "value": 30.399082695118953,
       "sentiment": "neutral"
     },
     {
-      "text": "믹스 개선",
-      "value": 10.00000000013888,
+      "text": "성장",
+      "value": 28.74517383442353,
       "sentiment": "positive"
     },
     {
-      "text": "수요 둔화",
-      "value": 10.00000000013888,
-      "sentiment": "negative"
+      "text": "반등",
+      "value": 25.0,
+      "sentiment": "positive"
     },
     {
-      "text": "경쟁 심화",
-      "value": 10.00000000013888,
-      "sentiment": "negative"
+      "text": "강세",
+      "value": 19.658442081080704,
+      "sentiment": "positive"
     },
     {
-      "text": "비중확대",
-      "value": 10.000000000000004,
+      "text": "서프라이즈",
+      "value": 12.179308129708094,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "수요 증가",
+      "value": 10.184979872481874,
+      "sentiment": "positive"
+    },
+    {
+      "text": "개선",
+      "value": 10.021872869249542,
       "sentiment": "positive"
     }
   ],
-  "sentiment_score": 0.0022428677055982035,
-  "price_change_20d": 5.18,
-  "gap_comment": "",
-  "report_dates": [
-    "Wed, 01 Apr 2026 06:36:01 GMT",
-    "Tue, 31 Mar 2026 22:00:21 GMT",
-    "Tue, 31 Mar 2026 04:56:00 GMT",
-    "Tue, 31 Mar 2026 03:47:00 GMT",
-    "Mon, 30 Mar 2026 20:00:00 GMT",
-    "26.04.01",
-    "26.03.25",
-    "26.03.23",
-    "26.03.16",
-    "26.03.05"
-  ],
-  "total_report_count": 55,
-  "is_fresh": true,
-  "timestamp": 1775027672.3266735
+  "sentiment": {
+    "positive": [
+      "상향",
+      "상승",
+      "확대",
+      "가시성",
+      "성장"
+    ],
+    "neutral": [
+      "증가",
+      "실적 전망",
+      "서프라이즈"
+    ],
+    "negative": [
+      "비용 부담",
+      "부담"
+    ]
+  },
+  "sentiment_score": 7.5292,
+  "price_change_20d": -4.33,
+  "total_report_count": 61,
+  "timestamp": 1775195934.7540329
 }

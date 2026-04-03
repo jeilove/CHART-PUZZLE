@@ -1,0 +1,81 @@
+{
+  "symbol": "105560",
+  "name": "KB금융",
+  "cloud": [
+    {
+      "text": "시너지",
+      "value": 20.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "최선호주",
+      "value": 19.048374180359595,
+      "sentiment": "positive"
+    },
+    {
+      "text": "서프라이즈",
+      "value": 10.04086771438464,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 10.000000000000028,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "증가",
+      "value": 10.00000000000002,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "상승",
+      "value": 10.00000000000002,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "축소",
+      "value": 10.000000000000014,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "비중확대",
+      "value": 10.000000000000004,
+      "sentiment": "positive"
+    },
+    {
+      "text": "확대",
+      "value": 10.000000000000004,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "자사주 매입",
+      "value": 10.0,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "최선호주",
+      "비중확대"
+    ],
+    "neutral": [
+      "시너지",
+      "서프라이즈",
+      "긍정적",
+      "증가",
+      "상승"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 0.9048374180359599,
+  "price_change_20d": -1.68,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 23:22:02 GMT",
+    "Wed, 01 Apr 2026 06:51:00 GMT",
+    "Tue, 31 Mar 2026 06:34:00 GMT"
+  ],
+  "total_report_count": 42,
+  "is_fresh": true,
+  "timestamp": 1775131013.6073248
+}

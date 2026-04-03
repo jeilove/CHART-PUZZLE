@@ -1,0 +1,48 @@
+{
+  "symbol": "141080",
+  "name": "리가켐바이오",
+  "cloud": [
+    {
+      "text": "기업가치 제고",
+      "value": 10.000000000760219,
+      "sentiment": "positive"
+    },
+    {
+      "text": "상승",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "확대",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "최대주주 변경",
+      "value": 10.0,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "기업가치 제고"
+    ],
+    "neutral": [
+      "상승",
+      "확대",
+      "최대주주 변경"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 7.602187409607351e-11,
+  "price_change_20d": -4.53,
+  "gap_comment": "",
+  "report_dates": [
+    "Thu, 02 Apr 2026 08:30:00 GMT",
+    "Thu, 02 Apr 2026 06:15:35 GMT",
+    "Thu, 02 Apr 2026 06:09:25 GMT"
+  ],
+  "total_report_count": 59,
+  "is_fresh": true,
+  "timestamp": 1775131204.7376668
+}

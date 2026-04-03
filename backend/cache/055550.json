@@ -1,0 +1,110 @@
+{
+  "symbol": "055550",
+  "name": "신한지주",
+  "cloud": [
+    {
+      "text": "확대",
+      "value": 19.08924189491386,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "배당 확대",
+      "value": 10.04086771438464,
+      "sentiment": "positive"
+    },
+    {
+      "text": "상승",
+      "value": 10.008251049232678,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "최선호주",
+      "value": 10.008251049232658,
+      "sentiment": "positive"
+    },
+    {
+      "text": "증가",
+      "value": 10.000001855391382,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "감소",
+      "value": 10.000001855391362,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "축소",
+      "value": 10.000000000461096,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 10.000000000169628,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "컨센서스 하회",
+      "value": 10.0,
+      "sentiment": "negative"
+    },
+    {
+      "text": "기업가치 제고",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "오버행",
+      "value": 10.0,
+      "sentiment": "negative"
+    },
+    {
+      "text": "자사주 매입",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "가시성",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "일회성 비용",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "컨센서스 부합",
+      "value": 10.0,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "배당 확대",
+      "최선호주",
+      "기업가치 제고"
+    ],
+    "neutral": [
+      "확대",
+      "상승",
+      "증가",
+      "감소",
+      "축소"
+    ],
+    "negative": [
+      "컨센서스 하회",
+      "오버행"
+    ]
+  },
+  "sentiment_score": 0.004911876361729971,
+  "price_change_20d": -1.29,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 23:31:00 GMT",
+    "Wed, 01 Apr 2026 22:51:24 GMT",
+    "Wed, 01 Apr 2026 08:14:29 GMT"
+  ],
+  "total_report_count": 39,
+  "is_fresh": true,
+  "timestamp": 1775131044.985534
+}

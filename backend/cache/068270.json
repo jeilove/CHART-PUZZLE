@@ -1,47 +1,73 @@
 {
+  "symbol": "068270",
+  "name": "셀트리온",
   "cloud": [
     {
+      "text": "일회성 비용",
+      "value": 20.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "확대",
+      "value": 10.04253357258761,
+      "sentiment": "neutral"
+    },
+    {
       "text": "수익성 개선",
-      "value": 10.04700686739379,
+      "value": 10.042533572522556,
       "sentiment": "positive"
     },
     {
       "text": "캐시카우",
-      "value": 10.000004129249415,
+      "value": 10.00000373629938,
       "sentiment": "positive"
     },
     {
       "text": "가시성",
-      "value": 10.000002266180127,
+      "value": 10.000002050524575,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "증가",
+      "value": 10.000000000461172,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "감소",
+      "value": 10.000000000000076,
       "sentiment": "neutral"
     },
     {
       "text": "컨센서스 하회",
       "value": 10.0,
       "sentiment": "negative"
-    },
-    {
-      "text": "긍정적",
-      "value": 10.0,
-      "sentiment": "neutral"
     }
   ],
-  "sentiment_score": 0.004701099664320653,
-  "price_change_20d": 4.36,
+  "sentiment": {
+    "positive": [
+      "수익성 개선",
+      "캐시카우"
+    ],
+    "neutral": [
+      "일회성 비용",
+      "확대",
+      "가시성",
+      "증가",
+      "감소"
+    ],
+    "negative": [
+      "컨센서스 하회"
+    ]
+  },
+  "sentiment_score": 0.004253730882193617,
+  "price_change_20d": -7.0,
   "gap_comment": "",
   "report_dates": [
-    "Wed, 01 Apr 2026 00:55:08 GMT",
-    "Wed, 01 Apr 2026 00:49:37 GMT",
-    "Tue, 31 Mar 2026 23:51:06 GMT",
-    "Tue, 31 Mar 2026 06:20:00 GMT",
-    "Sun, 29 Mar 2026 23:57:58 GMT",
-    "26.03.30",
-    "26.02.12",
-    "26.02.06",
-    "26.01.06",
-    "26.01.05"
+    "Wed, 01 Apr 2026 05:12:44 GMT",
+    "Wed, 01 Apr 2026 01:25:46 GMT",
+    "Thu, 02 Apr 2026 09:18:00 GMT"
   ],
   "total_report_count": 55,
   "is_fresh": true,
-  "timestamp": 1775021340.707759
+  "timestamp": 1775131027.8820777
 }

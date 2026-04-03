@@ -1,27 +1,20 @@
-# Task: Stock Chart Puzzle - Trigger Pulse Dashboard (v1.3.0)
+# Task: v1.5.4 350종목 완전체 분석 재가동
 
-## 1. UI & Navigation Expansion
-- [x] Add 'TRIGGER' navigation to the bottom tab bar as the 5th icon.
-- [x] Use `v3_trigger.png` for the icon and style it consistently with other tabs.
-- [x] Integrate `TriggerAnalysis` view state into the main `ProjectApp` view logic.
+## 진행 상황
+- [x] 서버리스 환경 및 종목 수 정합성 확인 (KOSPI 200 + KOSDAQ 150 = 350)
+- [x] `scraper.py` 고도화 (v1.5.4): 시계열 가중치(Exponential Decay) 로직 및 전수 조사 엔진 탑재
+- [x] `batch_analyze.py` 업데이트 (v1.5.4): 병렬 처리 엔진 최적화
+- [x] 전수 분석 실행 및 `trigger_report.json` 생성 완료 (350종목)
+- [x] 결과 검증 및 깃허브 푸시
 
-## 2. Trigger Analysis Dashboard Components
-- [x] Develop `TriggerAnalysis.tsx` component with 4 main sections:
-  1. **Positive Trigger Cloud**: Stock cloud visualizing stocks with positive sentiment.
-  2. **Negative Trigger Cloud**: Stock cloud visualizing stocks with negative sentiment.
-  3. **Change Trigger Cloud**: Cards showing stocks with significant change keywords (e.g., 'Surge', 'Inventory Down').
-  4. **Timeline View**: Trend chart showing sentiment index evolution by stock.
+## 상세 작업 내역
+### 1. scraper.py 업데이트
+- 시계열 가중치 수식: $e^{-\lambda \cdot \Delta t}$ 적용 (최근 리포트 중요도 강화)
+- 모든 리포트 텍스트 전수 분석 로직 강화
 
-## 3. Backend Analysis Engine Update
-- [x] Implement `/api/trigger/summary` endpoint in `main.py`.
-- [x] Add new `change` keywords to `TRIGGER_KEYWORDS` in `scraper.py`.
-- [x] Develop `fetch_trigger_summary` in `scraper.py` to:
-  - Fetch top-market stocks (KOSPI 15, KOSDAQ 10).
-  - Analyze each stock using existing `analysis_trigger_cloud`.
-  - Categorize and sort stocks based on sentiment scores and change keyword intensity.
-  - Generate simulated timeline data for the trend chart.
+### 2. batch_analyze.py 업데이트
+- 350개 종목 전수 조사 프로세스 안정화
+- 무한 루프 방지를 위한 타임아웃 및 예외 처리 강화
 
-## 4. Stability & Deployment
-- [x] Refine `run_dev.bat` to automatically kill existing Node/Python processes on startup to prevent port conflicts.
-- [x] Update version information to `v1.3.0` across the application.
-- [x] Verify all core functionalities (Puzzle, Chart, Searching) remain intact.
+### 3. 결과물
+- `trigger_report.json`: 상위 20 종목 (Positive, Negative, Change, Trend)

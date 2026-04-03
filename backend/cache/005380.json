@@ -1,42 +1,66 @@
 {
+  "symbol": "005380",
+  "name": "현대차",
   "cloud": [
     {
+      "text": "성장",
+      "value": 40,
+      "sentiment": "positive"
+    },
+    {
+      "text": "모멘텀",
+      "value": 40,
+      "sentiment": "positive"
+    },
+    {
+      "text": "리레이팅",
+      "value": 40,
+      "sentiment": "positive"
+    },
+    {
+      "text": "개선",
+      "value": 19.002404810239234,
+      "sentiment": "positive"
+    },
+    {
+      "text": "수혜",
+      "value": 19.002404810239234,
+      "sentiment": "positive"
+    },
+    {
       "text": "최선호주",
-      "value": 10.004097349789799,
+      "value": 17.297207515026155,
       "sentiment": "positive"
     },
     {
-      "text": "Re-rating",
-      "value": 10.000002504516372,
+      "text": "RE-RATING",
+      "value": 10.54743680028821,
       "sentiment": "positive"
     },
     {
-      "text": "자사주 매입",
-      "value": 10.0,
-      "sentiment": "neutral"
+      "text": "상향",
+      "value": 10.273718400144105,
+      "sentiment": "positive"
     },
     {
-      "text": "비용 부담",
-      "value": 10.0,
-      "sentiment": "negative"
+      "text": "상승",
+      "value": 10.069424999206564,
+      "sentiment": "positive"
     }
   ],
-  "sentiment_score": 0.000409985430617019,
-  "price_change_20d": -3.99,
-  "gap_comment": "",
-  "report_dates": [
-    "Wed, 01 Apr 2026 01:00:09 GMT",
-    "Wed, 01 Apr 2026 00:30:23 GMT",
-    "Wed, 01 Apr 2026 00:17:41 GMT",
-    "Tue, 31 Mar 2026 08:40:16 GMT",
-    "Sun, 29 Mar 2026 08:41:05 GMT",
-    "26.03.16",
-    "26.03.03",
-    "26.02.27",
-    "26.02.19",
-    "26.01.30"
-  ],
-  "total_report_count": 41,
-  "is_fresh": true,
-  "timestamp": 1775012218.180293
+  "sentiment": {
+    "positive": [
+      "성장",
+      "모멘텀",
+      "리레이팅",
+      "개선",
+      "수혜"
+    ],
+    "neutral": [],
+    "negative": []
+  },
+  "sentiment_score": 13.5226,
+  "price_change_20d": -14.83,
+  "total_report_count": 61,
+  "timestamp": 1775195943.8643124
 }

@@ -1,0 +1,66 @@
+{
+  "symbol": "012450",
+  "name": "한화에어로스페이스",
+  "cloud": [
+    {
+      "text": "성장",
+      "value": 40,
+      "sentiment": "positive"
+    },
+    {
+      "text": "부진",
+      "value": 40,
+      "sentiment": "negative"
+    },
+    {
+      "text": "강세",
+      "value": 40,
+      "sentiment": "positive"
+    },
+    {
+      "text": "상승",
+      "value": 29.31210832515133,
+      "sentiment": "positive"
+    },
+    {
+      "text": "개선",
+      "value": 11.049503679836276,
+      "sentiment": "positive"
+    },
+    {
+      "text": "서프라이즈",
+      "value": 11.049503679836276,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "상향",
+      "value": 10.000781082473356,
+      "sentiment": "positive"
+    },
+    {
+      "text": "긍정적",
+      "value": 10.00069842508697,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "성장",
+      "강세",
+      "상승",
+      "개선",
+      "상향"
+    ],
+    "neutral": [
+      "서프라이즈",
+      "긍정적"
+    ],
+    "negative": [
+      "부진"
+    ]
+  },
+  "sentiment_score": 1.9126,
+  "price_change_20d": -2.03,
+  "total_report_count": 60,
+  "timestamp": 1775197073.957233
+}

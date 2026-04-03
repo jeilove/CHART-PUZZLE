@@ -1,67 +1,132 @@
 {
+  "symbol": "247540",
+  "name": "에코프로",
   "cloud": [
     {
-      "text": "정책 수혜",
-      "value": 14.965853037914094,
+      "text": "회복",
+      "value": 40,
       "sentiment": "positive"
     },
     {
+      "text": "감소",
+      "value": 40,
+      "sentiment": "negative"
+    },
+    {
+      "text": "개선",
+      "value": 38.171782563263875,
+      "sentiment": "positive"
+    },
+    {
+      "text": "상승",
+      "value": 38.171782563263875,
+      "sentiment": "positive"
+    },
+    {
+      "text": "악화",
+      "value": 38.17168418420899,
+      "sentiment": "negative"
+    },
+    {
+      "text": "성장",
+      "value": 38.17168418420899,
+      "sentiment": "positive"
+    },
+    {
+      "text": "하락",
+      "value": 30.0,
+      "sentiment": "negative"
+    },
+    {
+      "text": "하향",
+      "value": 16.297610095101707,
+      "sentiment": "negative"
+    },
+    {
       "text": "가시성",
-      "value": 10.000004129249415,
+      "value": 12.173852590497809,
+      "sentiment": "positive"
+    },
+    {
+      "text": "확대",
+      "value": 12.173773390592356,
+      "sentiment": "positive"
+    },
+    {
+      "text": "모멘텀",
+      "value": 11.086886695296178,
+      "sentiment": "positive"
+    },
+    {
+      "text": "부담",
+      "value": 10.054121237185553,
+      "sentiment": "negative"
+    },
+    {
+      "text": "수혜",
+      "value": 10.05357446983356,
+      "sentiment": "positive"
+    },
+    {
+      "text": "서프라이즈",
+      "value": 10.04497346483577,
       "sentiment": "neutral"
     },
     {
       "text": "턴어라운드",
-      "value": 10.000000000461096,
+      "value": 10.04497346483577,
       "sentiment": "positive"
     },
     {
+      "text": "증가",
+      "value": 10.011441439899073,
+      "sentiment": "neutral"
+    },
+    {
       "text": "가동률 회복",
-      "value": 10.000000000000025,
+      "value": 10.001456552941988,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "반등",
+      "value": 10.001456552941988,
+      "sentiment": "positive"
+    },
+    {
+      "text": "기저 효과",
+      "value": 10.000098379054883,
       "sentiment": "neutral"
     },
     {
       "text": "컨센서스 하회",
-      "value": 10.0,
+      "value": 10.000036922751192,
       "sentiment": "negative"
-    },
-    {
-      "text": "불가피",
-      "value": 10.0,
-      "sentiment": "negative"
-    },
-    {
-      "text": "흑자전환",
-      "value": 10.0,
-      "sentiment": "positive"
-    },
-    {
-      "text": "적자전환",
-      "value": 10.0,
-      "sentiment": "negative"
-    },
-    {
-      "text": "실적 전망",
-      "value": 10.0,
-      "sentiment": "neutral"
     }
   ],
-  "sentiment_score": 0.4965853038375191,
-  "price_change_20d": 22.28,
-  "gap_comment": "",
-  "report_dates": [
-    "Wed, 25 Mar 2026 23:25:15 GMT",
-    "Wed, 01 Apr 2026 03:27:39 GMT",
-    "Sun, 29 Mar 2026 03:00:00 GMT",
-    "Mon, 23 Mar 2026 07:00:00 GMT",
-    "Mon, 09 Mar 2026 07:00:00 GMT",
-    "26.02.06",
-    "26.01.14",
-    "25.11.05",
-    "25.08.11",
-    "25.08.06"
-  ],
-  "total_report_count": 32,
-  "is_fresh": true,
-  "timestamp": 1775021341.6071908
+  "sentiment": {
+    "positive": [
+      "회복",
+      "개선",
+      "상승",
+      "성장",
+      "가시성"
+    ],
+    "neutral": [
+      "서프라이즈",
+      "증가",
+      "가동률 회복",
+      "기저 효과"
+    ],
+    "negative": [
+      "감소",
+      "악화",
+      "하락",
+      "하향",
+      "부담"
+    ]
+  },
+  "sentiment_score": 0.897,
+  "price_change_20d": -4.4,
+  "total_report_count": 60,
+  "timestamp": 1775197066.872991
 }

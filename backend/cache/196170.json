@@ -1,0 +1,54 @@
+{
+  "symbol": "196170",
+  "name": "알테오젠",
+  "cloud": [
+    {
+      "text": "L/O",
+      "value": 15.488133105873125,
+      "sentiment": "positive"
+    },
+    {
+      "text": "확대",
+      "value": 10.000000000022956,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "기술 이전",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "실적 전망",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "상승",
+      "value": 10.0,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "L/O",
+      "기술 이전"
+    ],
+    "neutral": [
+      "확대",
+      "실적 전망",
+      "상승"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 0.5488133105873124,
+  "price_change_20d": -5.38,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 22:31:51 GMT",
+    "Wed, 01 Apr 2026 09:06:58 GMT",
+    "Wed, 01 Apr 2026 06:38:00 GMT"
+  ],
+  "total_report_count": 55,
+  "is_fresh": true,
+  "timestamp": 1775131101.9730358
+}

@@ -1,5 +1,22 @@
 {
+  "symbol": "086520",
+  "name": "에코프로",
   "cloud": [
+    {
+      "text": "감소",
+      "value": 20.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "상승",
+      "value": 19.048374180359595,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "확대",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
     {
       "text": "수익성 개선",
       "value": 10.0,
@@ -11,15 +28,27 @@
       "sentiment": "positive"
     }
   ],
-  "sentiment_score": 4.4324892370288485e-151,
-  "price_change_20d": 11.43,
+  "sentiment": {
+    "positive": [
+      "수익성 개선",
+      "턴어라운드"
+    ],
+    "neutral": [
+      "감소",
+      "상승",
+      "확대"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 4.0106821167052724e-151,
+  "price_change_20d": -11.44,
   "gap_comment": "",
   "report_dates": [
-    "Wed, 01 Apr 2026 02:38:00 GMT",
-    "Wed, 01 Apr 2026 01:28:40 GMT",
-    "Tue, 31 Mar 2026 07:35:02 GMT"
+    "Wed, 01 Apr 2026 23:06:00 GMT",
+    "Wed, 01 Apr 2026 06:46:20 GMT",
+    "Wed, 01 Apr 2026 02:38:00 GMT"
   ],
   "total_report_count": 21,
   "is_fresh": true,
-  "timestamp": 1775033712.414808
+  "timestamp": 1775131072.6044998
 }

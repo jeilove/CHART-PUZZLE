@@ -1,0 +1,104 @@
+{
+  "symbol": "032830",
+  "name": "삼성생명",
+  "cloud": [
+    {
+      "text": "확대",
+      "value": 19.048374180359595,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "증가",
+      "value": 10.00000050565329,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "긍정적",
+      "value": 10.000000000928534,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "Top Pick",
+      "value": 10.000000000928534,
+      "sentiment": "positive"
+    },
+    {
+      "text": "하락",
+      "value": 10.000000000000155,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "가시성",
+      "value": 10.000000000000155,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "자사주 소각",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "상승",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "어닝 서프라이즈",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "서프라이즈",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "감소",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "불확실성 지속",
+      "value": 10.0,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "턴어라운드",
+      "value": 10.0,
+      "sentiment": "positive"
+    },
+    {
+      "text": "수익성 개선",
+      "value": 10.0,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "Top Pick",
+      "자사주 소각",
+      "어닝 서프라이즈",
+      "턴어라운드",
+      "수익성 개선"
+    ],
+    "neutral": [
+      "확대",
+      "증가",
+      "긍정적",
+      "하락",
+      "가시성"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 9.285332670168487e-11,
+  "price_change_20d": 1.4,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 23:09:01 GMT",
+    "Wed, 01 Apr 2026 08:48:00 GMT",
+    "Wed, 01 Apr 2026 02:08:22 GMT"
+  ],
+  "total_report_count": 48,
+  "is_fresh": true,
+  "timestamp": 1775131058.4477987
+}

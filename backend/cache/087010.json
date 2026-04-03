@@ -1,0 +1,36 @@
+{
+  "symbol": "087010",
+  "name": "펩트론",
+  "cloud": [
+    {
+      "text": "증가",
+      "value": 28.006490451725313,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "부정적",
+      "value": 10.000012832424154,
+      "sentiment": "negative"
+    },
+    {
+      "text": "모멘텀",
+      "value": 10.0,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "모멘텀"
+    ],
+    "neutral": [
+      "증가"
+    ],
+    "negative": [
+      "부정적"
+    ]
+  },
+  "sentiment_score": 0.13,
+  "price_change_20d": 4.94,
+  "total_report_count": 34,
+  "timestamp": 1775197738.897131
+}

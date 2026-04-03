@@ -1,0 +1,29 @@
+{
+  "symbol": "277810",
+  "name": "레인보우로보틱스",
+  "cloud": [
+    {
+      "text": "상승",
+      "value": 20.0,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment": {
+    "positive": [],
+    "neutral": [
+      "상승"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 0,
+  "price_change_20d": -35.13,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 04:49:00 GMT",
+    "Thu, 02 Apr 2026 04:38:07 GMT",
+    "Thu, 02 Apr 2026 01:01:00 GMT"
+  ],
+  "total_report_count": 7,
+  "is_fresh": true,
+  "timestamp": 1775131134.0536199
+}

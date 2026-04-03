@@ -1,0 +1,1110 @@
+{
+  "version": "v1.5.4",
+  "timestamp": "2026-04-03T17:00:32.456562",
+  "elapsed_seconds": 36.13,
+  "total_targets": 350,
+  "processed_count": 350,
+  "positive": [
+    {
+      "name": "현대차",
+      "symbol": "005380",
+      "score": 1.4649,
+      "cloud": [
+        {
+          "text": "모멘텀",
+          "value": 42.455923147552774,
+          "sentiment": "positive"
+        },
+        {
+          "text": "성장",
+          "value": 40.0,
+          "sentiment": "positive"
+        },
+        {
+          "text": "준비",
+          "value": 10.66335180810977,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "기아",
+      "symbol": "000270",
+      "score": 1.4565,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 42.14484118603095,
+          "sentiment": "positive"
+        },
+        {
+          "text": "모멘텀",
+          "value": 40.0,
+          "sentiment": "positive"
+        },
+        {
+          "text": "확대",
+          "value": 10.639825878158511,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "삼성바이오로직스",
+      "symbol": "207940",
+      "score": 1.0431,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 50,
+          "sentiment": "positive"
+        },
+        {
+          "text": "전망",
+          "value": 50,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "부합",
+          "value": 39.72201758066698,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "JYP Ent.",
+      "symbol": "035900",
+      "score": 1.0399,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 50,
+          "sentiment": "positive"
+        },
+        {
+          "text": "전망",
+          "value": 25.0,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "확대",
+          "value": 23.96201179139225,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "SK하이닉스",
+      "symbol": "000660",
+      "score": 0.92,
+      "cloud": [
+        {
+          "text": "상승",
+          "value": 40.663351808109766,
+          "sentiment": "positive"
+        },
+        {
+          "text": "확대",
+          "value": 25.0,
+          "sentiment": "change"
+        },
+        {
+          "text": "상향",
+          "value": 14.409731741093708,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "삼양식품",
+      "symbol": "003230",
+      "score": 0.8839,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 47.715060800206366,
+          "sentiment": "positive"
+        },
+        {
+          "text": "수요",
+          "value": 19.36532845896708,
+          "sentiment": "change"
+        },
+        {
+          "text": "하락",
+          "value": 10.66335180810977,
+          "sentiment": "negative"
+        }
+      ]
+    },
+    {
+      "name": "두산",
+      "symbol": "000150",
+      "score": 0.464,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 30.754882832640202,
+          "sentiment": "positive"
+        },
+        {
+          "text": "수요",
+          "value": 11.870768748140536,
+          "sentiment": "change"
+        },
+        {
+          "text": "전망",
+          "value": 11.339220474076354,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "셀트리온",
+      "symbol": "068270",
+      "score": 0.4591,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 28.339259108281603,
+          "sentiment": "positive"
+        },
+        {
+          "text": "부합",
+          "value": 25.009478939548472,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "확대",
+          "value": 11.130545597933681,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "티씨케이",
+      "symbol": "064760",
+      "score": 0.3132,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 20.09511709659735,
+          "sentiment": "positive"
+        },
+        {
+          "text": "수혜",
+          "value": 13.569945041382478,
+          "sentiment": "positive"
+        },
+        {
+          "text": "모멘텀",
+          "value": 10.010374029090347,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "한화엔진",
+      "symbol": "082740",
+      "score": 0.3049,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 23.354880103876205,
+          "sentiment": "positive"
+        },
+        {
+          "text": "하락",
+          "value": 10.024069672863225,
+          "sentiment": "negative"
+        },
+        {
+          "text": "상승",
+          "value": 10.000000546927383,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "코미코",
+      "symbol": "183300",
+      "score": 0.2894,
+      "cloud": [
+        {
+          "text": "모멘텀",
+          "value": 22.30554779706747,
+          "sentiment": "positive"
+        },
+        {
+          "text": "성장",
+          "value": 10.332106976173021,
+          "sentiment": "positive"
+        },
+        {
+          "text": "준비",
+          "value": 10.017018576454639,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "와이지엔터테인먼트",
+      "symbol": "122870",
+      "score": 0.2846,
+      "cloud": [
+        {
+          "text": "모멘텀",
+          "value": 19.795721491232626,
+          "sentiment": "positive"
+        },
+        {
+          "text": "상승",
+          "value": 12.652626287460167,
+          "sentiment": "positive"
+        },
+        {
+          "text": "가시성",
+          "value": 10.404359963526119,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "ISC",
+      "symbol": "095340",
+      "score": 0.282,
+      "cloud": [
+        {
+          "text": "수혜",
+          "value": 22.305548183831988,
+          "sentiment": "positive"
+        },
+        {
+          "text": "성장",
+          "value": 10.013031351676775,
+          "sentiment": "positive"
+        },
+        {
+          "text": "전망",
+          "value": 10.000040571392859,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "쎄트렉아이",
+      "symbol": "099320",
+      "score": 0.2712,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 19.14356360944464,
+          "sentiment": "positive"
+        },
+        {
+          "text": "확대",
+          "value": 19.14356360944464,
+          "sentiment": "change"
+        },
+        {
+          "text": "수요",
+          "value": 19.14356360944464,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "한화솔루션",
+      "symbol": "009830",
+      "score": 0.2636,
+      "cloud": [
+        {
+          "text": "가시성",
+          "value": 20.607382289309072,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "성장",
+          "value": 20.607382289309072,
+          "sentiment": "positive"
+        },
+        {
+          "text": "회복",
+          "value": 10.951339346922408,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "삼성전자",
+      "symbol": "005930",
+      "score": 0.2575,
+      "cloud": [
+        {
+          "text": "전망",
+          "value": 25.663351808109766,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "상향",
+          "value": 19.007018573006036,
+          "sentiment": "positive"
+        },
+        {
+          "text": "흑자전환",
+          "value": 11.143450220665237,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "성일하이텍",
+      "symbol": "365340",
+      "score": 0.2503,
+      "cloud": [
+        {
+          "text": "흑자전환",
+          "value": 22.305547797427455,
+          "sentiment": "positive"
+        },
+        {
+          "text": "회복",
+          "value": 10.027745647552088,
+          "sentiment": "positive"
+        },
+        {
+          "text": "상승",
+          "value": 10.000000000359988,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "한솔케미칼",
+      "symbol": "014680",
+      "score": 0.2327,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 20.095298200480705,
+          "sentiment": "positive"
+        },
+        {
+          "text": "상향",
+          "value": 10.034427608066167,
+          "sentiment": "positive"
+        },
+        {
+          "text": "수혜",
+          "value": 10.034032143670704,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "한국카본",
+      "symbol": "017960",
+      "score": 0.2203,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 16.154095066356128,
+          "sentiment": "positive"
+        },
+        {
+          "text": "확대",
+          "value": 16.153679533885658,
+          "sentiment": "change"
+        },
+        {
+          "text": "수주",
+          "value": 12.40259871118135,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "하이브",
+      "symbol": "352820",
+      "score": 0.2,
+      "cloud": [
+        {
+          "text": "조정",
+          "value": 19.444020859181613,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "모멘텀",
+          "value": 17.146175393235428,
+          "sentiment": "positive"
+        },
+        {
+          "text": "상향",
+          "value": 11.942669746154412,
+          "sentiment": "positive"
+        }
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "name": "오리온",
+      "symbol": "271560",
+      "score": 0.1068,
+      "cloud": [
+        {
+          "text": "하락",
+          "value": 23.586140620353227,
+          "sentiment": "negative"
+        },
+        {
+          "text": "성장",
+          "value": 17.733303088929866,
+          "sentiment": "positive"
+        },
+        {
+          "text": "상향",
+          "value": 16.465951646132932,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "크래프톤",
+      "symbol": "259960",
+      "score": 0.0669,
+      "cloud": [
+        {
+          "text": "부진",
+          "value": 12.286900441330474,
+          "sentiment": "negative"
+        },
+        {
+          "text": "전망",
+          "value": 11.143450220665237,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "검토",
+          "value": 11.143450220665237,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "LG화학",
+      "symbol": "051910",
+      "score": 0.0591,
+      "cloud": [
+        {
+          "text": "부진",
+          "value": 11.720389802819373,
+          "sentiment": "negative"
+        },
+        {
+          "text": "전망",
+          "value": 10.393342900986383,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "수혜",
+          "value": 10.00055922995611,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "HMM",
+      "symbol": "011200",
+      "score": 0.0435,
+      "cloud": [
+        {
+          "text": "부진",
+          "value": 11.262444853859655,
+          "sentiment": "negative"
+        },
+        {
+          "text": "유지",
+          "value": 11.262444853859655,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "하락",
+          "value": 10.004698792120667,
+          "sentiment": "negative"
+        }
+      ]
+    },
+    {
+      "name": "CJ제일제당",
+      "symbol": "097950",
+      "score": 0.0375,
+      "cloud": [
+        {
+          "text": "전망",
+          "value": 23.586140620353227,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "부진",
+          "value": 11.905417941441186,
+          "sentiment": "negative"
+        },
+        {
+          "text": "성장",
+          "value": 11.201622224632553,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "CJ ENM",
+      "symbol": "035760",
+      "score": 0.0322,
+      "cloud": [
+        {
+          "text": "부진",
+          "value": 10.938166817213181,
+          "sentiment": "negative"
+        },
+        {
+          "text": "준비",
+          "value": 10.000154402180371,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "HD현대마린솔루션",
+      "symbol": "443060",
+      "score": 0.0266,
+      "cloud": [
+        {
+          "text": "하락",
+          "value": 10.892749012270686,
+          "sentiment": "negative"
+        },
+        {
+          "text": "전망",
+          "value": 10.384831463031679,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "성장",
+          "value": 10.007343063167193,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "S-Oil",
+      "symbol": "010950",
+      "score": 0.0241,
+      "cloud": [
+        {
+          "text": "하락",
+          "value": 11.143618526694368,
+          "sentiment": "negative"
+        },
+        {
+          "text": "전망",
+          "value": 10.639930090821313,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "확대",
+          "value": 10.571809263347184,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "씨에스윈드",
+      "symbol": "112610",
+      "score": 0.0203,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 11.785235253280224,
+          "sentiment": "positive"
+        },
+        {
+          "text": "약세",
+          "value": 11.785235253280224,
+          "sentiment": "negative"
+        },
+        {
+          "text": "수요",
+          "value": 10.01277864601413,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "POSCO홀딩스",
+      "symbol": "005490",
+      "score": 0.0184,
+      "cloud": [
+        {
+          "text": "전망",
+          "value": 25.0,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "부진",
+          "value": 10.66335180810977,
+          "sentiment": "negative"
+        },
+        {
+          "text": "준비",
+          "value": 10.223252960387795,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "금호석유화학",
+      "symbol": "011780",
+      "score": 0.0156,
+      "cloud": [
+        {
+          "text": "악화",
+          "value": 10.66335180810977,
+          "sentiment": "negative"
+        },
+        {
+          "text": "수혜",
+          "value": 10.320262140482205,
+          "sentiment": "positive"
+        },
+        {
+          "text": "조정",
+          "value": 10.272136963022076,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "두산퓨얼셀",
+      "symbol": "336260",
+      "score": 0.0147,
+      "cloud": [
+        {
+          "text": "수요",
+          "value": 11.262444853859655,
+          "sentiment": "change"
+        },
+        {
+          "text": "부진",
+          "value": 10.602572040955682,
+          "sentiment": "negative"
+        },
+        {
+          "text": "모멘텀",
+          "value": 10.00987301699594,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "현대해상",
+      "symbol": "001450",
+      "score": 0.0132,
+      "cloud": [
+        {
+          "text": "부진",
+          "value": 10.38498586521205,
+          "sentiment": "negative"
+        },
+        {
+          "text": "조정",
+          "value": 10.000002113992918,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "확대",
+          "value": 10.000001707551988,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "LIG넥스원",
+      "symbol": "079550",
+      "score": 0.0099,
+      "cloud": [
+        {
+          "text": "성장",
+          "value": 11.886319367729238,
+          "sentiment": "positive"
+        },
+        {
+          "text": "부진",
+          "value": 11.785235253280224,
+          "sentiment": "negative"
+        },
+        {
+          "text": "확대",
+          "value": 11.785235253280224,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "키움증권",
+      "symbol": "039490",
+      "score": 0.0054,
+      "cloud": [
+        {
+          "text": "확대",
+          "value": 11.660037633659975,
+          "sentiment": "change"
+        },
+        {
+          "text": "하락",
+          "value": 10.892749012270686,
+          "sentiment": "negative"
+        },
+        {
+          "text": "점유율",
+          "value": 10.892749012270686,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "하나금융지주",
+      "symbol": "086790",
+      "score": 0.0051,
+      "cloud": [
+        {
+          "text": "약세",
+          "value": 10.769549654978787,
+          "sentiment": "negative"
+        },
+        {
+          "text": "확대",
+          "value": 10.769549654978787,
+          "sentiment": "change"
+        },
+        {
+          "text": "성장",
+          "value": 10.769549654978787,
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "name": "SK이노베이션",
+      "symbol": "096770",
+      "score": 0.0033,
+      "cloud": [
+        {
+          "text": "부진",
+          "value": 11.27965175631702,
+          "sentiment": "negative"
+        },
+        {
+          "text": "상향",
+          "value": 10.631324993256412,
+          "sentiment": "positive"
+        },
+        {
+          "text": "확대",
+          "value": 10.631315337437215,
+          "sentiment": "change"
+        }
+      ]
+    },
+    {
+      "name": "현대제철",
+      "symbol": "004020",
+      "score": 0.0026,
+      "cloud": [
+        {
+          "text": "회복",
+          "value": 11.971024934259853,
+          "sentiment": "positive"
+        },
+        {
+          "text": "부진",
+          "value": 11.546435396120355,
+          "sentiment": "negative"
+        },
+        {
+          "text": "가시성",
+          "value": 10.769549654978787,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "오스코텍",
+      "symbol": "039200",
+      "score": 0.0025,
+      "cloud": [
+        {
+          "text": "하락",
+          "value": 10.075136426421961,
+          "sentiment": "negative"
+        },
+        {
+          "text": "준비",
+          "value": 10.029335708088167,
+          "sentiment": "neutral"
+        },
+        {
+          "text": "가시성",
+          "value": 10.000000048366916,
+          "sentiment": "neutral"
+        }
+      ]
+    },
+    {
+      "name": "DB손해보험",
+      "symbol": "005830",
+      "score": 0.0006,
+      "cloud": [
+        {
+          "text": "부진",
+          "value": 10.017018576454639,
+          "sentiment": "negative"
+        },
+        {
+          "text": "확대",
+          "value": 10.000047066465347,
+          "sentiment": "change"
+        },
+        {
+          "text": "상승",
+          "value": 10.000000065321956,
+          "sentiment": "positive"
+        }
+      ]
+    }
+  ],
+  "change": [
+    {
+      "name": "쎄트렉아이",
+      "symbol": "099320",
+      "top_word": "성장"
+    },
+    {
+      "name": "삼성SDI",
+      "symbol": "006400",
+      "top_word": "흑자전환"
+    },
+    {
+      "name": "비에이치아이",
+      "symbol": "083650",
+      "top_word": "확대"
+    },
+    {
+      "name": "SK하이닉스",
+      "symbol": "000660",
+      "top_word": "상승"
+    },
+    {
+      "name": "태광",
+      "symbol": "023160",
+      "top_word": "확대"
+    },
+    {
+      "name": "삼성물산",
+      "symbol": "028260",
+      "top_word": "확대"
+    },
+    {
+      "name": "현대로템",
+      "symbol": "064350",
+      "top_word": "수주"
+    },
+    {
+      "name": "이수페타시스",
+      "symbol": "007660",
+      "top_word": "성장"
+    },
+    {
+      "name": "두산퓨얼셀",
+      "symbol": "336260",
+      "top_word": "수요"
+    },
+    {
+      "name": "RFHIC",
+      "symbol": "218410",
+      "top_word": "상승"
+    },
+    {
+      "name": "LG씨엔에스",
+      "symbol": "064400",
+      "top_word": "성장"
+    },
+    {
+      "name": "씨에스윈드",
+      "symbol": "112610",
+      "top_word": "성장"
+    },
+    {
+      "name": "티씨케이",
+      "symbol": "064760",
+      "top_word": "성장"
+    },
+    {
+      "name": "현대무벡스",
+      "symbol": "319400",
+      "top_word": "수주"
+    },
+    {
+      "name": "한화엔진",
+      "symbol": "082740",
+      "top_word": "성장"
+    },
+    {
+      "name": "피에스케이",
+      "symbol": "319660",
+      "top_word": "유지"
+    },
+    {
+      "name": "한국카본",
+      "symbol": "017960",
+      "top_word": "성장"
+    },
+    {
+      "name": "포스코인터내셔널",
+      "symbol": "047050",
+      "top_word": "축소"
+    },
+    {
+      "name": "두산에너빌리티",
+      "symbol": "034020",
+      "top_word": "수주"
+    },
+    {
+      "name": "덕산네오룩스",
+      "symbol": "213420",
+      "top_word": "확대"
+    }
+  ],
+  "trend": [
+    {
+      "name": "현대차",
+      "symbol": "005380",
+      "score": 1.4649,
+      "report_count": 32
+    },
+    {
+      "name": "기아",
+      "symbol": "000270",
+      "score": 1.4565,
+      "report_count": 32
+    },
+    {
+      "name": "삼성바이오로직스",
+      "symbol": "207940",
+      "score": 1.0431,
+      "report_count": 33
+    },
+    {
+      "name": "JYP Ent.",
+      "symbol": "035900",
+      "score": 1.0399,
+      "report_count": 30
+    },
+    {
+      "name": "SK하이닉스",
+      "symbol": "000660",
+      "score": 0.92,
+      "report_count": 32
+    },
+    {
+      "name": "삼양식품",
+      "symbol": "003230",
+      "score": 0.8839,
+      "report_count": 30
+    },
+    {
+      "name": "셀트리온",
+      "symbol": "068270",
+      "score": 0.4591,
+      "report_count": 32
+    },
+    {
+      "name": "두산",
+      "symbol": "000150",
+      "score": 0.464,
+      "report_count": 30
+    },
+    {
+      "name": "티씨케이",
+      "symbol": "064760",
+      "score": 0.3132,
+      "report_count": 30
+    },
+    {
+      "name": "한화엔진",
+      "symbol": "082740",
+      "score": 0.3049,
+      "report_count": 30
+    },
+    {
+      "name": "코미코",
+      "symbol": "183300",
+      "score": 0.2894,
+      "report_count": 30
+    },
+    {
+      "name": "와이지엔터테인먼트",
+      "symbol": "122870",
+      "score": 0.2846,
+      "report_count": 30
+    },
+    {
+      "name": "ISC",
+      "symbol": "095340",
+      "score": 0.282,
+      "report_count": 30
+    },
+    {
+      "name": "삼성전자",
+      "symbol": "005930",
+      "score": 0.2575,
+      "report_count": 32
+    },
+    {
+      "name": "한화솔루션",
+      "symbol": "009830",
+      "score": 0.2636,
+      "report_count": 30
+    },
+    {
+      "name": "쎄트렉아이",
+      "symbol": "099320",
+      "score": 0.2712,
+      "report_count": 23
+    },
+    {
+      "name": "한솔케미칼",
+      "symbol": "014680",
+      "score": 0.2327,
+      "report_count": 30
+    },
+    {
+      "name": "성일하이텍",
+      "symbol": "365340",
+      "score": 0.2503,
+      "report_count": 20
+    },
+    {
+      "name": "하이브",
+      "symbol": "352820",
+      "score": 0.2,
+      "report_count": 30
+    },
+    {
+      "name": "한국카본",
+      "symbol": "017960",
+      "score": 0.2203,
+      "report_count": 24
+    }
+  ]
+}

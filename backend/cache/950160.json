@@ -1,0 +1,29 @@
+{
+  "symbol": "950160",
+  "name": "코오롱티슈진",
+  "cloud": [
+    {
+      "text": "구조 개선",
+      "value": 14.493289641172215,
+      "sentiment": "positive"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "구조 개선"
+    ],
+    "neutral": [],
+    "negative": []
+  },
+  "sentiment_score": 0.44932896411722156,
+  "price_change_20d": -2.15,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 25 Mar 2026 08:18:34 GMT",
+    "Wed, 01 Apr 2026 03:25:20 GMT",
+    "Tue, 31 Mar 2026 16:13:59 GMT"
+  ],
+  "total_report_count": 5,
+  "is_fresh": true,
+  "timestamp": 1775131163.3904138
+}

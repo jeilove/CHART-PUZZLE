@@ -1,0 +1,48 @@
+{
+  "symbol": "298380",
+  "name": "에이비엘바이오",
+  "cloud": [
+    {
+      "text": "상승",
+      "value": 10.00003726653172,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "L/O",
+      "value": 10.000008315287191,
+      "sentiment": "positive"
+    },
+    {
+      "text": "긍정적",
+      "value": 10.000000000000002,
+      "sentiment": "neutral"
+    },
+    {
+      "text": "확대",
+      "value": 10.0,
+      "sentiment": "neutral"
+    }
+  ],
+  "sentiment": {
+    "positive": [
+      "L/O"
+    ],
+    "neutral": [
+      "상승",
+      "긍정적",
+      "확대"
+    ],
+    "negative": []
+  },
+  "sentiment_score": 8.315287191035679e-07,
+  "price_change_20d": -9.77,
+  "gap_comment": "",
+  "report_dates": [
+    "Wed, 01 Apr 2026 07:47:56 GMT",
+    "Mon, 30 Mar 2026 21:10:03 GMT",
+    "Mon, 30 Mar 2026 09:07:38 GMT"
+  ],
+  "total_report_count": 37,
+  "is_fresh": true,
+  "timestamp": 1775131149.5873787
+}
