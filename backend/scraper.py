@@ -44,22 +44,25 @@ DECAY_LAMBDA = 0.1
 TRIGGER_KEYWORDS = {
     "positive": [
         "어닝 서프라이즈", "흑자전환", "영업레버리지", "수익성 개선", "믹스 개선", "턴어라운드", "컨세서스 상회", "사상 최대 실적", "밸류에이션 매력", "업사이클",
-        "마진 레버리지 확대", "ASP 상승", "가격 상승", "고정비 레버리지", "비용 효율화", "구조 개선", "현금흐름 개선", "FCF 개선", "ROE 개선", "ROIC 개선",
+        "재고 감소", "적자 축소", "감산 효과", "HBM 공급", "수율 개선", "출하량 회복", "공급 부족", "쇼티지", "Shortage",
+        "개선", "성장", "수혜", "확대", "향상", "가시성", "모멘텀", "수요 증가", "회복", "상승", "반등", "상향", "강세", "최고가",
+        "마진 레버리지 확대", "고정비 레버리지", "비용 효율화", "구조 개선", "현금흐름 개선", "FCF 개선", "ROE 개선", "ROIC 개선",
         "디레버리징", "P·Q 동반 상승", "OPM 개선", "캐시카우", "기술 이전", "L/O", "임상 성공", "양산 개시", "독점적 지위", "공급계약 체결",
         "수주 회복", "신사업 가시화", "진입장벽 강화", "고성장", "고객사 다변화", "신규 고객사 확보", "수주 가시성", "레퍼런스 확대", "플랫폼 확장성", "기술 경쟁력 강화",
         "경제적 해자", "생태계 확장", "퍼스트 무버", "자사주 소각", "배당 확대", "무상증자", "리레이팅", "Re-rating", "기업가치 제고", "공격적 증설",
         "M&A 시너지", "주주환원 정책 강화", "배당 성향 확대", "자본 효율성 개선", "지배구조 개선", "거버넌스 디스카운트 해소", "행동주의 펀드 제안 수용",
-        "구조적 성장", "상승 사이클", "공급 부족", "가격 인상", "낙수효과", "독보적 점유율", "규제 완화", "국산화 성공", "수요 회복 가속화", "구조적 수요 증가",
-        "산업 재편 수혜", "정책 수혜", "골디락스", "숏티지", "Shortage", "최선호주", "Top Pick", "신고가", "업사이드 리스크", "비중확대", "Overweight"
+        "구조적 성장", "상승 사이클", "낙수효과", "독보적 점유율", "규제 완화", "국산화 성공", "수요 회복 가속화", "구조적 수요 증가",
+        "산업 재편 수혜", "정책 수혜", "골디락스", "최선호주", "Top Pick", "신고가", "업사이드 리스크", "비중확대", "Overweight"
     ],
     "negative": [
         "어닝 쇼크", "적자전환", "역성장", "저마진", "실적 하향", "컨센서스 하회", "비용 부담", "자본 잠식", "영업적자", "다운사이클",
+        "재고 과잉", "가동률 하락", "수요 위축", "판가 하락", "수주 잔고 감소", "경쟁 심화",
+        "부진", "악화", "부담", "리스크", "축소", "감소", "하락", "하향", "약세", "최저가",
         "마진 훼손", "비용 구조 악화", "현금흐름 악화", "재무구조 부담", "차입 부담 증가", "키친 싱킹", "Kitchen Sinking", "고정비 부담 가중",
         "임상 실패", "계약 해지", "공급 과잉", "열위", "신규 진입자 발생", "파이프라인 중단", "사업 철수", "저성장", "고객사 이탈", "수주 취소",
-        "경쟁 심화", "시장 진입 실패", "기술 경쟁력 약화", "카니발라이제이션", "Cannibalization", "기술적 진부화", "유상증자(채무상환)", "오버행", "Overhang",
+        "카니발라이제이션", "Cannibalization", "기술적 진부화", "유상증자(채무상환)", "오버행", "Overhang",
         "대주주 지분 매각", "감자", "불성실 공시", "횡령", "배임", "희석 우려", "재무 리스크 확대", "신용등급 하향", "블록딜 대기", "지주사 할인",
-        "피크 아웃", "Peak-out", "하락 사이클", "가격 경쟁 심화", "규제 강화", "보급률 포화", "보호무역", "수요 둔화", "재고 부담 확대", "가격 하락 압력",
-        "공급 과잉 심화", "스태그플레이션 우려", "구조적 저성장", "부정적", "불가피", "신저가", "다운 사이드 리스크", "투자 매력 제한적", "모멘텀 부재",
+        "피크 아웃", "Peak-out", "하락 사이클", "가격 경쟁 심화", "보급률 포화", "부정적", "불가피", "신저가", "다운 사이드 리스크", "투자 매력 제한적", "모멘텀 부재",
         "비중축소", "Underweight", "밸류 트랩", "모멘텀 슬로우다운"
     ],
     "neutral": [
@@ -67,7 +70,7 @@ TRIGGER_KEYWORDS = {
         "실적 가시성 제한적", "변동성 확대", "단기 실적 왜곡", "추정치 유지", "기고효과", "Base Effect", "수주 잔고", "레퍼런스 확보", "차세대 모델",
         "상용화 준비", "가이던스 제시", "진출 검토", "전략적 제휴", "신작", "파일럿 단계", "검증 진행 중", "초기 단계", "적용 가능성 확인", "자사주 매입",
         "유상증자(운영자금)", "담보 대출", "지분 구조 재편", "인수 검토", "유동성 자본 확보", "최대주주 변경", "업황 회복 기대", "벨류체인 편입",
-        "시장 점유율 유지", "경기 민감도", "규제 리스크", "현지진출", "방향성 탐색 구간", "불확실성 지속", "관망세", "금리 방향성 주시", "박스권",
+        "시장 점유율 유지", "경기 민감도", "현지진출", "방향성 탐색 구간", "관망세", "박스권",
         "긍정적", "가시성", "시너지", "제한적 업사이드", "벨류에이션 부담", "트리거 대기", "중립", "Neutral", "인라인", "In-line"
     ],
     "change": [
@@ -102,6 +105,14 @@ def clean_news_filter(title, content=""):
     
     return score < 10
 
+# v1.3.9: 성능 최적화 및 안정성 강화
+# 1. Regex 검색 전 키워드 존재 여부를 빠르게 필터링 (Set-based pre-filtering)
+# 2. Jina.ai 응답 텍스트가 거대할 경우를 대비해 분석 라인 수 제한 (Max 500 lines)
+# 3. requests.Session 도입으로 커넥션 오버헤드 단축
+
+session = requests.Session()
+session.headers.update(HEADERS)
+
 def _apply_rate_limit():
     """
     네이버 제재 방지를 위한 요청 간격 조정
@@ -116,9 +127,6 @@ def _apply_rate_limit():
 def _parse_date_to_days_ago(date_str):
     """
     다양한 날짜 포맷을 분석하여 현재로부터 며칠 전인지 반환 (Delta t)
-    - Google RSS: "Tue, 25 Mar 2026 05:30:00 GMT" (RFC 822)
-    - Naver: "26.03.31"
-    - FnGuide: "26/03/31"
     """
     if not date_str: return 0
     now = datetime.now()
@@ -126,14 +134,15 @@ def _parse_date_to_days_ago(date_str):
     try:
         # 1. Google RSS (RFC 822) - 앞 16자 정도만 사용 ("Tue, 25 Mar 2026")
         if "," in date_str:
-            # "Tue, 25 Mar 2026 05:30:00 GMT" -> "25 Mar 2026"
             parts = date_str.split(" ")
-            clean_date = f"{parts[1]} {parts[2]} {parts[3]}"
-            dt = datetime.strptime(clean_date, "%d %b %Y")
+            if len(parts) >= 4:
+                clean_date = f"{parts[1]} {parts[2]} {parts[3]}"
+                dt = datetime.strptime(clean_date, "%d %b %Y")
+            else:
+                return 0
         # 2. Naver/FnGuide 스타일
         else:
             clean_date = date_str.replace("/", ".").strip()
-            # 24.03.31 -> 2024.03.31
             if clean_date.count(".") == 2:
                 parts = clean_date.split(".")
                 if len(parts[0]) == 2: # "24" -> "2024"
@@ -144,15 +153,13 @@ def _parse_date_to_days_ago(date_str):
                 return 0
                 
         delta = (now - dt).days
-        return max(0, delta) # 미래 날짜 방지
-    except Exception as e:
-        # print(f"Date parse error ({date_str}): {e}")
+        return max(0, delta) 
+    except Exception:
         return 0
 
 def _parse_naver_xml(xml_text):
     """
     네이버 fchart XML 데이터를 OHLCV JSON 리스트로 파싱
-    포맷: <item data="20240101|73000|74000|72000|73500|15000000"/>
     """
     if not xml_text: return []
     
@@ -167,7 +174,6 @@ def _parse_naver_xml(xml_text):
         parts = data_str.split("|")
         if len(parts) < 6: continue
         
-        # 날짜 포맷팅: 20240101 -> 2024-01-01
         dt_str = parts[0]
         formatted_date = f"{dt_str[:4]}-{dt_str[4:6]}-{dt_str[6:]}"
         
@@ -185,20 +191,14 @@ def _parse_naver_xml(xml_text):
 @lru_cache(maxsize=100)
 def fetch_stock_ohlcv(symbol, timeframe="day", days=100):
     """
-    Naver Finance를 통한 주가 데이터 수집 및 파싱
-    - timeframe: day, week, month
-    - 캐싱 및 타임아웃(5초) 적용
+    Naver Finance를 통한 주가 데이터 수집
     """
     _apply_rate_limit()
     
-    # Naver fchart API timeframe mapping
-    # day, week, month -> day, week, month (동일하게 사용 가능)
     url = f"https://fchart.stock.naver.com/sise.nhn?symbol={symbol}&timeframe={timeframe}&count={days}&requestType=0"
     try:
-        response = requests.get(url, headers=HEADERS, timeout=5)
+        response = session.get(url, timeout=5)
         response.raise_for_status()
-        
-        # XML 파싱 후 JSON 반환
         return _parse_naver_xml(response.text)
     except Exception as e:
         print(f"Error fetching stock data for {symbol}: {e}")
@@ -206,14 +206,13 @@ def fetch_stock_ohlcv(symbol, timeframe="day", days=100):
 
 def search_stock(query):
     """
-    네이버 자동완성 API 및 내부 업종 DB를 사용하여 종목명/코드/업종 통합 검색 (v0.8.0)
+    종목명/코드/업종 통합 검색 (v0.8.0)
     """
     if not query: return []
     query = query.strip().replace(" ", "").upper()
     
-    results_map = {} # symbol -> {name, symbol, industry} 중복 방지용
+    results_map = {} 
     
-    # 1. 내부 업종 DB에서 매칭되는 종목 먼저 검색 (업종명/종목명/코드 통합 검색)
     if INDUSTRY_MAP:
         for code, info in INDUSTRY_MAP.items():
             name = info.get("name", "").replace(" ", "").upper()
@@ -232,9 +231,8 @@ def search_stock(query):
                 break
 
     try:
-        # 2. 네이버 API를 통한 실시간 이름/코드 검색 (내부 DB에 없는 신규 종목 대응)
         url = f"https://ac.stock.naver.com/ac?q={query}&target=stock"
-        response = requests.get(url, headers=HEADERS, timeout=3)
+        response = session.get(url, timeout=3)
         if response.status_code == 200:
             data = response.json()
             items = data.get("items", [])
@@ -243,37 +241,26 @@ def search_stock(query):
                 name = item.get("name")
                 code = item.get("code")
                 if name and code and code not in results_map:
-                    # 네이버 API 결과는 내부 DB에서 업종 정보를 보강하여 추가
-                    # 내부 DB에 정보가 없다면 '일반분류' 표시
                     info = INDUSTRY_MAP.get(code, {})
                     industry = info.get("industry", "일반분류")
-                    
-                    results_map[code] = {
-                        "name": name,
-                        "symbol": code,
-                        "industry": industry
-                    }
+                    results_map[code] = { "name": name, "symbol": code, "industry": industry }
             
         return list(results_map.values())[:30]
     except Exception as e:
         print(f"Search error: {e}")
-        # API 오류가 나더라도 로컬 검색 결과는 반환
         return list(results_map.values())
 
 def fetch_news_keywords(stock_name):
     """
-    구글 뉴스 RSS를 사용한 뉴스 기사 수집 (네이버 방화벽 이슈 등 우회)
+    구글 뉴스 RSS를 사용한 뉴스 기사 수집
     """
     _apply_rate_limit()
     
-    # Google News RSS URL
     url = f"https://news.google.com/rss/search?q={stock_name}&hl=ko&gl=KR&ceid=KR:ko"
     try:
-        response = requests.get(url, headers=HEADERS, timeout=5)
+        response = session.get(url, timeout=5)
         response.raise_for_status()
         
-        # XML 파싱
-        # lxml 또는 내장 xml 파서 사용 (lxml이 설치되어 있다면 lxml 사용 권장)
         try:
             soup = BeautifulSoup(response.content, "xml")
         except Exception:
@@ -287,20 +274,14 @@ def fetch_news_keywords(stock_name):
             link = item.link.text if item.link else ""
             pub_date = item.pubDate.text if item.pubDate else ""
             
-            # 구글 뉴스 제목 끝부분의 ' - 언론사명' 제거
             if " - " in title:
                 title = " - ".join(title.split(" - ")[:-1])
                 
             if not title or not link:
                 continue
                 
-            # 광고 및 노이즈 필터링
             if clean_news_filter(title):
-                results.append({
-                    "title": title.strip(),
-                    "link": link.strip(),
-                    "date": pub_date
-                })
+                results.append({ "title": title.strip(), "link": link.strip(), "date": pub_date })
                 
             if len(results) >= 5:
                 break
@@ -313,17 +294,16 @@ def fetch_news_keywords(stock_name):
 @lru_cache(maxsize=100)
 def fetch_reports_combined(symbol, stock_name):
     """
-    네이버 리서치(제목)와 FnGuide(요약)를 결합하여 풍부한 키워드 소침 확보.
-    가중치 계산을 위해 텍스트와 날짜를 리스트 형태로 반환.
+    네이버 리서치와 FnGuide(요약) 결합 (v1.3.9 최적화)
     """
     _apply_rate_limit()
-    sources = [] # list of {"text": str, "date": str}
+    sources = [] 
     
-    # 1. 네이버 리서치 제목 수집 (최근 3페이지)
+    # 1. 네이버 리서치 제목 수집
     try:
         for page in range(1, 4):
             url = f"https://finance.naver.com/research/company_list.naver?searchType=itemCode&itemCode={symbol}&page={page}"
-            resp = requests.get(url, headers=HEADERS, timeout=5)
+            resp = session.get(url, timeout=5)
             soup = BeautifulSoup(resp.content, 'html.parser')
             for row in soup.select('table.type_1 tr'):
                 tds = row.find_all('td')
@@ -331,34 +311,25 @@ def fetch_reports_combined(symbol, stock_name):
                     title_tag = tds[1].find('a')
                     date_node = tds[4]
                     if title_tag and date_node.text.strip():
-                        sources.append({
-                            "text": title_tag.text.strip(),
-                            "date": date_node.text.strip()
-                        })
+                        sources.append({ "text": title_tag.text.strip(), "date": date_node.text.strip() })
     except Exception as e:
         print(f"Naver fetch error: {e}")
 
-    # 리포트 요약 내용 수집
-    target_urls = [
-        f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701"
-    ]
-    
-    for base_url in target_urls:
-        try:
-            jina_url = f"https://r.jina.ai/{base_url}"
-            resp = requests.get(jina_url, headers=HEADERS, timeout=6) 
-            if resp.status_code == 200:
-                lines = resp.text.split('\n')
-                for line in lines:
-                    if f"A{symbol}" in line or stock_name in line or "A" + symbol in line:
-                        date_match = re.search(r'\d{2}/\d{2}/\d{2}', line)
-                        if date_match:
-                            sources.append({
-                                "text": line.strip(),
-                                "date": date_match.group()
-                            })
-        except Exception as e:
-            print(f"FnGuide Jina timeout: {e}")
+    # 2. FnGuide 요약 (Jina 우회 및 응답 라인 제한)
+    base_url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Report_Summary.asp?pGB=1&gicode=A{symbol}&cID=&MenuYn=Y&ReportGB=&NewMenuID=901&stkGb=701"
+    try:
+        jina_url = f"https://r.jina.ai/{base_url}"
+        resp = session.get(jina_url, timeout=7) # Jina는 조금 더 넉넉히
+        if resp.status_code == 200:
+            lines = resp.text.split('\n')
+            # [v1.3.9] 거대 문서 분석 방지를 위해 상위 500라인까지만 처리
+            for line in lines[:500]:
+                if f"A{symbol}" in line or stock_name in line:
+                    date_match = re.search(r'\d{2}/\d{2}/\d{2}', line)
+                    if date_match:
+                        sources.append({ "text": line.strip(), "date": date_match.group() })
+    except Exception as e:
+        print(f"FnGuide Jina timeout: {e}")
             
     return sources
 
@@ -382,7 +353,7 @@ def _read_cache(symbol):
 
 def _write_cache(symbol, data):
     path = _get_cache_path(symbol)
-    data["timestamp"] = time.time() # 저장 시점 기록
+    data["timestamp"] = time.time() 
     try:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
@@ -391,89 +362,88 @@ def _write_cache(symbol, data):
 
 def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
     """
-    리포트 텍스트 분석 및 트리거 클라우드 데이터 생성 (캐시 시스템 고도화)
+    리포트 텍스트 분석 및 트리거 클라우드 생성 (v1.3.9 최적화)
     """
-    # 1. 캐시 확인 (강제 갱신이 아니며, 24시간 이내인 경우)
     if not force_refresh:
         cached = _read_cache(symbol)
         if cached and time.time() - cached.get("timestamp", 0) < 86400:
-            # 유효한 키워드가 있는 캐시만 즉시 반환
             if len(cached.get("cloud", [])) > 0:
-                print(f"[{symbol}] Returning valid cached results.")
                 cached["is_fresh"] = False
                 return cached
-            else:
-                print(f"[{symbol}] Cached result was empty. Re-fetching...")
-    else:
-        print(f"[{symbol}] Force Refresh requested. Bypassing cache.")
-
-    # 2. 데이터 직접 수집 (타임아웃 강화)
-    print(f"[{symbol}] Fetching multi-source data (Force={force_refresh})...")
     
-    # 여러 소스를 결합 (리스트 형태 유지)
-    all_sources = fetch_reports_combined(symbol, stock_name)
+    print(f"[{symbol}] Fetching data (Force={force_refresh})...")
+    all_sources = []
     
-    # 뉴스 키워드 추가
+    reports = fetch_reports_combined(symbol, stock_name)
+    for r in reports:
+        all_sources.append({ "text": r["text"], "date": r["date"], "type": "research" })
+    
     news = fetch_news_keywords(stock_name)
     for n in news:
-        all_sources.append({
-            "text": n["title"],
-            "date": n["date"]
-        })
+        all_sources.append({ "text": n["title"], "date": n["date"], "type": "news" })
 
-    keyword_weights = {} # {keyword: total_weighted_count}
+    keyword_weights = {} 
     sentiment_score = 0
     all_dates = []
-    
+    pos_count = 0
+    neg_count = 0
+
+    MARKET_TERMS = ["상승", "하락", "반등", "강세", "약세", "상향", "하향", "최고가", "최저가"]
+
     for source in all_sources:
         text = source["text"]
         date_str = source["date"]
+        source_type = source.get("type", "news")
         all_dates.append(date_str)
         
-        # 지수적 감쇠 가중치 계산
         delta_t = _parse_date_to_days_ago(date_str)
-        weight = math.exp(-DECAY_LAMBDA * delta_t)
+        time_weight = math.exp(-DECAY_LAMBDA * delta_t)
+        source_weight = 5.0 if source_type == "research" else 1.0
+        total_weight = time_weight * source_weight
         
-        # 키워드 매칭
+        # [v1.3.9 정교화] 텍스트 내 키워드 존재 여부를 먼저 확인 (전수 Regex 회피)
+        text_for_search = text.upper()
+        
         for sentiment, keywords in TRIGGER_KEYWORDS.items():
             for kw in keywords:
-                count = text.count(kw)
-                if count > 0:
-                    weighted_val = count * weight
-                    keyword_weights[kw] = keyword_weights.get(kw, 0) + weighted_val
+                # 키워드가 텍스트에 물리적으로 존재할 때만 Regex 실행 (중요 최적화)
+                if kw.upper() in text_for_search:
+                    matches = re.findall(re.escape(kw), text, re.IGNORECASE)
+                    count = min(len(matches), 2)
                     
-                    if sentiment == "positive":
-                        sentiment_score += weighted_val
-                    elif sentiment == "negative":
-                        sentiment_score -= weighted_val
+                    if count > 0:
+                        term_weight = 0.3 if kw in MARKET_TERMS else 1.0
+                        weighted_val = count * total_weight * term_weight
+                        
+                        keyword_weights[kw] = keyword_weights.get(kw, 0) + weighted_val
+                        if sentiment == "positive":
+                            sentiment_score += weighted_val
+                            pos_count += 1
+                        elif sentiment == "negative":
+                            sentiment_score -= (weighted_val * 0.8)
+                            neg_count += 1
 
-    # 클라우드용 데이터 정제
+    # 클라우드 데이터 생성 및 주가 데이터 결합
     cloud_data = []
     for kw, val in keyword_weights.items():
-        # 어느 카테고리인지 다시 확인
         sentiment = "neutral"
         if kw in TRIGGER_KEYWORDS["positive"]: sentiment = "positive"
         elif kw in TRIGGER_KEYWORDS["negative"]: sentiment = "negative"
         
         cloud_data.append({
             "text": kw,
-            "value": min(40, 10 + (val * 10)), # 가중치 반영하여 크기 조절
+            "value": min(40, 10 + (val * 10)), 
             "sentiment": sentiment
         })
     
-    # 상위 20개 키워드만 유지 (가중치 순)
     cloud_data = sorted(cloud_data, key=lambda x: x["value"], reverse=True)[:20]
 
-    # 주가 반영률(Gap Index) 계산
     ohlcv = fetch_stock_ohlcv(symbol, days=21)
     price_change = 0
     if ohlcv and len(ohlcv) >= 20:
-        start_price = ohlcv[0]["close"]
-        end_price = ohlcv[-1]["close"]
-        price_change = ((end_price - start_price) / start_price) * 100
+        price_change = ((ohlcv[-1]["close"] - ohlcv[0]["close"]) / ohlcv[0]["close"]) * 100
 
     gap_comment = ""
-    # 가중치 적용으로 인해 score가 소수점이 될 수 있음
     if sentiment_score >= 1.5 and price_change <= 5:
         gap_comment = "호재 키워드 다수 출현 중이나 주가 미반영 상태 (매수 기회 분석 필요)"
     elif sentiment_score >= 0.8 and price_change >= 20:
@@ -482,20 +452,14 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
         gap_comment = "악재 키워드 출현 중이나 하락 미반영 (리스크 관리 주의)"
 
     sorted_dates = sorted(list(set(all_dates)), reverse=True)
-    
-    # 결과 정제 및 감성 분석 리스트 추출
-    positive_words = [t["text"] for t in cloud_data if t["sentiment"] == "positive"][:5]
-    neutral_words = [t["text"] for t in cloud_data if t["sentiment"] == "neutral"][:5]
-    negative_words = [t["text"] for t in cloud_data if t["sentiment"] == "negative"][:5]
-
     result = {
         "symbol": symbol,
         "name": stock_name,
-        "cloud": cloud_data[:20],
+        "cloud": cloud_data,
         "sentiment": {
-            "positive": positive_words,
-            "neutral": neutral_words,
-            "negative": negative_words
+            "positive": [t["text"] for t in cloud_data if t["sentiment"] == "positive"][:5],
+            "neutral": [t["text"] for t in cloud_data if t["sentiment"] == "neutral"][:5],
+            "negative": [t["text"] for t in cloud_data if t["sentiment"] == "negative"][:5]
         },
         "sentiment_score": sentiment_score,
         "price_change_20d": round(price_change, 2),
@@ -505,82 +469,55 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
         "is_fresh": True
     }
     
-    # 결과가 존재할 때만 24시간 캐싱 (실패 시 캐싱 안함)
     if len(cloud_data) > 0:
         _write_cache(symbol, result)
-    else:
-        print(f"[{symbol}] Analysis returned empty. Skipping long-term cache.")
-        
     return result
 
 def fetch_market_heatmap(type="KOSPI", pages=2):
     """
-    네이버 증권 시가총액 상위 페이지에서 히트맵용 데이터를 수집 (v1.1.0)
-    - type: KOSPI (0), KOSDAQ (1)
-    - pages: 수집할 페이지 수 (기본 2페이지 = 100종목)
+    시장 시가총액 히트맵 데이터 수집 (v1.1.0)
     """
     sosok = 1 if type == "KOSDAQ" else 0
     base_url = "https://finance.naver.com/sise/sise_market_sum.naver"
-    
     stocks = []
     
     for page in range(1, pages + 1):
         try:
             url = f"{base_url}?sosok={sosok}&page={page}"
-            resp = requests.get(url, headers=HEADERS, timeout=5)
-            # EUC-KR 디코딩 (전역설정된 iconv와 유사하게 처리)
+            resp = session.get(url, timeout=5)
             resp.encoding = 'euc-kr' 
             soup = BeautifulSoup(resp.text, 'html.parser')
             
-            # 테이블의 모든 tr 요소 순회
             table_rows = soup.select('table.type_2 tbody tr')
             for row in table_rows:
                 title_tag = row.select_one('a.tltle')
-                if not title_tag:
-                    continue
+                if not title_tag: continue
                     
                 name = title_tag.text.strip()
                 ticker = title_tag.get('href').split('code=')[-1]
-                
-                # 수치 데이터 추출 (td.number)
-                # 2: 등락률, 4: 시가총액(억)
                 nums = row.select('td.number')
-                if len(nums) < 5:
-                    continue
+                if len(nums) < 5: continue
                     
                 change_text = nums[2].text.replace('%', '').replace(',', '').strip()
                 market_cap_text = nums[4].text.replace(',', '').strip()
                 
-                # 전일비 이미지(ico_up, ico_down)로 부호 보정
                 is_down = "ico_down" in str(nums[1])
                 change = float(change_text)
-                if is_down and change > 0:
-                    change = -change
+                if is_down and change > 0: change = -change
                 
-                market_cap = int(market_cap_text)
-                
-                stocks.append({
-                    "name": name,
-                    "ticker": ticker,
-                    "value": market_cap, # d3-hierarchy 용 value
-                    "change": change
-                })
-                
-            # 부부 차단 방지용 딜레이
+                stocks.append({ "name": name, "ticker": ticker, "value": int(market_cap_text), "change": change })
             time.sleep(0.1)
         except Exception as e:
-            print(f"Heatmap scrape error (Page {page}): {e}")
+            print(f"Heatmap error (P{page}): {e}")
             break
-            
     return stocks
 
 def fetch_trigger_summary(force_refresh=False):
     """
-    상위 종목들을 분석하여 긍정/부정/변화 트리거 요약 데이터를 생성 (v1.5.0)
+    시장 트리거 요약 생성 (v1.3.1)
     """
-    # 1. 분석 대상 종목 (시총 상위 KOSPI 15 + KOSDAQ 10)
-    kospi = fetch_market_heatmap("KOSPI", pages=1)[:15]
-    kosdaq = fetch_market_heatmap("KOSDAQ", pages=1)[:10]
+    kospi = fetch_market_heatmap("KOSPI", pages=1)[:6]
+    kosdaq = fetch_market_heatmap("KOSDAQ", pages=1)[:6]
     target_stocks = kospi + kosdaq
     
     pos_results = []
@@ -588,58 +525,39 @@ def fetch_trigger_summary(force_refresh=False):
     change_results = []
     trends = []
     
-    # 순차적으로 수행 (캐시 활용)
+    print(f"\n[Trigger Summary] Analyzing {len(target_stocks)} stocks...")
+    
     for s in target_stocks:
         try:
             analysis = analysis_trigger_cloud(s["ticker"], s["name"], force_refresh=force_refresh)
             score = analysis.get("sentiment_score", 0)
             
-            # 긍정/부정 분류
-            if score > 0.5:
-                pos_results.append({"name": s["name"], "symbol": s["ticker"], "score": score})
-            elif score < -0.5:
-                neg_results.append({"name": s["name"], "symbol": s["ticker"], "score": score * -1})
+            if score > 0.3:
+                pos_results.append({ "name": s["name"], "symbol": s["ticker"], "score": score })
+            elif score < -0.3:
+                neg_results.append({ "name": s["name"], "symbol": s["ticker"], "score": score * -1 })
             
-            # 변화량(Change) 키워드 추출
             cl = analysis.get("cloud", [])
             change_keywords = [kw["text"] for kw in cl if kw.get("text") in TRIGGER_KEYWORDS["change"]]
             if change_keywords:
-                change_results.append({
-                    "name": s["name"], 
-                    "symbol": s["ticker"], 
-                    "score": len(change_keywords),
-                    "top_change_word": change_keywords[0]
-                })
+                change_results.append({ "name": s["name"], "symbol": s["ticker"], "score": len(change_keywords), "top_change_word": change_keywords[0] })
             
-            # 트렌드 데이터 생성 (최근 리포트 날짜 기반 10포인트 시뮬레이션)
             trend_points = []
-            base_score = score
-            for i in range(10):
-                d = (datetime.now() - timedelta(days=(9-i)*3)).strftime("%Y-%m-%d")
-                point_score = base_score * (0.5 + (i/10)) + (math.sin(i) * 0.5)
-                trend_points.append({"date": d, "score": point_score})
-            
-            if s["ticker"] in ["005930", "000660", "373220"]: 
-                trends.append({"symbol": s["ticker"], "name": s["name"], "data": trend_points})
-                
+            current_val = score
+            for j in range(10):
+                d = (datetime.now() - timedelta(days=(9-j)*3)).strftime("%Y-%m-%d")
+                progress = 0.8 + (j / 10) * 0.2
+                noise = (math.sin(j) * 0.05 * current_val)
+                trend_points.append({ "date": d, "score": current_val * progress + noise })
+            trends.append({ "symbol": s["ticker"], "name": s["name"], "data": trend_points })
+            time.sleep(0.2)
         except Exception as e:
-            print(f"Summary analysis failed for {s['name']}: {e}")
-            continue
-
-    pos_results = sorted(pos_results, key=lambda x: x["score"], reverse=True)[:20]
-    neg_results = sorted(neg_results, key=lambda x: x["score"], reverse=True)[:20]
-    change_results = sorted(change_results, key=lambda x: x["score"], reverse=True)[:20]
-    
-    if not trends:
-        dummy_trends = []
-        for i in range(10):
-            d = (datetime.now() - timedelta(days=(9-i)*3)).strftime("%Y-%m-%d")
-            dummy_trends.append({"date": d, "score": math.sin(i)})
-        trends.append({"symbol": "DUMMY", "name": "시장 평균", "data": dummy_trends})
-
+            print(f"Error in summary: {e}")
+            
     return {
-        "positive_stocks": pos_results,
-        "negative_stocks": neg_results,
-        "change_stocks": change_results,
-        "trends": trends
+        "positive_stocks": sorted(pos_results, key=lambda x: x["score"], reverse=True)[:20],
+        "negative_stocks": sorted(neg_results, key=lambda x: x["score"], reverse=True)[:20],
+        "change_stocks": sorted(change_results, key=lambda x: x["score"], reverse=True)[:20],
+        "trends": trends[:10]
     }
+
