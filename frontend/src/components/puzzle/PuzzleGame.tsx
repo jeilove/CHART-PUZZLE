@@ -224,7 +224,7 @@ const UnifiedFlipCard = ({
             )}
           </div>
 
-          <div className="w-full h-[75vh] min-h-[650px] bg-black/40 rounded-[2.5rem] pt-16 relative mt-4">
+          <div className="w-full h-[75vh] min-h-[650px] bg-black/40 rounded-[2.5rem] pt-20 relative mt-[76px]">
             {chartContent}
           </div>
         </div>
@@ -790,7 +790,7 @@ export const PuzzleGame = ({
       <AnimatePresence>
         {isQuizOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[6000] bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center pt-4 pb-8 px-6 overflow-y-auto">
-            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-2xl flex flex-col items-center gap-4">
+            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-2xl flex flex-col items-center gap-12 mt-10">
               
               {quizFeedback && (
                 <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className={`w-full p-6 rounded-3xl border-2 flex flex-col items-center gap-2 shadow-2xl ${quizFeedback.isCorrect ? "bg-emerald-500/20 border-emerald-500/40" : "bg-rose-500/20 border-rose-500/40"}`}>
