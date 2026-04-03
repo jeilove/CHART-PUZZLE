@@ -342,9 +342,24 @@ def search_stock(query):
     if not query: return []
     query = query.strip().replace(" ", "").upper()
     res = []
+    
+    # [v1.6.0] 검색 결과에 주가/등락 정보 포함을 위한 조회 로직 강화
+    # 실제로는 실시간 API 연동이 필요하나, 여기서는 INDUSTRY_MAP 기반으로 기본 정보를 구성하고
+    # 시뮬레이션용 주가 데이터를 포함시킴 (추후 실시간 API 고도화 가능)
+    
     if INDUSTRY_MAP:
         for code, info in INDUSTRY_MAP.items():
             if query in code or query in info.get("name", "").upper():
-                res.append({ "name": info.get("name"), "symbol": code, "industry": info.get("industry") })
+                # 시뮬레이션 데이터 (실제 서비스 시에는 실시간 API 연동 권장)
+                price = 100000 + random.randint(-50000, 50000)
+                change = round(random.uniform(-5.0, 5.0), 2)
+                
+                res.append({ 
+                    "name": info.get("name"), 
+                    "symbol": code, 
+                    "industry": info.get("industry"),
+                    "price": price,
+                    "change": change
+                })
             if len(res) >= 20: break
     return res

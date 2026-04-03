@@ -354,7 +354,8 @@ export const PuzzleGame = ({
   isTimeWarpTriggered = false,
   onPrevFavorite,
   onNextFavorite,
-  hasMultipleFavorites = false
+  hasMultipleFavorites = false,
+  initialFlipped = false
 }: { 
   stockData: any[]; 
   stockName?: string; 
@@ -365,6 +366,7 @@ export const PuzzleGame = ({
   onPrevFavorite?: () => void;
   onNextFavorite?: () => void;
   hasMultipleFavorites?: boolean;
+  initialFlipped?: boolean;
 }) => {
   const [pieces, setPieces]           = useState<PieceState[]>([]);
   const [pieceImages, setPieceImages] = useState<string[]>([]);
@@ -386,7 +388,7 @@ export const PuzzleGame = ({
   const [isTimeWarpNewsOpen, setIsTimeWarpNewsOpen] = useState(false);
   const [triggerResults, setTriggerResults] = useState<any>(null);
   const [isTriggerLoading, setIsTriggerLoading] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(initialFlipped);
   const [showResult, setShowResult] = useState(false);
   const [quizFeedback, setQuizFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
   const [isTriggerOpen, setIsTriggerOpen] = useState(false);
@@ -405,6 +407,12 @@ export const PuzzleGame = ({
       setShowResult(false);
     }
   }, [isTimeWarpTriggered]);
+
+  useEffect(() => {
+    if (initialFlipped) {
+      setIsFlipped(true);
+    }
+  }, [initialFlipped, stockSymbol]);
 
   const pieceEdges = useMemo(() => {
     const edges: Edge[] = [];

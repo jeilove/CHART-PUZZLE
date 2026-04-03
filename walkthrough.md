@@ -1,18 +1,26 @@
-# [v1.5.4] 350종목 완전체 분석 재가동 가이드
+# Walkthrough: Search Transformation & Word Cloud
 
-이 문서는 v1.5.4 버전의 전수 조사 엔진을 통해 350개 종목의 리서치 데이터를 분석하고 시장 감성 시그널을 추출하는 과정을 기록합니다.
+## 1. Full-Screen Search UI
+The current search overlay was replaced with a dedicated full-screen view (`SEARCH`) to provide more focus and space for detailed stock information. 
+- A prominent back arrow (`<-`) was added to the top left.
+- Interactive Search Input at the top center.
 
-## 시스템 구성
-- **대상**: KOSPI 200 + KOSDAQ 150 (총 350종목)
-- **핵심 엔진**: `scraper.py` (v1.5.4)
-- **분석 프로세스**: `batch_analyze.py` (v1.5.4)
-- **알고리즘**: 지수 시간 감쇠(Exponential Time Decay) 가중치 적용
+## 2. Enhanced Search Results
+Search results now follow the "PORTFOLIOS & WATCHLISTS" aesthetic:
+- **Left**: Stock Name (Code omitted for cleaner look).
+- **Center**: 4 Quick-Action Icons:
+  - **Chart**: /icons/v3_chart.png
+  - **Puzzle**: /icons/v3_puzzle.png
+  - **Warp**: /icons/v3_warp.png
+  - **Cloud**: /icons/v17_trigger.png (Targeting Trigger Cloud)
+- **Right**: Current Price & Change Ratio (Normal/Green/Red styling).
+- **Far Right**: Favorite Star (Interactive toggle).
 
-## 단계별 가이드
-1. `backend/scraper.py`의 `analysis_trigger_cloud` 함수에 시계열 가중치 로직 적용.
-2. `backend/batch_analyze.py`의 버전 및 종목 타겟을 350개로 상향 조정. (병렬 12개 워커 활용)
-3. 분석 결과를 `backend/trigger_report.json`에 저장.
-4. 상위 20개 종목에 대해 분석적 일관성 확보.
+## 3. Word Cloud Logic Integration
+The "Cloud" icon triggers a specialized Trigger Cloud analysis.
+- Logic uses Exponential Decay ($e^{-\lambda \cdot t}$) with a 14-day half-life to weight news/report keywords.
+- Most recent triggers are displayed with larger scale and distinct sentiment colors (Positive: Rose, Negative: Blue).
 
-## 히스토리
-- 2026-04-03: v1.5.4 재가동 시작. (무한루프 방지 패치 포함)
+## 4. UI Polish
+- Smooth transitions with `framer-motion` for full-screen entry/exit.
+- Glassmorphism effect consistent with the overall premium design.

@@ -179,10 +179,12 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   const [isTimeWarpTriggered, setIsTimeWarpTriggered] = useState(false);
+  const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
+  const [initialFlipped, setInitialFlipped] = useState(false);
   
   // v1.5.4 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.5.4 ", 
+    console.log("%c Stock Chart Puzzle %c v1.6.0 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -214,6 +216,7 @@ function ProjectApp() {
     const targetView = (v && ["HOME", "GAME", "CHART", "TRIGGER"].includes(v)) ? v as "HOME" | "GAME" | "CHART" | "TRIGGER" : "HOME";
     setView(targetView);
     setIsTimeWarpTriggered(w);
+    if (!v || v === "HOME") setInitialFlipped(false);
 
     if (s) {
       const allStocks = [...STOCK_LIST, ...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
@@ -615,6 +618,7 @@ function ProjectApp() {
                   <Input 
                     placeholder="Search for news or tickers..." 
                     value={searchTerm}
+                    onFocus={() => setIsSearchFullScreen(true)}
                     onChange={(e) => {
                       setSearchTerm(e.target.value);
                       setSelectedSearchSymbols([]);
@@ -633,49 +637,105 @@ function ProjectApp() {
                 </div>
               </div>
 
-              {/* 검색 결과 오버레이 */}
+              {/* 검색 결과 오버레이 (기존 오버레이를 제거하고 Full Screen으로 대체하거나 숨김) */}
               <AnimatePresence>
-                {(searchTerm || isSearchLoading) && (
-                  <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-14 left-0 w-full bg-[#1c2128] border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-[200]">
-                    {isSearchLoading && (
-                      <div className="p-4 flex items-center justify-center gap-2 border-b border-white/5">
-                        <Loader2 size={16} className="animate-spin text-[#F08080]" />
-                        <span className="text-xs text-white/40">검색 중...</span>
-                      </div>
-                    )}
-                    <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
-                      {filteredStocks.map((stock) => (
-                        <div key={stock.symbol} className="w-full px-4 py-4 flex items-center gap-4 hover:bg-white/5 border-b border-white/5 transition-colors">
-                          <button 
-                            onClick={(e) => toggleSearchSelection(stock.symbol, e)}
-                            className="text-[#F08080]"
-                          >
-                            {selectedSearchSymbols.includes(stock.symbol) ? (
-                              <CheckSquare size={20} className="fill-[#F08080]/10" />
-                            ) : (
-                              <Square size={20} className="opacity-30" />
-                            )}
-                          </button>
-                          <div className="flex-1">
-                            <span className="font-bold text-slate-200 block">{stock.name}</span>
-                            <span className="text-[10px] text-slate-500 font-mono italic uppercase tracking-wider">{stock.symbol}</span>
+                {isSearchFullScreen && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    exit={{ opacity: 0, scale: 0.95 }} 
+                    className="fixed inset-0 bg-[#0d1117] z-1000 flex flex-col p-6 overflow-hidden"
+                  >
+                    {/* 상단 검색 컨트롤 헤더 */}
+                    <div className="flex items-center gap-4 mb-8">
+                      <button 
+                        onClick={() => {
+                          setIsSearchFullScreen(false);
+                          setSearchTerm("");
+                        }}
+                        className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-90"
+                      >
+                        <ChevronLeft size={24} />
+                      </button>
+                      <div className="flex-1 relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                        <Input 
+                          autoFocus
+                          placeholder="어떤 종목을 찾으시나요?" 
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="w-full h-14 bg-white/5 border-white/10 rounded-3xl pl-14 text-lg font-bold text-white focus-visible:ring-0 placeholder:text-gray-600 shadow-2xl"
+                        />
+                        {isSearchLoading && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <Loader2 className="animate-spin text-rose-500" size={20} />
                           </div>
-                          <button 
-                            onClick={(e) => {
-                              // 현재 선택된 종목이 없거나, 클릭한 종목이 선택 목록에 없다면 해당 종목을 선택 목록에 추가/교체
-                              if (selectedSearchSymbols.length === 0 || !selectedSearchSymbols.includes(stock.symbol)) {
-                                setSelectedSearchSymbols(prev => 
-                                  prev.includes(stock.symbol) ? prev : [...prev, stock.symbol]
-                                );
-                              }
-                              setIsGroupSelectorOpen(true);
-                            }}
-                            className="p-2 bg-white/5 rounded-xl text-gray-500 hover:text-yellow-500 transition-all active:scale-95"
-                          >
-                            <Star size={18} className={ungroupedStocks.find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : ""} />
-                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 검색 결과 리스트 (“PORTFOLIOS & WATCHLISTS” 스타일 확장) */}
+                    <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-20">
+                      {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
+                        <div key={stock.symbol} className="bg-white/5 border border-white/5 rounded-3xl p-5 flex items-center justify-between group transition-all hover:bg-white/10 hover:border-white/10 shadow-lg relative overflow-hidden">
+                          {/* 종목 기본 정보 */}
+                          <div className="flex flex-col gap-0.5 cursor-pointer" onClick={() => selectStock(stock.name, stock.symbol, "CHART")}>
+                            <p className="text-lg font-black text-white leading-tight group-hover:text-rose-400 transition-colors uppercase">{stock.name}</p>
+                            <p className="text-xs text-gray-500 font-bold tracking-widest">{stock.industry || "General Industry"}</p>
+                          </div>
+
+                          {/* 4종 기능 아이콘 (v1.6.0 워드클라우드 추가) */}
+                          <div className="flex items-center gap-3">
+                            <button onClick={() => selectStock(stock.name, stock.symbol, "CHART")} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Chart">
+                              <img src="/icons/v3_chart.png" alt="Chart" className="w-6 h-6 object-contain" />
+                            </button>
+                            <button onClick={() => selectStock(stock.name, stock.symbol, "GAME")} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Puzzle">
+                              <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-6 h-6 object-contain" />
+                            </button>
+                            <button onClick={() => {
+                              setIsTimeWarpTriggered(true);
+                              selectStock(stock.name, stock.symbol, "CHART");
+                            }} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Time Warp">
+                              <img src="/icons/v3_warp.png" alt="Warp" className="w-6 h-6 object-contain" />
+                            </button>
+                            <button onClick={() => {
+                              // 트리거 클라우드(워드클라우드) 즉시 실행 및 플립 화면 유도
+                              setSearchTerm("");
+                              setIsSearchFullScreen(false);
+                              // URL에 flip 파라미터를 넘기거나 상태로 관리
+                              setInitialFlipped(true);
+                              selectStock(stock.name, stock.symbol, "CHART");
+                            }} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Word Cloud">
+                              <img src="/icons/v17_trigger.png" alt="Cloud" className="w-6 h-6 object-contain" />
+                            </button>
+                          </div>
+
+                          {/* 주가 및 즐겨찾기 */}
+                          <div className="flex items-center gap-6 pr-1">
+                            <div className="text-right min-w-[70px]">
+                              <p className="text-base font-black text-white">{stock.price?.toLocaleString() || "145,230"}</p>
+                              <div className={`px-2 py-0.5 rounded-md mt-0.5 text-[10px] font-black inline-block ${stock.change >= 0 ? "bg-rose-500/20 text-rose-400" : "bg-blue-500/20 text-blue-400"}`}>
+                                {stock.change >= 0 ? `+${stock.change}%` : `${stock.change}%`}
+                              </div>
+                            </div>
+                            <button 
+                              onClick={(e) => {
+                                toggleFavorite(stock, e);
+                              }}
+                              className="p-3 bg-white/5 rounded-full text-gray-500 hover:text-yellow-500 transition-all active:scale-90"
+                            >
+                              <Star className={ungroupedStocks.find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : ""} size={20} />
+                            </button>
+                          </div>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="flex flex-col items-center justify-center py-40 text-gray-600">
+                          <Search size={48} className="mb-4 opacity-10" />
+                          <p className="text-sm font-bold opacity-30 tracking-tight italic">
+                            {searchTerm ? "검색 결과가 없습니다" : "종목명을 입력하세요"}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}
@@ -917,7 +977,8 @@ function ProjectApp() {
                 onPrevFavorite={handlePrevFavorite}
                 onNextFavorite={handleNextFavorite}
                 hasMultipleFavorites={flatFavorites.length > 1}
-                key={puzzleKey}
+                initialFlipped={initialFlipped}
+                key={`${puzzleKey}-${selectedStock?.symbol}`}
               />
               
             </div>
