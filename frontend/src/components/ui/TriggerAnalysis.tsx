@@ -219,7 +219,7 @@ export function TriggerAnalysis() {
                 <div key={idx} className="flex-1 flex flex-col items-center group/p relative h-full">
                   <motion.div 
                      initial={{ height: 0 }}
-                     animate={{ height: `${Math.min(95, Math.abs(point.score || 0) * 25)}%` }}
+                     animate={{ height: `${Math.min(45, Math.abs(point.score || 0) * 9)}%` }}
                      transition={{ type: "spring", damping: 20 }}
                      className={`w-full max-w-[14px] absolute transition-all z-10 ${
                         (point.score || 0) >= 0 
