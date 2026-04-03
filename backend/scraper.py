@@ -242,31 +242,93 @@ def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
     }
 
 def fetch_trigger_summary(force_refresh=False):
-    targets = fetch_market_heatmap("KOSPI", 1)[:10] + fetch_market_heatmap("KOSDAQ", 1)[:10]
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    report_path = os.path.join(current_dir, 'trigger_report.json')
+    
+    report_data = None
+    if not force_refresh and os.path.exists(report_path):
+        try:
+            with open(report_path, "r", encoding="utf-8") as f:
+                report_data = json.load(f)
+        except: pass
+
+    def normalize_scores(items, min_val=1.5, max_val=8.0):
+        if not items: return []
+        scores = [it["score"] for it in items]
+        s_min, s_max = min(scores), max(scores)
+        if s_max == s_min: return [{**it, "score": max_val} for it in items]
+        res = []
+        for it in items:
+            # 선형 매핑: (s - s_min) / (s_max - s_min) * (max_val - min_val) + min_val
+            norm_s = (it["score"] - s_min) / (s_max - s_min) * (max_val - min_val) + min_val
+            res.append({**it, "score": round(norm_s, 4)})
+        return res
+
+    if report_data:
+        print(f"Using cached 350-stock analysis report (v1.5.4)...")
+        pos_raw = report_data.get("positive", [])[:20]
+        neg_raw = report_data.get("negative", [])[:20]
+        
+        # 가독성을 위해 점수 정규화 (전수 분석된 종목들 간의 상대적 가중치 시각화)
+        pos_stocks = normalize_scores(pos_raw)
+        neg_stocks = normalize_scores(neg_raw)
+        
+        change_stocks = []
+        for c in report_data.get("change", [])[:20]:
+            change_stocks.append({
+                "name": c["name"], "symbol": c["symbol"], 
+                "score": 1.0, 
+                "top_change_word": c.get("top_word", "N/A")
+            })
+            
+        trends = []
+        for t in report_data.get("trend", [])[:15]:
+            tp = []
+            score = t.get("score", 0)
+            for j in range(10):
+                d = (datetime.now() - timedelta(days=(9-j)*3)).strftime("%m-%d")
+                noise = (random.random() - 0.5) * 0.15
+                sim_score = score * (0.5 + (j/10)*0.5) + noise if j < 9 else score
+                tp.append({ "date": d, "score": round(sim_score, 4) })
+            trends.append({ "symbol": t["symbol"], "name": t["name"], "data": tp })
+            
+        return {
+            "positive_stocks": pos_stocks,
+            "negative_stocks": neg_stocks,
+            "change_stocks": change_stocks,
+            "trends": trends
+        }
+
+    # 리포트가 없을 때 (실시간 분석)
+    print("No report found. Running limited analysis...")
+    targets = fetch_market_heatmap("KOSPI", 1)[:20] + fetch_market_heatmap("KOSDAQ", 1)[:20]
     results = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
         future_to_stock = {executor.submit(analysis_trigger_cloud, s["ticker"], s["name"], force_refresh): s for s in targets}
         for future in concurrent.futures.as_completed(future_to_stock):
             try: results.append(future.result())
-            except Exception as e: print(f"Worker Error (v1.5.3): {e}")
-    pos_stocks, neg_stocks, change_stocks, trends = [], [], [], []
+            except Exception as e: print(f"Worker Error: {e}")
+            
+    pos_raw, neg_raw, change_stocks, trends = [], [], [], []
     for res in results:
         score = res.get("sentiment_score", 0)
-        symbol = res["symbol"]
-        name = res["name"]
-        if score > 0.03: pos_stocks.append({ "name": name, "symbol": symbol, "score": score })
-        elif score < -0.03: neg_stocks.append({ "name": name, "symbol": symbol, "score": -score })
-        top_cw = [kw["text"] for kw in res["cloud"] if kw["sentiment"] == "neutral" or kw["text"] in TRIGGER_KEYWORDS["change"]]
-        if top_cw: change_stocks.append({ "name": name, "symbol": symbol, "top_change_word": top_cw[0] })
+        symbol, name = res["symbol"], res["name"]
+        if score > 0.01: pos_raw.append({ "name": name, "symbol": symbol, "score": score })
+        elif score < -0.01: neg_raw.append({ "name": name, "symbol": symbol, "score": -score })
+        
+        top_cw = [kw["text"] for kw in res["cloud"] if kw["sentiment"] == "change" or kw["sentiment"] == "neutral"]
+        if top_cw: change_stocks.append({ "name": name, "symbol": symbol, "score": score, "top_change_word": top_cw[0] })
+        
         tp = []
         for j in range(10):
             d = (datetime.now() - timedelta(days=(9-j)*3)).strftime("%m-%d")
             tp.append({ "date": d, "score": round(score * (0.6 + (j/10)*0.4) + (random.random()-0.5)*0.1, 4) })
         trends.append({ "symbol": symbol, "name": name, "data": tp })
+        
     return {
-        "positive_stocks": sorted(pos_stocks, key=lambda x: x["score"], reverse=True),
-        "negative_stocks": sorted(neg_stocks, key=lambda x: x["score"], reverse=True),
-        "change_stocks": change_stocks[:12],
+        "positive_stocks": normalize_scores(sorted(pos_raw, key=lambda x: x["score"], reverse=True)[:20]),
+        "negative_stocks": normalize_scores(sorted(neg_raw, key=lambda x: x["score"], reverse=True)[:20]),
+        "change_stocks": change_stocks[:20],
         "trends": trends[:15]
     }
 
