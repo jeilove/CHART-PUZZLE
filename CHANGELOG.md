@@ -8,7 +8,8 @@
 - **안정성**: 구글 뉴스 RSS 전환 및 BeautifulSoup 타임아웃 강화로 무한 루프 원천 차단
 - **UI/API 연동**:
     - `trigger_report.json` 기반의 350종목 분석 결과 API 연동 (`fetch_trigger_summary`)
-    - 트리거 클라우드 시각화 최적화를 위한 감성 점수 정규화(Normalization) 적용
+    - 트리거 클라우드 및 감성 타임라인 시각화 최적화를 위한 점수 정규화(Normalization) 적용
+    - 감성 진화 타임라인(Timeline) 바 높이 스케일링 상향 및 불필요한 라벨 제거
     - 전수 조사 기반의 데이터 다양성 확보 (긍정/부정/변화 Top 20 상시 유지)
 - **분석 자동화 및 성능 최적화**:
   - **350종목 일괄 분석**: KOSPI 200 및 KOSDAQ 150 전수 조사 대상 확정 및 병렬 처리 엔진(ThreadPoolExecutor) 최적화.

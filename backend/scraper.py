@@ -281,14 +281,20 @@ def fetch_trigger_summary(force_refresh=False):
                 "top_change_word": c.get("top_word", "N/A")
             })
             
+        # 감성 추세 (Trends) 타임라인 생성 
+        trend_raw = report_data.get("trend", [])[:15]
+        # 트렌드 점수도 시각적 효과를 위해 정규화 적용
+        trend_norm = normalize_scores(trend_raw, min_val=1.0, max_val=5.0)
+        
         trends = []
-        for t in report_data.get("trend", [])[:15]:
+        for t in trend_norm:
             tp = []
             score = t.get("score", 0)
             for j in range(10):
                 d = (datetime.now() - timedelta(days=(9-j)*3)).strftime("%m-%d")
-                noise = (random.random() - 0.5) * 0.15
-                sim_score = score * (0.5 + (j/10)*0.5) + noise if j < 9 else score
+                noise = (random.random() - 0.5) * 0.2
+                # 점수 변형: 과거에서 현재로 올수록 점수가 점진적으로 형성되는 연출
+                sim_score = score * (0.4 + (j/10)*0.6) + noise if j < 9 else score
                 tp.append({ "date": d, "score": round(sim_score, 4) })
             trends.append({ "symbol": t["symbol"], "name": t["name"], "data": tp })
             

@@ -150,9 +150,6 @@ export function TriggerAnalysis() {
                 <Calendar size={16} />
                 Sentiment Evolution Timeline
               </h3>
-              <p className="text-[10px] text-slate-600 font-bold tracking-tight">
-                {selectedSymbol === "MARKET" ? "시장 전체 감성 평균" : `${data?.trends?.find(t => t.symbol === selectedSymbol)?.name || "분석 대기 중"} 감성 추세`}
-              </p>
             </div>
             
             <div className="flex items-center gap-3">
@@ -222,7 +219,7 @@ export function TriggerAnalysis() {
                 <div key={idx} className="flex-1 flex flex-col items-center group/p relative h-full">
                   <motion.div 
                      initial={{ height: 0 }}
-                     animate={{ height: `${Math.min(95, Math.abs(point.score || 0) * 20)}%` }}
+                     animate={{ height: `${Math.min(95, Math.abs(point.score || 0) * 25)}%` }}
                      transition={{ type: "spring", damping: 20 }}
                      className={`w-full max-w-[14px] absolute transition-all z-10 ${
                         (point.score || 0) >= 0 
