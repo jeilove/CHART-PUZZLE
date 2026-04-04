@@ -231,9 +231,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v1.6.2 버전 정보 콘솔 출력
+  // v1.6.3 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.6.2 ", 
+    console.log("%c Stock Chart Puzzle %c v1.6.3 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -387,16 +387,22 @@ function ProjectApp() {
     // 현재 필터링된 검색 결과에서 실제 주식 객체 추출
     const stocksToAdd = filteredStocks.filter(s => selectedSearchSymbols.includes(s.symbol));
     
-    const newGroups = favoriteGroups.map(g => {
-      if (g.id === targetAddGroupId) {
-        const existingSymbols = g.stocks.map(s => s.symbol);
-        const uniqueNewStocks = stocksToAdd.filter(s => !existingSymbols.includes(s.symbol));
-        return { ...g, stocks: [...g.stocks, ...uniqueNewStocks] };
-      }
-      return g;
-    });
+    if (targetAddGroupId === "ungrouped") {
+      const existingSymbols = ungroupedStocks.map(s => s.symbol);
+      const uniqueNewStocks = stocksToAdd.filter(s => !existingSymbols.includes(s.symbol));
+      saveUngrouped([...ungroupedStocks, ...uniqueNewStocks]);
+    } else {
+      const newGroups = favoriteGroups.map(g => {
+        if (g.id === targetAddGroupId) {
+          const existingSymbols = g.stocks.map(s => s.symbol);
+          const uniqueNewStocks = stocksToAdd.filter(s => !existingSymbols.includes(s.symbol));
+          return { ...g, stocks: [...g.stocks, ...uniqueNewStocks] };
+        }
+        return g;
+      });
+      saveGroups(newGroups);
+    }
     
-    saveGroups(newGroups);
     setSelectedSearchSymbols([]);
   };
 
@@ -661,7 +667,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.2</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.3</p>
               </div>
             </motion.div>
           </>
@@ -754,12 +760,16 @@ function ProjectApp() {
                                   <SearchResultItem 
                                     key={stock.symbol} 
                                     stock={stock} 
-                                    isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol)}
+                                    isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
                                     onSelect={() => selectStock(stock.name, stock.symbol, "CHART")}
                                     onGame={() => selectStock(stock.name, stock.symbol, "GAME")}
                                     onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
                                     onCloud={() => { setSearchTerm(""); setIsSearchFullScreen(false); setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
-                                    onToggleFavorite={(e) => toggleFavorite(stock, e)}
+                                    onToggleFavorite={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedSearchSymbols([stock.symbol]);
+                                      setIsGroupSelectorOpen(true);
+                                    }}
                                   />
                                 ))}
                               </div>
@@ -809,7 +819,11 @@ function ProjectApp() {
                                             onGame={() => selectStock(stock.name, stock.symbol, "GAME")}
                                             onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
                                             onCloud={() => { setSearchTerm(""); setIsSearchFullScreen(false); setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
-                                            onToggleFavorite={(e) => toggleFavorite(stock, e)}
+                                            onToggleFavorite={(e) => {
+                                              e.stopPropagation();
+                                              setSelectedSearchSymbols([stock.symbol]);
+                                              setIsGroupSelectorOpen(true);
+                                            }}
                                           />
                                         ))}
                                       </div>
@@ -1237,6 +1251,18 @@ function ProjectApp() {
             </div>
 
             <div className="space-y-3 mb-8 overflow-y-auto max-h-[300px] no-scrollbar">
+              {/* v1.6.3: 미분류 저장 옵션 추가 */}
+              <button 
+                onClick={() => setTargetAddGroupId("ungrouped")}
+                className={`w-full p-5 rounded-2xl flex items-center justify-between transition-all border ${targetAddGroupId === "ungrouped" ? 'bg-[#F08080]/10 border-[#F08080] text-[#F08080]' : 'bg-white/5 border-white/5 text-gray-400 opacity-60 hover:opacity-100'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <Star size={16} />
+                  <span className="font-bold text-sm">My List (미분류 저장)</span>
+                </div>
+                {targetAddGroupId === "ungrouped" && <Check size={18} />}
+              </button>
+
               {favoriteGroups.map(group => (
                 <button 
                   key={group.id}
