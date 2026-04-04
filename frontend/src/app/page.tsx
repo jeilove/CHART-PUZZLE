@@ -123,7 +123,6 @@ const MOCK_STOCK_DATA = Array.from({ length: 60 }, (_, i) => {
   };
 });
 
-
 interface Stock {
   name: string;
   symbol: string;
@@ -232,9 +231,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v1.6.5 버전 정보 콘솔 출력
+  // v1.6.7 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.6.5 ", 
+    console.log("%c Stock Chart Puzzle %c v1.6.7 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -246,6 +245,8 @@ function ProjectApp() {
   const [isMarketExpanded, setIsMarketExpanded] = useState(true);
   const [isGroupSelectorOpen, setIsGroupSelectorOpen] = useState(false);
   const [lastRemovedFavoriteLocation, setLastRemovedFavoriteLocation] = useState<Record<string, string>>({});
+  const [searchBaseStocks, setSearchBaseStocks] = useState<Stock[]>([]);
+  const [searchGroupSnapshot, setSearchGroupSnapshot] = useState<Record<string, string>>({}); // symbol -> groupId
   const [newGroupInputOpen, setNewGroupInputOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
 
@@ -502,6 +503,32 @@ function ProjectApp() {
   };
 
   const [searchTerm, setSearchTerm] = useState("");
+
+  // [v1.6.7] 검색 전용 베이스 종목 및 그룹 맵핑 스냅샷
+  React.useEffect(() => {
+    if (isSearchFullScreen && !searchTerm) {
+      const currentUngrouped = [...ungroupedStocks];
+      const currentGroups = [...favoriteGroups];
+      
+      const allFavs = Array.from(new Map([
+        ...currentUngrouped,
+        ...currentGroups.flatMap(g => g.stocks)
+      ].map(s => [s.symbol, s])).values());
+      
+      const newMapping: Record<string, string> = {};
+      currentUngrouped.forEach(s => { newMapping[s.symbol] = "ungrouped"; });
+      currentGroups.forEach(g => {
+        g.stocks.forEach(s => { newMapping[s.symbol] = g.id; });
+      });
+
+      setSearchBaseStocks(prev => {
+        const merged = Array.from(new Map([...prev, ...allFavs].map(s => [s.symbol, s])).values());
+        return merged;
+      });
+      
+      setSearchGroupSnapshot(prev => ({ ...newMapping, ...prev }));
+    }
+  }, [isSearchFullScreen, searchTerm]); // favoriteGroups 의존성 제거하여 세션 중 위치 고정
   React.useEffect(() => {
     if (searchTerm.length >= 1) {
       const fetchApiSearch = async () => {
@@ -526,21 +553,9 @@ function ProjectApp() {
   }, [searchTerm]);
 
   const filteredStocks = useMemo(() => {
-    // [v1.6.1] 검색어가 없을 때는 즐겨찾기(미분류 + 그룹별 전체) 종목을 우선 노출
-    // [v1.6.5] 최근 해제된 종목(lastRemovedFavoriteLocation)도 포함하여 리스트에서 즉시 사라지는 현상 방지
+    // [v1.6.7] 검색어가 없을 때는 초기 스냅샷(searchBaseStocks)을 사용하여 리스트 안정성 확보
     if (!searchTerm) {
-      const removedSymbols = Object.keys(lastRemovedFavoriteLocation);
-      const allBaseStocks = [
-        ...ungroupedStocks,
-        ...favoriteGroups.flatMap(g => g.stocks),
-        ...STOCK_LIST.filter(s => removedSymbols.includes(s.symbol))
-      ];
-
-      const allFavs = Array.from(new Map(
-        allBaseStocks.map(s => [s.symbol, s])
-      ).values());
-      
-      return allFavs;
+      return searchBaseStocks;
     }
 
     return Array.from(new Map([
@@ -551,7 +566,7 @@ function ProjectApp() {
       ),
       ...apiResults
     ].map(s => [s.symbol, s])).values()).slice(0, 40);
-  }, [searchTerm, ungroupedStocks, favoriteGroups, apiResults, lastRemovedFavoriteLocation]);
+  }, [searchTerm, searchBaseStocks, apiResults]);
 
   return (
     <>
@@ -712,7 +727,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.5</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.7</p>
               </div>
             </motion.div>
           </>
@@ -790,10 +805,10 @@ function ProjectApp() {
                     <div className="flex-1 overflow-y-auto no-scrollbar space-y-6 pb-20">
                       {filteredStocks.length > 0 ? (
                         <>
-                          {/* 1. 미분류 종목 (Flat List) */}
+                          {/* 1. 미분류 종목 (Snapshotted) */}
                           {(() => {
                             const ungroupedInSearch = filteredStocks.filter(s => 
-                              !favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))
+                              searchGroupSnapshot[s.symbol] === "ungrouped" || !searchGroupSnapshot[s.symbol]
                             );
                             if (ungroupedInSearch.length === 0) return null;
                             return (
@@ -819,10 +834,11 @@ function ProjectApp() {
                             );
                           })()}
 
-                          {/* 2. 그룹별 종목 (Accordion List) */}
+                          {/* 2. 그룹별 종목 (Snapshotted Accordions) */}
                           {favoriteGroups.map(group => {
+                            // 현재 그룹 스냅샷에 속한 모든 종목 추출
                             const stocksInGroup = filteredStocks.filter(s => 
-                              group.stocks.some(gs => gs.symbol === s.symbol)
+                              searchGroupSnapshot[s.symbol] === group.id
                             );
                             if (stocksInGroup.length === 0) return null;
                             
@@ -856,7 +872,7 @@ function ProjectApp() {
                                           <SearchResultItem 
                                             key={stock.symbol} 
                                             stock={stock} 
-                                            isFavorite={true}
+                                            isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
                                             small
                                             onSelect={() => selectStock(stock.name, stock.symbol, "CHART")}
                                             onGame={() => selectStock(stock.name, stock.symbol, "GAME")}
