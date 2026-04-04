@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import StockHeatmap from "@/components/ui/StockHeatmap";
 import { TriggerAnalysis } from "@/components/ui/TriggerAnalysis";
 
-// 1.1.0: TradingView 히트맵 위젯 컴포넌트 (v2.8.5: React.memo 적용)
+// 1.1.0: TradingView 히트맵 위젯 컴포넌트 (v2.8.6: React.memo 적용)
 const TradingViewHeatmapWidget = React.memo(function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const isMounted = React.useRef(false);
@@ -84,7 +84,7 @@ const TradingViewHeatmapWidget = React.memo(function TradingViewHeatmapWidget({ 
   );
 });
 
-// 1.1.0: 실시간 시장 데이터 연동 커스텀 히트맵 (v2.8.5: React.memo 적용)
+// 1.1.0: 실시간 시장 데이터 연동 커스텀 히트맵 (v2.8.6: React.memo 적용)
 const LiveMarketHeatmap = React.memo(function LiveMarketHeatmap({ type }: { type: string }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -309,9 +309,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.8.5 버전 정보 콘솔 출력
+  // v2.8.6 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.8.5 ", 
+    console.log("%c Stock Chart Puzzle %c v2.8.6 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -1639,7 +1639,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.8.5</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.8.6</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
