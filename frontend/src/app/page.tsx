@@ -310,9 +310,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.7.1 버전 정보 콘솔 출력
+  // v2.7.2 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.7.1 ", 
+    console.log("%c Stock Chart Puzzle %c v2.7.2 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -712,21 +712,7 @@ function ProjectApp() {
     }
   }, [searchTerm]);
 
-  const filteredStocks = useMemo(() => {
-    // [v1.6.7] 검색어가 없을 때는 초기 스냅샷(searchBaseStocks)을 사용하여 리스트 안정성 확보
-    if (!searchTerm) {
-      return searchBaseStocks;
-    }
 
-    return Array.from(new Map([
-      ...STOCK_LIST.filter(s => 
-        s.name.includes(searchTerm) || 
-        s.symbol.includes(searchTerm) ||
-        (s.industry && s.industry.includes(searchTerm))
-      ),
-      ...apiResults
-    ].map(s => [s.symbol, s])).values()).slice(0, 40);
-  }, [searchTerm, searchBaseStocks, apiResults]);
 
   return (
     <>
@@ -887,7 +873,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.7.1</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.7.2</p>
               </div>
             </motion.div>
           </>
@@ -1655,7 +1641,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.7.1</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.7.2</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
