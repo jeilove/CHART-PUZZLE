@@ -14,22 +14,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import StockHeatmap from "@/components/ui/StockHeatmap";
 import { TriggerAnalysis } from "@/components/ui/TriggerAnalysis";
 
-// 1.1.0: TradingView 히트맵 위젯 컴포넌트
-function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
+// 1.1.0: TradingView 히트맵 위젯 컴포넌트 (v2.8.0: React.memo 적용)
+const TradingViewHeatmapWidget = React.memo(function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const isMounted = React.useRef(false);
 
   React.useEffect(() => {
     isMounted.current = true;
-
     if (!containerRef.current) return;
 
     const container = containerRef.current;
-    container.innerHTML = "";
+    
+    // 이미 같은 데이터 소스로 위젯이 있다면 스킵 (깜빡임 방지)
+    if (container.querySelector(`[data-source="${dataSource}"]`)) return;
 
-    // TradingView 스크립트 삽입 전 div wrapper 생성 (스크립트가 참조할 DOM 구조 유지)
+    container.innerHTML = "";
+    
     const wrapper = document.createElement("div");
     wrapper.className = "tradingview-widget-container";
+    wrapper.setAttribute("data-source", dataSource); // 트래킹용 속성 추가
     wrapper.style.width = "100%";
     wrapper.style.height = "100%";
 
@@ -59,19 +62,15 @@ function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
       "height": "100%"
     });
 
-    // 스크립트 에러를 조용히 처리 (TradingView 내부 에러가 React overlay를 오염시키지 않도록)
     script.onerror = () => {};
-
     wrapper.appendChild(script);
 
-    // isMounted 확인 후 삽입 (cleanup이 먼저 실행된 경우 삽입 차단)
     if (isMounted.current && containerRef.current) {
       containerRef.current.appendChild(wrapper);
     }
 
     return () => {
       isMounted.current = false;
-      // cleanup: wrapper 제거 (스크립트 실행 이전에 DOM 제거)
       try {
         if (container && wrapper.parentNode === container) {
           container.removeChild(wrapper);
@@ -83,10 +82,10 @@ function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
   return (
     <div ref={containerRef} className="w-full h-full bg-black/20 overflow-hidden" />
   );
-}
+});
 
-// 1.1.0: 실시간 시장 데이터 연동 커스텀 히트맵
-function LiveMarketHeatmap({ type }: { type: string }) {
+// 1.1.0: 실시간 시장 데이터 연동 커스텀 히트맵 (v2.8.0: React.memo 적용)
+const LiveMarketHeatmap = React.memo(function LiveMarketHeatmap({ type }: { type: string }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -108,7 +107,7 @@ function LiveMarketHeatmap({ type }: { type: string }) {
   }, [type]);
 
   return <StockHeatmap title={type} data={data} loading={loading} />;
-}
+});
 
 // 테스트를 위한 Mock 주가 데이터 (KOSPI 200/KOSDAQ 150 컨셉)
 const MOCK_STOCK_DATA = Array.from({ length: 60 }, (_, i) => {
@@ -310,9 +309,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.7.2 버전 정보 콘솔 출력
+  // v2.8.0 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.7.2 ", 
+    console.log("%c Stock Chart Puzzle %c v2.8.0 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -873,7 +872,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.7.2</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.8.0</p>
               </div>
             </motion.div>
           </>
@@ -1641,7 +1640,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.7.2</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.8.0</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
