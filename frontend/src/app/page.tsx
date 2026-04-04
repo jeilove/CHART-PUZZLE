@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import StockHeatmap from "@/components/ui/StockHeatmap";
 import { TriggerAnalysis } from "@/components/ui/TriggerAnalysis";
 
-// 1.1.0: TradingView 히트맵 위젯 컴포넌트 (v2.8.4: React.memo 적용)
+// 1.1.0: TradingView 히트맵 위젯 컴포넌트 (v2.8.5: React.memo 적용)
 const TradingViewHeatmapWidget = React.memo(function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const isMounted = React.useRef(false);
@@ -84,7 +84,7 @@ const TradingViewHeatmapWidget = React.memo(function TradingViewHeatmapWidget({ 
   );
 });
 
-// 1.1.0: 실시간 시장 데이터 연동 커스텀 히트맵 (v2.8.4: React.memo 적용)
+// 1.1.0: 실시간 시장 데이터 연동 커스텀 히트맵 (v2.8.5: React.memo 적용)
 const LiveMarketHeatmap = React.memo(function LiveMarketHeatmap({ type }: { type: string }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -309,9 +309,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.8.4 버전 정보 콘솔 출력
+  // v2.8.5 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.8.4 ", 
+    console.log("%c Stock Chart Puzzle %c v2.8.5 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -902,15 +902,6 @@ function ProjectApp() {
                     }}
                     className="w-full h-12 bg-[#1c2128] border-transparent rounded-2xl pl-12 text-sm focus-visible:ring-0 placeholder:text-gray-500"
                   />
-                </div>
-                <div className="flex items-center gap-2">
-                  <button className="p-3 bg-[#1c2128] rounded-full text-gray-400 hover:text-white transition-colors relative">
-                    <div className="w-1.5 h-1.5 bg-rose-500 rounded-full absolute top-3 right-3" />
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                  </button>
-                  <button className="w-11 h-11 bg-gray-600 rounded-full overflow-hidden border-2 border-white/5 hover:border-white/20 transition-all">
-                    <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600" />
-                  </button>
                 </div>
               </div>
 
@@ -1648,7 +1639,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.8.4</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.8.5</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
