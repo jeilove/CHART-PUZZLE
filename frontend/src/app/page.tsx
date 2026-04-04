@@ -294,9 +294,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.5.0 버전 정보 콘솔 출력
+  // v2.6.0 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.5.0 ", 
+    console.log("%c Stock Chart Puzzle %c v2.6.0 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -849,7 +849,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.5.0</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.6.0</p>
               </div>
             </motion.div>
           </>
@@ -1395,7 +1395,10 @@ function ProjectApp() {
                       type="text" 
                       placeholder="분석할 종목을 입력하세요 (퍼즐판 교체)"
                       value={miniSearchStr}
-                      onChange={(e) => setMiniSearchStr(e.target.value)}
+                      onChange={(e) => {
+                        setMiniSearchStr(e.target.value);
+                        setSearchTerm(e.target.value); // Sync with global filter logic
+                      }}
                       onFocus={() => setIsMiniSearchOpen(true)}
                       className="bg-transparent border-none focus:ring-0 text-white text-sm w-full py-3 font-bold placeholder:text-gray-500 tracking-tight"
                     />
@@ -1412,26 +1415,28 @@ function ProjectApp() {
                       <div className="p-3 border-b border-white/5 bg-white/5">
                         <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">SEARCH RESULTS</span>
                       </div>
-                      {STOCK_LIST.filter(s => s.name.includes(miniSearchStr) || s.symbol.includes(miniSearchStr)).slice(0, 10).map((s) => (
-                        <button 
-                          key={s.symbol}
-                          onClick={() => {
-                            setMiniSearchStr("");
-                            setIsMiniSearchOpen(false);
-                            navigate("GAME", s.symbol);
-                          }}
-                          className="w-full px-5 py-4 flex items-center justify-between hover:bg-emerald-500/10 transition-all border-b border-white/5 last:border-none group/item"
-                        >
-                          <div className="flex items-center gap-3">
-                             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                             <div className="text-left leading-tight">
-                                <p className="text-sm font-black text-white group-hover/item:text-emerald-400">{s.name}</p>
-                                <p className="text-[10px] text-gray-500 font-mono">{s.symbol}</p>
-                             </div>
-                          </div>
-                          <span className="text-[10px] font-black text-emerald-500/50 uppercase tracking-tighter">SELECT</span>
-                        </button>
-                      ))}
+                      {filteredStocks.length > 0 ? (
+                        <div className="p-3 space-y-2">
+                          {filteredStocks.slice(0, 8).map((s) => (
+                            <SearchResultItem 
+                              key={s.symbol}
+                              stock={s}
+                              isFavorite={ungroupedStocks.some(f => f.symbol === s.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))}
+                              small
+                              onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("GAME", s.symbol); }}
+                              onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("GAME", s.symbol); }}
+                              onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setIsTimeWarpTriggered(true); navigate("CHART", s.symbol); }}
+                              onCloud={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setInitialFlipped(true); navigate("CHART", s.symbol); }}
+                              onToggleFavorite={(e) => smartToggleFavorite(s, e)}
+                              sparklineData={sparklineData}
+                              intradayData={intradayData}
+                              getSparklinePath={getSparklinePath}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="py-10 text-center text-gray-600 italic text-sm">결과가 없습니다</div>
+                      )}
                     </div>
                  )}
                </div>
@@ -1475,27 +1480,42 @@ function ProjectApp() {
                       type="text" 
                       placeholder="트리거 클라우드 검색 (종목 교체)"
                       value={miniSearchStr}
-                      onChange={(e) => setMiniSearchStr(e.target.value)}
+                      onChange={(e) => {
+                        setMiniSearchStr(e.target.value);
+                        setSearchTerm(e.target.value); // Sync with global filter logic
+                      }}
                       onFocus={() => setIsMiniSearchOpen(true)}
                       className="bg-transparent border-none focus:ring-0 text-white text-sm w-full py-3 font-bold placeholder:text-gray-500 tracking-tight"
                     />
                  </div>
                  {isMiniSearchOpen && miniSearchStr && (
-                    <div className="absolute top-full left-0 right-0 mt-3 bg-[#0d1117] border border-white/10 rounded-3xl overflow-hidden shadow-3xl max-h-96 overflow-y-auto backdrop-blur-3xl z-[7000]">
-                       {STOCK_LIST.filter(s => s.name.includes(miniSearchStr) || s.symbol.includes(miniSearchStr)).slice(0, 8).map((s) => (
-                        <button 
-                          key={s.symbol}
-                          onClick={() => {
-                            setMiniSearchStr("");
-                            setIsMiniSearchOpen(false);
-                            navigate("TRIGGER", s.symbol);
-                          }}
-                          className="w-full px-5 py-4 flex items-center justify-between hover:bg-blue-500/10 transition-all border-b border-white/5 last:border-none"
-                        >
-                           <div className="text-left font-black text-white text-sm tracking-tight">{s.name} <span className="text-xs text-gray-500 font-normal">{s.symbol}</span></div>
-                           <span className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">SHOW</span>
-                        </button>
-                       ))}
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-[#0d1117] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-3xl max-h-[70vh] overflow-y-auto backdrop-blur-3xl z-[7000] animate-in fade-in slide-in-from-top-4 duration-300">
+                       <div className="p-3 border-b border-white/5 bg-white/5 flex justify-between items-center px-6">
+                         <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">TRIGGER SEARCH</span>
+                         <X size={14} className="text-gray-500 cursor-pointer" onClick={() => setIsMiniSearchOpen(false)} />
+                       </div>
+                       {filteredStocks.length > 0 ? (
+                        <div className="p-3 space-y-2">
+                          {filteredStocks.slice(0, 8).map((s) => (
+                            <SearchResultItem 
+                              key={s.symbol}
+                              stock={s}
+                              isFavorite={ungroupedStocks.some(f => f.symbol === s.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))}
+                              small
+                              onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("TRIGGER", s.symbol); }}
+                              onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("GAME", s.symbol); }}
+                              onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setIsTimeWarpTriggered(true); navigate("CHART", s.symbol); }}
+                              onCloud={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setInitialFlipped(true); navigate("CHART", s.symbol); }}
+                              onToggleFavorite={(e) => smartToggleFavorite(s, e)}
+                              sparklineData={sparklineData}
+                              intradayData={intradayData}
+                              getSparklinePath={getSparklinePath}
+                            />
+                          ))}
+                        </div>
+                       ) : (
+                        <div className="py-10 text-center text-gray-600 italic">결과가 없습니다</div>
+                       )}
                     </div>
                  )}
                </div>
@@ -1527,27 +1547,42 @@ function ProjectApp() {
                       type="text" 
                       placeholder="종목 실시간 차트 검색 (타임워프 포함)"
                       value={miniSearchStr}
-                      onChange={(e) => setMiniSearchStr(e.target.value)}
+                      onChange={(e) => {
+                        setMiniSearchStr(e.target.value);
+                        setSearchTerm(e.target.value); // Sync with global filter logic
+                      }}
                       onFocus={() => setIsMiniSearchOpen(true)}
                       className="bg-transparent border-none focus:ring-0 text-white text-sm w-full py-3 font-bold placeholder:text-gray-500 tracking-tight"
                     />
                  </div>
                  {isMiniSearchOpen && miniSearchStr && (
-                    <div className="absolute top-full left-0 right-0 mt-3 bg-[#0d1117] border border-white/10 rounded-3xl overflow-hidden shadow-3xl max-h-96 overflow-y-auto backdrop-blur-3xl z-[7000]">
-                        {STOCK_LIST.filter(s => s.name.includes(miniSearchStr) || s.symbol.includes(miniSearchStr)).slice(0, 10).map((s) => (
-                        <button 
-                          key={s.symbol}
-                          onClick={() => {
-                            setMiniSearchStr("");
-                            setIsMiniSearchOpen(false);
-                            navigate("CHART", s.symbol, isTimeWarpTriggered);
-                          }}
-                          className="w-full px-5 py-4 flex items-center justify-between hover:bg-rose-500/10 transition-all border-b border-white/5 last:border-none"
-                        >
-                           <div className="text-left font-black text-white text-sm tracking-tight">{s.name} <span className="text-xs text-gray-500 font-normal">{s.symbol}</span></div>
-                           <span className="text-[10px] text-rose-400 font-bold uppercase tracking-widest">VIEW CHART</span>
-                        </button>
-                        ))}
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-[#0d1117] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-3xl max-h-[70vh] overflow-y-auto backdrop-blur-3xl z-[7000] animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="p-3 border-b border-white/5 bg-white/5 flex justify-between items-center px-6">
+                         <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">CHART SEARCH</span>
+                         <X size={14} className="text-gray-500 cursor-pointer" onClick={() => setIsMiniSearchOpen(false)} />
+                       </div>
+                       {filteredStocks.length > 0 ? (
+                        <div className="p-3 space-y-2">
+                          {filteredStocks.slice(0, 8).map((s) => (
+                            <SearchResultItem 
+                              key={s.symbol}
+                              stock={s}
+                              isFavorite={ungroupedStocks.some(f => f.symbol === s.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))}
+                              small
+                              onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("CHART", s.symbol, isTimeWarpTriggered); }}
+                              onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("GAME", s.symbol); }}
+                              onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setIsTimeWarpTriggered(true); navigate("CHART", s.symbol); }}
+                              onCloud={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setInitialFlipped(true); navigate("CHART", s.symbol); }}
+                              onToggleFavorite={(e) => smartToggleFavorite(s, e)}
+                              sparklineData={sparklineData}
+                              intradayData={intradayData}
+                              getSparklinePath={getSparklinePath}
+                            />
+                          ))}
+                        </div>
+                       ) : (
+                        <div className="py-10 text-center text-gray-600 italic">결과가 없습니다</div>
+                       )}
                     </div>
                  )}
                </div>
@@ -1582,7 +1617,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.5.0</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.6.0</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
