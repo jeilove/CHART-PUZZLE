@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import StockHeatmap from "@/components/ui/StockHeatmap";
 import { TriggerAnalysis } from "@/components/ui/TriggerAnalysis";
 
-// 1.1.0: TradingView 히트맵 위젯 컴포넌트 (v2.8.3: React.memo 적용)
+// 1.1.0: TradingView 히트맵 위젯 컴포넌트 (v2.8.4: React.memo 적용)
 const TradingViewHeatmapWidget = React.memo(function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const isMounted = React.useRef(false);
@@ -84,7 +84,7 @@ const TradingViewHeatmapWidget = React.memo(function TradingViewHeatmapWidget({ 
   );
 });
 
-// 1.1.0: 실시간 시장 데이터 연동 커스텀 히트맵 (v2.8.3: React.memo 적용)
+// 1.1.0: 실시간 시장 데이터 연동 커스텀 히트맵 (v2.8.4: React.memo 적용)
 const LiveMarketHeatmap = React.memo(function LiveMarketHeatmap({ type }: { type: string }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -309,9 +309,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.8.3 버전 정보 콘솔 출력
+  // v2.8.4 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.8.3 ", 
+    console.log("%c Stock Chart Puzzle %c v2.8.4 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -879,9 +879,13 @@ function ProjectApp() {
         )}
       </AnimatePresence>
       
-      <AnimatePresence mode="wait">
-        {view === "HOME" ? (
-          <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="z-10 w-full max-w-lg flex flex-col items-center px-4 pt-4 pb-32 overflow-y-auto no-scrollbar h-full">
+      {/* 1. 홈 화면 (Persistent Rendering): 히트맵 및 위젯의 상시 마운트를 유지하여 화면 전환 시 버벅임과 재로딩 완전 박멸 */}
+      <div className={view === "HOME" ? "z-10 w-full flex flex-col items-center h-full overflow-hidden" : "hidden h-0"}>
+        <motion.div 
+          animate={{ opacity: view === "HOME" ? 1 : 0 }} 
+          transition={{ duration: 0.4 }} 
+          className="w-full max-w-lg flex flex-col items-center px-4 pt-4 pb-32 overflow-y-auto no-scrollbar h-full"
+        >
             
             {/* 1. 상단 검색바 섹션 */}
             <div className="w-full mb-8 relative">
@@ -1403,8 +1407,12 @@ function ProjectApp() {
               ))}
             </div>
 
-          </motion.div>
-        ) : view === "GAME" ? (
+        </motion.div>
+      </div>
+      
+      {/* 2. 기타 기능 화면 (Conditional Rendering): 전환 애니메이션 무결성 유지 */}
+      <AnimatePresence mode="wait">
+        {view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-5xl flex flex-col items-center">
             {/* Global Search Header for Game View */}
             <div className="w-full mb-6 sticky top-0 z-[6000] px-1 group">
@@ -1640,7 +1648,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.8.3</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.8.4</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
