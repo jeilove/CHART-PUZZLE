@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { 
   Search, Play, ChevronLeft, ChevronRight, Loader2, Star, Menu, X, Trash2, 
   GripVertical, Plus, Edit3, Check, CheckSquare, Square, Filter, ChevronDown,
-  Bell, LayoutGrid, TrendingUp
+  Bell, LayoutGrid, TrendingUp, LogIn, LogOut, User as UserIcon
 } from "lucide-react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { PuzzleGame } from "@/components/puzzle/PuzzleGame";
 import { motion, AnimatePresence } from "framer-motion";
 import StockHeatmap from "@/components/ui/StockHeatmap";
@@ -453,30 +454,78 @@ function ProjectApp() {
     }
   }, [searchParams]);
 
-  React.useEffect(() => {
+  const { data: session, status } = useSession();
+
+  // v2.8.8: DB 연동을 위한 즐겨찾기 로드 로직 통합
+  useEffect(() => {
+    const loadFavorites = async () => {
+      // 1. 로그인 상태인 경우 DB에서 먼저 가져옴
+      if (status === "authenticated") {
+        try {
+          const res = await fetch("/api/user/sync");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.favoriteGroups.length > 0 || data.ungroupedStocks.length > 0) {
+              setFavoriteGroups(data.favoriteGroups);
+              setUngroupedStocks(data.ungroupedStocks);
+              if (data.favoriteGroups.length > 0) setTargetAddGroupId(data.favoriteGroups[0].id);
+              return; // DB 데이터 로드 성공 시 로컬스토리지 무시
+            }
+          }
+        } catch (e) {
+          console.error("DB Load failed:", e);
+        }
+      }
+
+      // 2. 비로그인이거나 DB 데이터가 없는 경우 로컬스토리지 사용
+      const savedGroups = localStorage.getItem("puzzle-favorite-groups");
+      const oldFavs = localStorage.getItem("puzzle-favorites");
+      const savedUngrouped = localStorage.getItem("puzzle-ungrouped-stocks");
+
+      if (savedUngrouped) {
+        setUngroupedStocks(JSON.parse(savedUngrouped));
+      }
+
+      if (savedGroups) {
+        const parsed = JSON.parse(savedGroups);
+        setFavoriteGroups(parsed);
+        if (parsed.length > 0) setTargetAddGroupId(parsed[0].id);
+      } else if (oldFavs) {
+        const parsedOld = JSON.parse(oldFavs);
+        const compat = Array.isArray(parsedOld) ? parsedOld : [];
+        setUngroupedStocks(compat);
+        localStorage.setItem("puzzle-ungrouped-stocks", JSON.stringify(compat));
+      } else {
+        const initialGroups: FavoriteGroup[] = [{ id: "default", name: "기본 그룹", stocks: [] }];
+        setFavoriteGroups(initialGroups);
+        setTargetAddGroupId("default");
+      }
+    };
+
+    if (status !== "loading") {
+      loadFavorites();
+    }
+  }, [status]);
+
+  // v2.8.8: 즐겨찾기 변경 시 DB와 자동 동기화 (데스크톱/모바일 동시 연동)
+  useEffect(() => {
+    if (status !== "authenticated") return;
     
-    const savedGroups = localStorage.getItem("puzzle-favorite-groups");
-    const oldFavs = localStorage.getItem("puzzle-favorites");
-    const savedUngrouped = localStorage.getItem("puzzle-ungrouped-stocks");
+    const sync = async () => {
+      try {
+        await fetch("/api/user/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ favoriteGroups, ungroupedStocks })
+        });
+      } catch (e) {
+        console.error("Sync failed:", e);
+      }
+    };
 
-    if (savedUngrouped) {
-      setUngroupedStocks(JSON.parse(savedUngrouped));
-    }
-
-    if (savedGroups) {
-      const parsed = JSON.parse(savedGroups);
-      setFavoriteGroups(parsed);
-      if (parsed.length > 0) setTargetAddGroupId(parsed[0].id);
-    } else if (oldFavs) {
-      const parsedOld = JSON.parse(oldFavs);
-      setUngroupedStocks(parsedOld);
-      localStorage.setItem("puzzle-ungrouped-stocks", JSON.stringify(parsedOld));
-    } else {
-      const initialGroups: FavoriteGroup[] = [{ id: "default", name: "기본 그룹", stocks: [] }];
-      setFavoriteGroups(initialGroups);
-      setTargetAddGroupId("default");
-    }
-  }, []);
+    const timeoutId = setTimeout(sync, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [favoriteGroups, ungroupedStocks, status]);
 
   const saveUngrouped = (stocks: Stock[]) => {
     setUngroupedStocks(stocks);
@@ -904,6 +953,21 @@ function ProjectApp() {
                     className="w-full h-12 bg-[#1c2128] border-transparent rounded-2xl pl-12 text-sm focus-visible:ring-0 placeholder:text-gray-500"
                   />
                 </div>
+                {/* 2.8.8: Google 로그인/로그아웃 버튼 */}
+                <button 
+                  onClick={() => session ? signOut() : signIn("google")}
+                  className="w-12 h-12 bg-[#1c2128] border-transparent rounded-2xl flex items-center justify-center hover:bg-[#2d333b] transition-all relative group/user"
+                  title={session ? "로그아웃" : "구글 로그인"}
+                >
+                  {session?.user?.image ? (
+                    <div className="relative">
+                      <img src={session.user.image} alt="Profile" className="w-8 h-8 rounded-full border border-white/10" />
+                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-[#1c2128] rounded-full" />
+                    </div>
+                  ) : (
+                    <LogIn size={20} className="text-gray-400 group-hover/user:text-[#F08080] transition-colors" />
+                  )}
+                </button>
               </div>
 
               {/* 검색 결과 오버레이 */}
