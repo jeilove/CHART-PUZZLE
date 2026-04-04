@@ -156,6 +156,55 @@ const STOCK_LIST: (Stock & { industry: string })[] = [
   { name: "NAVER", symbol: "035420", industry: "IT서비스" },
 ];
 
+// v1.6.2: 검색 결과 항목 컴포넌트화 (중복 제거 및 UI 일관성)
+function SearchResultItem({ 
+  stock, onSelect, onGame, onWarp, onCloud, isFavorite, onToggleFavorite, small = false 
+}: { 
+  stock: any, onSelect: () => void, onGame: () => void, onWarp: () => void, onCloud: () => void, isFavorite: boolean, onToggleFavorite: (e: any) => void, small?: boolean 
+}) {
+  return (
+    <div className={`bg-white/5 border border-white/5 rounded-3xl ${small ? "p-4" : "p-5"} flex items-center justify-between group transition-all hover:bg-white/10 hover:border-white/10 shadow-lg relative overflow-hidden`}>
+      {/* 종목 기본 정보 */}
+      <div className="flex flex-col gap-0.5 cursor-pointer flex-1" onClick={onSelect}>
+        <p className={`${small ? "text-base" : "text-lg"} font-black text-white leading-tight group-hover:text-rose-400 transition-colors uppercase`}>{stock.name}</p>
+        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">{stock.industry || "General Industry"}</p>
+      </div>
+
+      {/* 4종 기능 아이콘 */}
+      <div className="flex items-center gap-2 sm:gap-3 mx-4">
+        <button onClick={onSelect} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Chart">
+          <img src="/icons/v3_chart.png" alt="Chart" className="w-5 h-5 object-contain" />
+        </button>
+        <button onClick={onGame} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Puzzle">
+          <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-5 h-5 object-contain" />
+        </button>
+        <button onClick={onWarp} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Time Warp">
+          <img src="/icons/v3_warp.png" alt="Warp" className="w-5 h-5 object-contain" />
+        </button>
+        <button onClick={onCloud} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Word Cloud">
+          <img src="/icons/v17_trigger.png" alt="Cloud" className="w-5 h-5 object-contain scale-[1.2]" />
+        </button>
+      </div>
+
+      {/* 주가 및 즐겨찾기 */}
+      <div className="flex items-center gap-4 sm:gap-6">
+        <div className="text-right min-w-[65px]">
+          <p className="text-sm font-black text-white">{stock.price?.toLocaleString() || "145,230"}</p>
+          <div className={`px-2 py-0.5 rounded-md mt-0.5 text-[9px] font-black inline-block ${stock.change >= 0 ? "bg-rose-500/20 text-rose-400" : "bg-blue-500/20 text-blue-400"}`}>
+            {stock.change >= 0 ? `+${stock.change}%` : `${stock.change}%`}
+          </div>
+        </div>
+        <button 
+          onClick={onToggleFavorite}
+          className="p-2 sm:p-3 bg-white/5 rounded-full text-gray-500 hover:text-yellow-500 transition-all active:scale-90"
+        >
+          <Star className={isFavorite ? "fill-yellow-500 text-yellow-500" : ""} size={small ? 16 : 20} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ProjectApp() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -182,9 +231,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v1.6.1 버전 정보 콘솔 출력
+  // v1.6.2 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.6.1 ", 
+    console.log("%c Stock Chart Puzzle %c v1.6.2 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -192,6 +241,7 @@ function ProjectApp() {
 
   // v1.1.0 홈 화면 아코디언 상태
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ "all": true });
+  const [searchExpandedGroups, setSearchExpandedGroups] = useState<Record<string, boolean>>({});
   const [isMarketExpanded, setIsMarketExpanded] = useState(true);
   const [isGroupSelectorOpen, setIsGroupSelectorOpen] = useState(false);
   const [newGroupInputOpen, setNewGroupInputOpen] = useState(false);
@@ -611,7 +661,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.1</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.2</p>
               </div>
             </motion.div>
           </>
@@ -649,7 +699,7 @@ function ProjectApp() {
                 </div>
               </div>
 
-              {/* 검색 결과 오버레이 (기존 오버레이를 제거하고 Full Screen으로 대체하거나 숨김) */}
+              {/* 검색 결과 오버레이 */}
               <AnimatePresence>
                 {isSearchFullScreen && (
                   <motion.div 
@@ -685,62 +735,92 @@ function ProjectApp() {
                         )}
                       </div>
                     </div>
-
-                    {/* 검색 결과 리스트 (“PORTFOLIOS & WATCHLISTS” 스타일 확장) */}
-                    <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-20">
-                      {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
-                        <div key={stock.symbol} className="bg-white/5 border border-white/5 rounded-3xl p-5 flex items-center justify-between group transition-all hover:bg-white/10 hover:border-white/10 shadow-lg relative overflow-hidden">
-                          {/* 종목 기본 정보 */}
-                          <div className="flex flex-col gap-0.5 cursor-pointer" onClick={() => selectStock(stock.name, stock.symbol, "CHART")}>
-                            <p className="text-lg font-black text-white leading-tight group-hover:text-rose-400 transition-colors uppercase">{stock.name}</p>
-                            <p className="text-xs text-gray-500 font-bold tracking-widest">{stock.industry || "General Industry"}</p>
-                          </div>
-
-                          {/* 4종 기능 아이콘 (v1.6.0 워드클라우드 추가) */}
-                          <div className="flex items-center gap-3">
-                            <button onClick={() => selectStock(stock.name, stock.symbol, "CHART")} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Chart">
-                              <img src="/icons/v3_chart.png" alt="Chart" className="w-6 h-6 object-contain" />
-                            </button>
-                            <button onClick={() => selectStock(stock.name, stock.symbol, "GAME")} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Puzzle">
-                              <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-6 h-6 object-contain" />
-                            </button>
-                            <button onClick={() => {
-                              setIsTimeWarpTriggered(true);
-                              selectStock(stock.name, stock.symbol, "CHART");
-                            }} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Time Warp">
-                              <img src="/icons/v3_warp.png" alt="Warp" className="w-6 h-6 object-contain" />
-                            </button>
-                            <button onClick={() => {
-                              // 트리거 클라우드(워드클라우드) 즉시 실행 및 플립 화면 유도
-                              setSearchTerm("");
-                              // setIsSearchFullScreen(false); // [v1.6.1] 뒤로가기 연결을 위해 주석처리하거나 상태 유지 고민
-                              // URL에 flip 파라미터를 넘기거나 상태로 관리
-                              setInitialFlipped(true);
-                              selectStock(stock.name, stock.symbol, "CHART");
-                            }} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Word Cloud">
-                              <img src="/icons/v17_trigger.png" alt="Cloud" className="w-6 h-6 object-contain scale-[1.2]" />
-                            </button>
-                          </div>
-
-                          {/* 주가 및 즐겨찾기 */}
-                          <div className="flex items-center gap-6 pr-1">
-                            <div className="text-right min-w-[70px]">
-                              <p className="text-base font-black text-white">{stock.price?.toLocaleString() || "145,230"}</p>
-                              <div className={`px-2 py-0.5 rounded-md mt-0.5 text-[10px] font-black inline-block ${stock.change >= 0 ? "bg-rose-500/20 text-rose-400" : "bg-blue-500/20 text-blue-400"}`}>
-                                {stock.change >= 0 ? `+${stock.change}%` : `${stock.change}%`}
+                    {/* 그룹화된 검색 결과 리스트 */}
+                    <div className="flex-1 overflow-y-auto no-scrollbar space-y-6 pb-20">
+                      {filteredStocks.length > 0 ? (
+                        <>
+                          {/* 1. 미분류 종목 (Flat List) */}
+                          {(() => {
+                            const ungroupedInSearch = filteredStocks.filter(s => 
+                              !favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))
+                            );
+                            if (ungroupedInSearch.length === 0) return null;
+                            return (
+                              <div className="space-y-3">
+                                <div className="px-1 mb-2">
+                                  <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] italic">미분류 / 신규 종목</h3>
+                                </div>
+                                {ungroupedInSearch.map((stock) => (
+                                  <SearchResultItem 
+                                    key={stock.symbol} 
+                                    stock={stock} 
+                                    isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol)}
+                                    onSelect={() => selectStock(stock.name, stock.symbol, "CHART")}
+                                    onGame={() => selectStock(stock.name, stock.symbol, "GAME")}
+                                    onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
+                                    onCloud={() => { setSearchTerm(""); setIsSearchFullScreen(false); setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
+                                    onToggleFavorite={(e) => toggleFavorite(stock, e)}
+                                  />
+                                ))}
                               </div>
-                            </div>
-                            <button 
-                              onClick={(e) => {
-                                toggleFavorite(stock, e);
-                              }}
-                              className="p-3 bg-white/5 rounded-full text-gray-500 hover:text-yellow-500 transition-all active:scale-90"
-                            >
-                              <Star className={ungroupedStocks.find(f => f.symbol === stock.symbol) ? "fill-yellow-500 text-yellow-500" : ""} size={20} />
-                            </button>
-                          </div>
-                        </div>
-                      )) : (
+                            );
+                          })()}
+
+                          {/* 2. 그룹별 종목 (Accordion List) */}
+                          {favoriteGroups.map(group => {
+                            const stocksInGroup = filteredStocks.filter(s => 
+                              group.stocks.some(gs => gs.symbol === s.symbol)
+                            );
+                            if (stocksInGroup.length === 0) return null;
+                            
+                            const isExpanded = searchExpandedGroups[group.id] ?? true;
+
+                            return (
+                              <div key={group.id} className="bg-white/5 border border-white/5 rounded-[2.5rem] overflow-hidden shadow-xl">
+                                <button 
+                                  onClick={() => setSearchExpandedGroups(prev => ({ ...prev, [group.id]: !isExpanded }))}
+                                  className="w-full px-6 py-5 flex items-center justify-between group bg-white/5 hover:bg-white/10 transition-colors"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-1.5 h-1.5 bg-[#F08080] rounded-full" />
+                                    <span className="text-base font-black text-white">{group.name}</span>
+                                    <span className="text-xs text-gray-500 opacity-50">({stocksInGroup.length})</span>
+                                  </div>
+                                  <div className={`p-1.5 bg-white/10 rounded-full transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}>
+                                    <ChevronDown size={14} className="text-gray-400 group-hover:text-white" />
+                                  </div>
+                                </button>
+                                <AnimatePresence>
+                                  {isExpanded && (
+                                    <motion.div 
+                                      initial={{ height: 0, opacity: 0 }} 
+                                      animate={{ height: "auto", opacity: 1 }} 
+                                      exit={{ height: 0, opacity: 0 }} 
+                                      className="overflow-hidden"
+                                    >
+                                      <div className="px-4 pb-5 space-y-2 border-t border-white/5 pt-4 bg-black/20">
+                                        {stocksInGroup.map((stock) => (
+                                          <SearchResultItem 
+                                            key={stock.symbol} 
+                                            stock={stock} 
+                                            isFavorite={true}
+                                            small
+                                            onSelect={() => selectStock(stock.name, stock.symbol, "CHART")}
+                                            onGame={() => selectStock(stock.name, stock.symbol, "GAME")}
+                                            onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
+                                            onCloud={() => { setSearchTerm(""); setIsSearchFullScreen(false); setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
+                                            onToggleFavorite={(e) => toggleFavorite(stock, e)}
+                                          />
+                                        ))}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            );
+                          })}
+                        </>
+                      ) : (
                         <div className="flex flex-col items-center justify-center py-40 text-gray-600">
                           <Search size={48} className="mb-4 opacity-10" />
                           <p className="text-sm font-bold opacity-30 tracking-tight italic">
@@ -963,7 +1043,7 @@ function ProjectApp() {
           </motion.div>
         ) : view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="absolute top-1 left-4 z-[200]">
+            <div className="absolute top-1 left-4 z-200">
               {isSearchFullScreen && (
                 <button 
                   onClick={() => setView("HOME")}
@@ -993,7 +1073,7 @@ function ProjectApp() {
         ) : (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
             <div className="w-full min-h-[70vh] h-auto bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible">
-              <div className="absolute top-1 left-4 z-[200]">
+              <div className="absolute top-1 left-4 z-200">
                 {isSearchFullScreen && (
                   <button 
                     onClick={() => setView("HOME")}
