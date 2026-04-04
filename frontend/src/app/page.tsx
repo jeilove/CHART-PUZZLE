@@ -295,7 +295,6 @@ function ProjectApp() {
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [stockData, setStockData] = useState<any[]>(MOCK_STOCK_DATA);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiResults, setApiResults] = useState<any[]>([]);
   const [favoriteGroups, setFavoriteGroups] = useState<FavoriteGroup[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
@@ -311,9 +310,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.7.0 버전 정보 콘솔 출력
+  // v2.7.1 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.7.0 ", 
+    console.log("%c Stock Chart Puzzle %c v2.7.1 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -331,6 +330,24 @@ function ProjectApp() {
   const [newGroupName, setNewGroupName] = useState("");
   const [sparklineData, setSparklineData] = useState<Record<string, number[]>>({});
   const [intradayData, setIntradayData] = useState<Record<string, number[]>>({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [apiResults, setApiResults] = useState<any[]>([]);
+
+  const filteredStocks = useMemo(() => {
+    // [v1.6.7] 검색어가 없을 때는 초기 스냅샷(searchBaseStocks)을 사용하여 리스트 안정성 확보
+    if (!searchTerm) {
+      return searchBaseStocks;
+    }
+
+    return Array.from(new Map([
+      ...STOCK_LIST.filter(s => 
+        s.name.includes(searchTerm) || 
+        s.symbol.includes(searchTerm) ||
+        (s.industry && s.industry.includes(searchTerm))
+      ),
+      ...apiResults
+    ].map(s => [s.symbol, s])).values()).slice(0, 40);
+  }, [searchTerm, searchBaseStocks, apiResults]);
 
   // v2.7.0: 미니 차트(스파크라인) 및 당일 분봉 데이터 일괄 로드 (디바운싱 및 의존성 최적화)
   useEffect(() => {
@@ -647,8 +664,6 @@ function ProjectApp() {
     selectStock(nextStock.name, nextStock.symbol, view === "GAME" ? "GAME" : "CHART");
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
-
   // [v1.6.7] 검색 전용 베이스 종목 및 그룹 맵핑 스냅샷
   React.useEffect(() => {
     if (isSearchFullScreen && !searchTerm) {
@@ -872,7 +887,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.7.0</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.7.1</p>
               </div>
             </motion.div>
           </>
@@ -1640,7 +1655,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.7.0</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.7.1</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
