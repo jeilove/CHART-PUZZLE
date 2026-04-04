@@ -67,5 +67,30 @@ def get_market_heatmap(type: str = "KOSPI", pages: int = 2):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/stock/sparkline/batch")
+def get_sparkline_batch(symbols: str, timeframe: str = "day", count: int = 20):
+    """
+    여러 종목의 미니 차트(Sparkline)용 단순 주가 데이터 일괄 반환
+    timeframe: "day" (일봉), "minute" (분봉)
+    """
+    from scraper import fetch_stock_ohlcv
+    symbol_list = symbols.split(",")
+    results = {}
+    
+    # 병렬 처리를 통한 속도 향상
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_symbol = {executor.submit(fetch_stock_ohlcv, s, timeframe, count): s for s in symbol_list}
+        for future in concurrent.futures.as_completed(future_to_symbol):
+            s = future_to_symbol[future]
+            try:
+                data = future.result()
+                # 종가 데이터만 추출
+                results[s] = [d["close"] for d in data]
+            except:
+                results[s] = []
+    
+    return results
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

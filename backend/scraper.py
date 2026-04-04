@@ -91,21 +91,52 @@ def _parse_naver_xml(xml_text):
         if not data_str: continue
         parts = data_str.split("|")
         if len(parts) < 6: continue
+        
+        # 날짜/시간 파싱 (YYYYMMDD 또는 YYYYMMDDHHmm)
         dt_str = parts[0]
+        if len(dt_str) >= 12:
+            time_val = f"{dt_str[:4]}-{dt_str[4:6]}-{dt_str[6:8]} {dt_str[8:10]}:{dt_str[10:12]}"
+        else:
+            time_val = f"{dt_str[:4]}-{dt_str[4:6]}-{dt_str[6:8]}"
+
+        # null 값 처리 (분봉의 경우 시/고/저가 null일 수 있음)
+        def safe_float(val, fallback=0.0):
+            try:
+                if not val or val.lower() == 'null': return fallback
+                return float(val)
+            except: return fallback
+
         parsed_data.append({
-            "time": f"{dt_str[:4]}-{dt_str[4:6]}-{dt_str[6:]}",
-            "open": float(parts[1]), "high": float(parts[2]), "low": float(parts[3]),
-            "close": float(parts[4]), "volume": int(parts[5])
+            "time": time_val,
+            "open": safe_float(parts[1]), 
+            "high": safe_float(parts[2]), 
+            "low": safe_float(parts[3]),
+            "close": safe_float(parts[4]), 
+            "volume": int(parts[5]) if parts[5].isdigit() else 0
         })
     return parsed_data
 
-@lru_cache(maxsize=200)
-def fetch_stock_ohlcv(symbol, timeframe="day", days=100):
-    url = f"https://fchart.stock.naver.com/sise.nhn?symbol={symbol}&timeframe={timeframe}&count={days}&requestType=0"
+@lru_cache(maxsize=1024) # v2.1.0: 메모리 효율성 증대
+def fetch_stock_ohlcv(symbol, timeframe="day", count=100):
+    """
+    네이버 금융 FChart XML API를 통해 주가 데이터를 가져옵니다.
+    """
+    url = f"https://fchart.stock.naver.com/sise.nhn?symbol={symbol}&timeframe={timeframe}&count={count}&requestType=0"
     try:
-        resp = session.get(url, timeout=5)
-        return _parse_naver_xml(resp.text)
-    except: return []
+        response = requests.get(url, timeout=10)
+        data = _parse_naver_xml(response.text)
+        
+        # v2.2.6: 분봉(1D) 데이터의 경우, 반드시 최신 날짜의 데이터만 추출하여 전일 데이터 침범 방지
+        if timeframe == "minute" and data:
+            # 마지막 데이터의 날짜(YYYY-MM-DD) 추출
+            latest_date = data[-1]["time"].split(" ")[0]
+            # 해당 날짜와 일치하는 데이터만 필터링
+            data = [d for d in data if d["time"].startswith(latest_date)]
+            
+        return data
+    except Exception as e:
+        print(f"Error fetching OHLCV for {symbol}: {e}")
+        return []
 
 def fetch_market_heatmap(type="KOSPI", pages=1):
     sosok = 1 if type == "KOSDAQ" else 0

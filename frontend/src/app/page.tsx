@@ -158,11 +158,10 @@ const STOCK_LIST: (Stock & { industry: string })[] = [
   { name: "NAVER", symbol: "035420", industry: "IT서비스" },
 ];
 
-// v1.6.2: 검색 결과 항목 컴포넌트화 (중복 제거 및 UI 일관성)
 function SearchResultItem({ 
-  stock, onSelect, onGame, onWarp, onCloud, isFavorite, onToggleFavorite, small = false 
+  stock, onSelect, onGame, onWarp, onCloud, isFavorite, onToggleFavorite, sparklineData = {}, intradayData = {}, small = false, getSparklinePath 
 }: { 
-  stock: any, onSelect: () => void, onGame: () => void, onWarp: () => void, onCloud: () => void, isFavorite: boolean, onToggleFavorite: (e: any) => void, small?: boolean 
+  stock: any, onSelect: () => void, onGame: () => void, onWarp: () => void, onCloud: () => void, isFavorite: boolean, onToggleFavorite: (e: any) => void, sparklineData?: any, intradayData?: any, small?: boolean, getSparklinePath: any 
 }) {
   return (
     <div className={`bg-white/5 border border-white/5 rounded-3xl ${small ? "p-4" : "p-5"} flex items-center justify-between group transition-all hover:bg-white/10 hover:border-white/10 shadow-lg relative overflow-hidden`}>
@@ -190,8 +189,68 @@ function SearchResultItem({
 
       {/* 주가 및 즐겨찾기 */}
       <div className="flex items-center gap-4 sm:gap-6">
+        {/* 스파크라인 (Search 전용) */}
+        <div className="hidden md:flex items-center gap-4">
+          {(() => {
+            const p1d = intradayData[stock.symbol] || [];
+            const p20d = sparklineData[stock.symbol] || [];
+            if (p1d.length < 2 || p20d.length < 2) return null;
+            
+            // 1D Baseline: Previous Close
+            const prevClose1d = p20d.length >= 2 ? p20d[p20d.length - 2] : p1d[0];
+            const last1d = p1d[p1d.length-1];
+            const min1d = Math.min(...p1d, prevClose1d);
+            const max1d = Math.max(...p1d, prevClose1d);
+            const range1d = max1d - min1d || 1;
+            const b1d = ((max1d - prevClose1d) / range1d) * 100;
+            const gId1d = `search-1d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
+            const s1d = getSparklinePath(p1d);
+
+            // 20D Baseline: 20 Days Ago Price
+            const open20d = p20d[0];
+            const last20d = p20d[p20d.length-1];
+            const min20d = Math.min(...p20d);
+            const max20d = Math.max(...p20d);
+            const range20d = max20d - min20d || 1;
+            const b20d = ((max20d - open20d) / range20d) * 100;
+            const gId20d = `search-20d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
+            const s20d = getSparklinePath(p20d);
+
+            return (
+              <>
+                <div className="flex flex-col items-center">
+                  <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5">1D</span>
+                  <svg className="w-12 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id={gId1d} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset={`${b1d}%`} stopColor="#f43f5e" stopOpacity="1" />
+                        <stop offset={`${b1d}%`} stopColor="#3b82f6" stopOpacity="1" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1={b1d / 5} x2="100" y2={b1d / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.2" />
+                    <path d={s1d} fill="none" stroke={`url(#${gId1d})`} strokeWidth="2" />
+                  </svg>
+                </div>
+                <div className="flex flex-col items-center border-l border-white/10 pl-3">
+                  <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5">20D</span>
+                  <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id={gId20d} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset={`${b20d}%`} stopColor="#f43f5e" stopOpacity="1" />
+                        <stop offset={`${b20d}%`} stopColor="#3b82f6" stopOpacity="1" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1={b20d / 5} x2="100" y2={b20d / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.1" />
+                    <path d={s20d} fill="none" stroke={`url(#${gId20d})`} strokeWidth="2" />
+                  </svg>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+
         <div className="text-right min-w-[65px]">
-          <p className="text-sm font-black text-white">{stock.price?.toLocaleString() || "145,230"}</p>
+          <p className="text-sm font-black text-white">{stock.price?.toLocaleString() || "---"}</p>
           <div className={`px-2 py-0.5 rounded-md mt-0.5 text-[9px] font-black inline-block ${stock.change >= 0 ? "bg-rose-500/20 text-rose-400" : "bg-blue-500/20 text-blue-400"}`}>
             {stock.change >= 0 ? `+${stock.change}%` : `${stock.change}%`}
           </div>
@@ -233,9 +292,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v1.7.1 버전 정보 콘솔 출력
+  // v2.4.2 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.7.1 ", 
+    console.log("%c Stock Chart Puzzle %c v2.4.2 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -251,6 +310,65 @@ function ProjectApp() {
   const [searchGroupSnapshot, setSearchGroupSnapshot] = useState<Record<string, string>>({}); // symbol -> groupId
   const [newGroupInputOpen, setNewGroupInputOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
+  const [sparklineData, setSparklineData] = useState<Record<string, number[]>>({});
+  const [intradayData, setIntradayData] = useState<Record<string, number[]>>({});
+
+  // v1.7.6: 미니 차트(스파크라인) 및 당일 분봉 데이터 일괄 로드
+  useEffect(() => {
+    const allSymbols = [
+      ...ungroupedStocks.map(s => s.symbol),
+      ...favoriteGroups.flatMap(g => g.stocks.map(s => s.symbol)),
+      ...filteredStocks.map(s => s.symbol)
+    ].filter((v, i, a) => a.indexOf(v) === i); // 중복 제거
+
+    if (allSymbols.length === 0) return;
+
+    // 이미 로드된 데이터 제외 (성능 최적화)
+    const missingSymbols = allSymbols.filter(s => !sparklineData[s]);
+    const missingIntraday = allSymbols.filter(s => !intradayData[s]);
+
+    const fetchSparklines = async () => {
+      if (missingSymbols.length > 0) {
+        try {
+          const res = await fetch(`http://127.0.0.1:8000/api/stock/sparkline/batch?symbols=${missingSymbols.join(",")}&timeframe=day&count=20`);
+          if (res.ok) {
+            const result = await res.json();
+            setSparklineData(prev => ({ ...prev, ...result }));
+          }
+        } catch (e) {}
+      }
+
+      if (missingIntraday.length > 0) {
+        try {
+          // 분봉은 당일 흐름을 위해 약 400 포인트 확보
+          const res = await fetch(`http://127.0.0.1:8000/api/stock/sparkline/batch?symbols=${missingIntraday.join(",")}&timeframe=minute&count=400`);
+          if (res.ok) {
+            const result = await res.json();
+            setIntradayData(prev => ({ ...prev, ...result }));
+          }
+        } catch (e) {}
+      }
+    };
+
+    fetchSparklines();
+  }, [ungroupedStocks, favoriteGroups]);
+
+  // v1.7.5: 스파크라인 SVG 경로 생성 헬퍼
+  const getSparklinePath = (prices: number[], width: number = 100, height: number = 20) => {
+    if (!prices || prices.length < 2) return "M0,10 L100,10";
+    
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    const range = max - min || 1;
+    
+    const points = prices.map((p, i) => {
+      const x = (i / (prices.length - 1)) * width;
+      const y = height - ((p - min) / range) * height;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+    
+    return `M${points.join(" L")}`;
+  };
 
   // URL 네비게이션 헬퍼: router.push만 담당하며 setView 등은 아래 useEffect에서 처리
   const navigate = React.useCallback((v: string, s?: string, w: boolean = false) => {
@@ -729,7 +847,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.7.1</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.4.2</p>
               </div>
             </motion.div>
           </>
@@ -830,6 +948,9 @@ function ProjectApp() {
                                     onToggleFavorite={(e) => {
                                       smartToggleFavorite(stock, e);
                                     }}
+                                    sparklineData={sparklineData}
+                                    intradayData={intradayData}
+                                    getSparklinePath={getSparklinePath}
                                   />
                                 ))}
                               </div>
@@ -883,6 +1004,9 @@ function ProjectApp() {
                                             onToggleFavorite={(e) => {
                                               smartToggleFavorite(stock, e);
                                             }}
+                                            sparklineData={sparklineData}
+                                            intradayData={intradayData}
+                                            getSparklinePath={getSparklinePath}
                                           />
                                         ))}
                                       </div>
@@ -1013,14 +1137,87 @@ function ProjectApp() {
                               </div>
 
                               <div className="flex items-center gap-4">
-                                <div className="w-16 h-8 opacity-40 group-hover/item:opacity-70 transition-opacity hidden sm:block">
-                                  <svg className="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
-                                    <path d="M0,15 Q25,8 50,12 T100,5" fill="none" stroke="#2dd4bf" strokeWidth="2" />
-                                  </svg>
+                                <div className="flex items-center gap-4 group-hover/item:opacity-100 transition-opacity hidden sm:flex">
+                                  {/* 당일 등락 (Intraday) - 시초가 기준 동적 그라데이션 */}
+                                  <div className="flex flex-row items-center gap-3">
+                                    <div className="flex flex-col items-center">
+                                      <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">1D</span>
+                                      {(() => {
+                                        const prices = intradayData[fav.symbol] || [];
+                                        const dailyPrices = sparklineData[fav.symbol] || [];
+                                        if (prices.length < 2) return <div className="w-16 h-8 bg-white/5 rounded-lg animate-pulse" />;
+                                        
+                                        // v2.3.4: 1D 기준점은 '전일 종가' (dailyPrices의 마지막에서 두 번째 값)
+                                        const prevClose = dailyPrices.length >= 2 ? dailyPrices[dailyPrices.length - 2] : prices[0];
+                                        const min = Math.min(...prices, prevClose);
+                                        const max = Math.max(...prices, prevClose);
+                                        const range = max - min || 1;
+                                        const baseline = ((max - prevClose) / range) * 100;
+                                        const gradId = `grad-1d-${fav.symbol}-${Math.random().toString(36).substr(2, 4)}`;
+                                        const strokePath = getSparklinePath(prices);
+                                        
+                                        return (
+                                          <svg className="w-16 h-10" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                            <defs>
+                                              <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset={`${baseline}%`} stopColor="#f43f5e" stopOpacity="1" />
+                                                <stop offset={`${baseline}%`} stopColor="#3b82f6" stopOpacity="1" />
+                                              </linearGradient>
+                                            </defs>
+                                            {/* 전일 종가 기준선 (점선) */}
+                                            <line x1="0" y1={baseline / 5} x2="100" y2={baseline / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.3" />
+                                            <path d={strokePath} fill="none" stroke={`url(#${gradId})`} strokeWidth="2" />
+                                          </svg>
+                                        );
+                                      })()}
+                                    </div>
+                                    
+                                    {/* 20일 등락 (Daily) - 첫날 거래일 대비 동적 색상 전환 */}
+                                    <div className="flex flex-col items-center border-l border-white/10 pl-3">
+                                      <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">20D</span>
+                                      {(() => {
+                                        const prices = sparklineData[fav.symbol] || [];
+                                        if (prices.length < 2) return <div className="w-16 h-8 bg-white/5 rounded-lg animate-pulse" />;
+                                        const open20 = prices[0]; // 20일 전 첫 가격
+                                        const min20 = Math.min(...prices);
+                                        const max20 = Math.max(...prices);
+                                        const range20 = max20 - min20 || 1;
+                                        const baseline20 = ((max20 - open20) / range20) * 100;
+                                        const gradId20 = `grad-20d-${fav.symbol}-${Math.random().toString(36).substr(2, 4)}`;
+                                        const strokePath20 = getSparklinePath(prices);
+                                        
+                                        return (
+                                          <svg className="w-16 h-10" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                            <defs>
+                                              <linearGradient id={gradId20} x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset={`${baseline20}%`} stopColor="#f43f5e" stopOpacity="1" />
+                                                <stop offset={`${baseline20}%`} stopColor="#3b82f6" stopOpacity="1" />
+                                              </linearGradient>
+                                            </defs>
+                                            <line x1="0" y1={baseline20 / 5} x2="100" y2={baseline20 / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.2" />
+                                            <path d={strokePath20} fill="none" stroke={`url(#${gradId20})`} strokeWidth="2" />
+                                          </svg>
+                                        );
+                                      })()}
+                                    </div>
+                                  </div>
                                 </div>
                                 <div className="text-right min-w-[60px]">
-                                  <p className="text-sm font-black text-white">145.23</p>
-                                  <div className="bg-rose-500/20 text-rose-400 text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5">-1.28%</div>
+                                  <p className="text-sm font-black text-white">
+                                    {sparklineData[fav.symbol]?.slice(-1)[0]?.toLocaleString() || fav.price?.toLocaleString() || "---"}
+                                  </p>
+                                  {(() => {
+                                    const prices = sparklineData[fav.symbol] || [];
+                                    const latest = prices[prices.length - 1];
+                                    const prev = prices[prices.length - 2];
+                                    const change = prev ? ((latest - prev) / prev * 100).toFixed(2) : (fav.change || 0);
+                                    const isUp = Number(change) >= 0;
+                                    return (
+                                      <div className={`${isUp ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"} text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5`}>
+                                        {isUp ? "+" : ""}{change}%
+                                      </div>
+                                    );
+                                  })()}
                                 </div>
                               </div>
                             </div>
@@ -1090,14 +1287,82 @@ function ProjectApp() {
                                 </div>
 
                                 <div className="flex items-center gap-4">
-                                  <div className="w-16 h-8 opacity-40 group-hover/item:opacity-70 transition-opacity hidden sm:block">
-                                    <svg className="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
-                                      <path d="M0,5 Q25,18 50,8 T100,12" fill="none" stroke="#fb7185" strokeWidth="2" />
-                                    </svg>
+                                  <div className="flex items-center gap-4 group-hover/item:opacity-100 transition-opacity hidden sm:flex">
+                                    {/* 당일 등락 (Intraday) 및 20일 등락 */}
+                                    <div className="flex flex-row items-center gap-3">
+                                      <div className="flex flex-col items-center">
+                                        <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">1D</span>
+                                        {(() => {
+                                          const prices = intradayData[fav.symbol] || [];
+                                          const dailyPrices = sparklineData[fav.symbol] || [];
+                                          if (prices.length < 2) return <div className="w-16 h-8 bg-white/5 rounded-lg animate-pulse" />;
+                                          const prevClose = dailyPrices.length >= 2 ? dailyPrices[dailyPrices.length - 2] : prices[0];
+                                          const min = Math.min(...prices, prevClose);
+                                          const max = Math.max(...prices, prevClose);
+                                          const range = max - min || 1;
+                                          const baseline = ((max - prevClose) / range) * 100;
+                                          const gradId = `grad-group-1d-${fav.symbol}-${Math.random().toString(36).substr(2, 4)}`;
+                                          const strokePath = getSparklinePath(prices);
+                                          
+                                          return (
+                                            <svg className="w-16 h-10" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                              <defs>
+                                                <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
+                                                  <stop offset={`${baseline}%`} stopColor="#f43f5e" stopOpacity="1" />
+                                                  <stop offset={`${baseline}%`} stopColor="#3b82f6" stopOpacity="1" />
+                                                </linearGradient>
+                                              </defs>
+                                              <line x1="0" y1={baseline / 5} x2="100" y2={baseline / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.3" />
+                                              <path d={strokePath} fill="none" stroke={`url(#${gradId})`} strokeWidth="2" />
+                                            </svg>
+                                          );
+                                        })()}
+                                      </div>
+                                      <div className="flex flex-col items-center border-l border-white/10 pl-3">
+                                        <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">20D</span>
+                                        {(() => {
+                                          const prices = sparklineData[fav.symbol] || [];
+                                          if (prices.length < 2) return <div className="w-16 h-8 bg-white/5 rounded-lg animate-pulse" />;
+                                          const open20 = prices[0];
+                                          const min20 = Math.min(...prices);
+                                          const max20 = Math.max(...prices);
+                                          const range20 = max20 - min20 || 1;
+                                          const baseline20 = ((max20 - open20) / range20) * 100;
+                                          const gradId20 = `grad-group-20d-${fav.symbol}-${Math.random().toString(36).substr(2, 4)}`;
+                                          const strokePath20 = getSparklinePath(prices);
+                                          
+                                          return (
+                                            <svg className="w-16 h-10" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                              <defs>
+                                                <linearGradient id={gradId20} x1="0%" y1="0%" x2="0%" y2="100%">
+                                                  <stop offset={`${baseline20}%`} stopColor="#f43f5e" stopOpacity="1" />
+                                                  <stop offset={`${baseline20}%`} stopColor="#3b82f6" stopOpacity="1" />
+                                                </linearGradient>
+                                              </defs>
+                                              <line x1="0" y1={baseline20 / 5} x2="100" y2={baseline20 / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.2" />
+                                              <path d={strokePath20} fill="none" stroke={`url(#${gradId20})`} strokeWidth="2" />
+                                            </svg>
+                                          );
+                                        })()}
+                                      </div>
+                                    </div>
                                   </div>
                                   <div className="text-right min-w-[60px]">
-                                    <p className="text-sm font-black text-white">313.49</p>
-                                    <div className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5">+1.24%</div>
+                                    <p className="text-sm font-black text-white">
+                                      {sparklineData[fav.symbol]?.slice(-1)[0]?.toLocaleString() || fav.price?.toLocaleString() || "---"}
+                                    </p>
+                                    {(() => {
+                                      const prices = sparklineData[fav.symbol] || [];
+                                      const latest = prices[prices.length - 1];
+                                      const prev = prices[prices.length - 2];
+                                      const change = prev ? ((latest - prev) / prev * 100).toFixed(2) : (fav.change || 0);
+                                      const isUp = Number(change) >= 0;
+                                      return (
+                                        <div className={`${isUp ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"} text-[10px] font-black px-2 py-0.5 rounded-md mt-0.5`}>
+                                          {isUp ? "+" : ""}{change}%
+                                        </div>
+                                      );
+                                    })()}
                                   </div>
                                 </div>
                               </div>
@@ -1197,7 +1462,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v1.6.1</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.4.2</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
