@@ -367,6 +367,8 @@ export const PuzzleGame = ({
   onNextFavorite?: () => void;
   hasMultipleFavorites?: boolean;
   initialFlipped?: boolean;
+  isSearchFullScreen?: boolean;
+  onBackToSearch?: () => void;
 }) => {
   const [pieces, setPieces]           = useState<PieceState[]>([]);
   const [pieceImages, setPieceImages] = useState<string[]>([]);
@@ -798,6 +800,19 @@ export const PuzzleGame = ({
       <AnimatePresence>
         {isQuizOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[6000] bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center pt-4 pb-8 px-6 overflow-y-auto">
+            {/* [v1.6.8] Time Warp 내 뒤로가기 버튼 지원 */}
+            <div className="absolute top-4 left-4 z-7000">
+              {isSearchFullScreen && onBackToSearch && (
+                <button 
+                  onClick={onBackToSearch}
+                  className="p-3 bg-white/5 hover:bg-white/20 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-90 flex items-center gap-2 border border-white/10"
+                  title="Return to Search"
+                >
+                  <ChevronLeft size={24} />
+                  <span className="text-xs font-bold">Search</span>
+                </button>
+              )}
+            </div>
             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-2xl flex flex-col items-center gap-12 mt-10">
               
               {quizFeedback && (

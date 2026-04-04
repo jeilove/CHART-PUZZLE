@@ -231,9 +231,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v1.6.7 버전 정보 콘솔 출력
+  // v1.6.8 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.6.7 ", 
+    console.log("%c Stock Chart Puzzle %c v1.6.8 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -727,7 +727,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.7</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.8</p>
               </div>
             </motion.div>
           </>
@@ -1114,7 +1114,7 @@ function ProjectApp() {
           </motion.div>
         ) : view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="absolute top-1 left-4 z-200">
+            <div className="absolute top-1 left-4 z-[7000]">
               {isSearchFullScreen && (
                 <button 
                   onClick={() => setView("HOME")}
@@ -1135,11 +1135,27 @@ function ProjectApp() {
               stockSymbol={selectedStock?.symbol} 
               key={`${puzzleKey}-${selectedStock?.symbol}`}
               initialFlipped={initialFlipped}
+              isSearchFullScreen={isSearchFullScreen}
+              onBackToSearch={() => setView("HOME")}
             />
           </motion.div>
         ) : view === "TRIGGER" ? (
           <motion.div key="trigger" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <TriggerAnalysis />
+            <div className="w-full bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible min-h-[70vh]">
+              <div className="absolute top-1 left-4 z-200">
+                {isSearchFullScreen && (
+                  <button 
+                    onClick={() => setView("HOME")}
+                    className="p-3 bg-white/5 hover:bg-white/20 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-90 flex items-center gap-2 border border-white/10"
+                    title="Return to Search"
+                  >
+                    <ChevronLeft size={24} />
+                    <span className="text-xs font-bold">Search</span>
+                  </button>
+                )}
+              </div>
+              <TriggerAnalysis />
+            </div>
           </motion.div>
         ) : (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
@@ -1167,6 +1183,8 @@ function ProjectApp() {
                 hasMultipleFavorites={flatFavorites.length > 1}
                 initialFlipped={initialFlipped}
                 key={`${puzzleKey}-${selectedStock?.symbol}`}
+                isSearchFullScreen={isSearchFullScreen}
+                onBackToSearch={() => setView("HOME")}
               />
               
             </div>
