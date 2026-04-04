@@ -231,9 +231,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v1.6.3 버전 정보 콘솔 출력
+  // v1.6.4 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.6.3 ", 
+    console.log("%c Stock Chart Puzzle %c v1.6.4 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -244,6 +244,7 @@ function ProjectApp() {
   const [searchExpandedGroups, setSearchExpandedGroups] = useState<Record<string, boolean>>({});
   const [isMarketExpanded, setIsMarketExpanded] = useState(true);
   const [isGroupSelectorOpen, setIsGroupSelectorOpen] = useState(false);
+  const [lastRemovedFavoriteLocation, setLastRemovedFavoriteLocation] = useState<Record<string, string>>({});
   const [newGroupInputOpen, setNewGroupInputOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
 
@@ -363,6 +364,41 @@ function ProjectApp() {
     );
     saveGroups(newGroups);
     setEditingGroupId(null);
+  };
+
+  const smartToggleFavorite = (stock: Stock, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // 1. 현재 즐겨찾기 상태 확인
+    const inUngrouped = ungroupedStocks.find(s => s.symbol === stock.symbol);
+    const inGroup = favoriteGroups.find(g => g.stocks.some(s => s.symbol === stock.symbol));
+    
+    if (inUngrouped || inGroup) {
+      // 이미 즐겨찾기임 -> 해제 (Toggle Off)
+      const location = inUngrouped ? "ungrouped" : inGroup?.id || "ungrouped";
+      setLastRemovedFavoriteLocation(prev => ({ ...prev, [stock.symbol]: location }));
+      
+      if (inUngrouped) {
+        saveUngrouped(ungroupedStocks.filter(s => s.symbol !== stock.symbol));
+      } else if (inGroup) {
+        saveGroups(favoriteGroups.map(g => g.id === inGroup.id ? { ...g, stocks: g.stocks.filter(s => s.symbol !== stock.symbol) } : g));
+      }
+    } else {
+      // 즐겨찾기 아님 -> 복구 혹은 신규 추가
+      const lastLocation = lastRemovedFavoriteLocation[stock.symbol];
+      if (lastLocation) {
+        // 이전 위치로 복구
+        if (lastLocation === "ungrouped") {
+          saveUngrouped([...ungroupedStocks, stock]);
+        } else {
+          saveGroups(favoriteGroups.map(g => g.id === lastLocation ? { ...g, stocks: [...g.stocks, stock] } : g));
+        }
+      } else {
+        // 첫 추가 -> 그룹 드로어 열기
+        setSelectedSearchSymbols([stock.symbol]);
+        setIsGroupSelectorOpen(true);
+      }
+    }
   };
 
   const toggleFavorite = (stock: Stock, e: React.MouseEvent) => {
@@ -667,7 +703,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.3</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.4</p>
               </div>
             </motion.div>
           </>
@@ -766,9 +802,7 @@ function ProjectApp() {
                                     onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
                                     onCloud={() => { setSearchTerm(""); setIsSearchFullScreen(false); setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
                                     onToggleFavorite={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedSearchSymbols([stock.symbol]);
-                                      setIsGroupSelectorOpen(true);
+                                      smartToggleFavorite(stock, e);
                                     }}
                                   />
                                 ))}
@@ -820,9 +854,7 @@ function ProjectApp() {
                                             onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
                                             onCloud={() => { setSearchTerm(""); setIsSearchFullScreen(false); setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
                                             onToggleFavorite={(e) => {
-                                              e.stopPropagation();
-                                              setSelectedSearchSymbols([stock.symbol]);
-                                              setIsGroupSelectorOpen(true);
+                                              smartToggleFavorite(stock, e);
                                             }}
                                           />
                                         ))}
