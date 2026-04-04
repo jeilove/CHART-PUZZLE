@@ -182,9 +182,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v1.5.4 버전 정보 콘솔 출력
+  // v1.6.1 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.6.0 ", 
+    console.log("%c Stock Chart Puzzle %c v1.6.1 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -216,7 +216,8 @@ function ProjectApp() {
     const targetView = (v && ["HOME", "GAME", "CHART", "TRIGGER"].includes(v)) ? v as "HOME" | "GAME" | "CHART" | "TRIGGER" : "HOME";
     setView(targetView);
     setIsTimeWarpTriggered(w);
-    if (!v || v === "HOME") setInitialFlipped(false);
+    // [v1.6.1] Navigation context check: keep search screen active if navigating from it
+    // if (!v || v === "HOME") setInitialFlipped(false);
 
     if (s) {
       const allStocks = [...STOCK_LIST, ...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
@@ -431,14 +432,25 @@ function ProjectApp() {
     }
   }, [searchTerm]);
 
-  const filteredStocks = Array.from(new Map([
-    ...STOCK_LIST.filter(s => 
-      s.name.includes(searchTerm) || 
-      s.symbol.includes(searchTerm) ||
-      (s.industry && s.industry.includes(searchTerm))
-    ),
-    ...apiResults
-  ].map(s => [s.symbol, s])).values()).slice(0, 40);
+  const filteredStocks = useMemo(() => {
+    // [v1.6.1] 검색어가 없을 때는 즐겨찾기(미분류 + 그룹별 전체) 종목을 우선 노출
+    if (!searchTerm) {
+      const allFavs = Array.from(new Map([
+        ...ungroupedStocks,
+        ...favoriteGroups.flatMap(g => g.stocks)
+      ].map(s => [s.symbol, s])).values());
+      return allFavs;
+    }
+
+    return Array.from(new Map([
+      ...STOCK_LIST.filter(s => 
+        s.name.includes(searchTerm) || 
+        s.symbol.includes(searchTerm) ||
+        (s.industry && s.industry.includes(searchTerm))
+      ),
+      ...apiResults
+    ].map(s => [s.symbol, s])).values()).slice(0, 40);
+  }, [searchTerm, ungroupedStocks, favoriteGroups, apiResults]);
 
   return (
     <>
@@ -599,7 +611,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v0.6.1</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.1</p>
               </div>
             </motion.div>
           </>
@@ -701,12 +713,12 @@ function ProjectApp() {
                             <button onClick={() => {
                               // 트리거 클라우드(워드클라우드) 즉시 실행 및 플립 화면 유도
                               setSearchTerm("");
-                              setIsSearchFullScreen(false);
+                              // setIsSearchFullScreen(false); // [v1.6.1] 뒤로가기 연결을 위해 주석처리하거나 상태 유지 고민
                               // URL에 flip 파라미터를 넘기거나 상태로 관리
                               setInitialFlipped(true);
                               selectStock(stock.name, stock.symbol, "CHART");
                             }} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Word Cloud">
-                              <img src="/icons/v17_trigger.png" alt="Cloud" className="w-6 h-6 object-contain" />
+                              <img src="/icons/v17_trigger.png" alt="Cloud" className="w-6 h-6 object-contain scale-[1.2]" />
                             </button>
                           </div>
 
@@ -951,6 +963,18 @@ function ProjectApp() {
           </motion.div>
         ) : view === "GAME" ? (
           <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
+            <div className="absolute top-1 left-4 z-[200]">
+              {isSearchFullScreen && (
+                <button 
+                  onClick={() => setView("HOME")}
+                  className="p-3 bg-white/5 hover:bg-white/20 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-90 flex items-center gap-2 border border-white/10"
+                  title="Return to Search"
+                >
+                  <ChevronLeft size={24} />
+                  <span className="text-xs font-bold">Search</span>
+                </button>
+              )}
+            </div>
             <div className="w-full flex items-center justify-center mb-6 px-4 relative h-16">
             </div>
             <PuzzleGame 
@@ -958,7 +982,8 @@ function ProjectApp() {
               gridSize={2} 
               stockName={selectedStock?.name} 
               stockSymbol={selectedStock?.symbol} 
-              key={puzzleKey}
+              key={`${puzzleKey}-${selectedStock?.symbol}`}
+              initialFlipped={initialFlipped}
             />
           </motion.div>
         ) : view === "TRIGGER" ? (
@@ -968,6 +993,18 @@ function ProjectApp() {
         ) : (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
             <div className="w-full min-h-[70vh] h-auto bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible">
+              <div className="absolute top-1 left-4 z-[200]">
+                {isSearchFullScreen && (
+                  <button 
+                    onClick={() => setView("HOME")}
+                    className="p-3 bg-white/5 hover:bg-white/20 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-90 flex items-center gap-2 border border-white/10"
+                    title="Return to Search"
+                  >
+                    <ChevronLeft size={24} />
+                    <span className="text-xs font-bold">Search</span>
+                  </button>
+                )}
+              </div>
               <PuzzleGame 
                 stockData={stockData} 
                 isOnlyChart={true} 
@@ -987,7 +1024,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v0.6.1</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v1.6.1</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
