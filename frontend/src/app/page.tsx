@@ -123,6 +123,7 @@ const MOCK_STOCK_DATA = Array.from({ length: 60 }, (_, i) => {
   };
 });
 
+
 interface Stock {
   name: string;
   symbol: string;
@@ -231,9 +232,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v1.6.4 버전 정보 콘솔 출력
+  // v1.6.5 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.6.4 ", 
+    console.log("%c Stock Chart Puzzle %c v1.6.5 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -526,11 +527,19 @@ function ProjectApp() {
 
   const filteredStocks = useMemo(() => {
     // [v1.6.1] 검색어가 없을 때는 즐겨찾기(미분류 + 그룹별 전체) 종목을 우선 노출
+    // [v1.6.5] 최근 해제된 종목(lastRemovedFavoriteLocation)도 포함하여 리스트에서 즉시 사라지는 현상 방지
     if (!searchTerm) {
-      const allFavs = Array.from(new Map([
+      const removedSymbols = Object.keys(lastRemovedFavoriteLocation);
+      const allBaseStocks = [
         ...ungroupedStocks,
-        ...favoriteGroups.flatMap(g => g.stocks)
-      ].map(s => [s.symbol, s])).values());
+        ...favoriteGroups.flatMap(g => g.stocks),
+        ...STOCK_LIST.filter(s => removedSymbols.includes(s.symbol))
+      ];
+
+      const allFavs = Array.from(new Map(
+        allBaseStocks.map(s => [s.symbol, s])
+      ).values());
+      
       return allFavs;
     }
 
@@ -542,7 +551,7 @@ function ProjectApp() {
       ),
       ...apiResults
     ].map(s => [s.symbol, s])).values()).slice(0, 40);
-  }, [searchTerm, ungroupedStocks, favoriteGroups, apiResults]);
+  }, [searchTerm, ungroupedStocks, favoriteGroups, apiResults, lastRemovedFavoriteLocation]);
 
   return (
     <>
@@ -703,7 +712,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.4</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.6.5</p>
               </div>
             </motion.div>
           </>
