@@ -233,9 +233,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v1.7.0 버전 정보 콘솔 출력
+  // v1.7.1 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v1.7.0 ", 
+    console.log("%c Stock Chart Puzzle %c v1.7.1 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -729,7 +729,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.7.0</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v1.7.1</p>
               </div>
             </motion.div>
           </>
@@ -826,7 +826,7 @@ function ProjectApp() {
                                     onSelect={() => selectStock(stock.name, stock.symbol, "CHART")}
                                     onGame={() => selectStock(stock.name, stock.symbol, "GAME")}
                                     onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
-                                    onCloud={() => { setSearchTerm(""); setIsSearchFullScreen(false); setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
+                                    onCloud={() => { setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
                                     onToggleFavorite={(e) => {
                                       smartToggleFavorite(stock, e);
                                     }}
@@ -879,7 +879,7 @@ function ProjectApp() {
                                             onSelect={() => selectStock(stock.name, stock.symbol, "CHART")}
                                             onGame={() => selectStock(stock.name, stock.symbol, "GAME")}
                                             onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
-                                            onCloud={() => { setSearchTerm(""); setIsSearchFullScreen(false); setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
+                                            onCloud={() => { setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
                                             onToggleFavorite={(e) => {
                                               smartToggleFavorite(stock, e);
                                             }}
