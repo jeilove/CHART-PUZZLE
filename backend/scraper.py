@@ -11,10 +11,39 @@ import random
 import concurrent.futures
 from functools import lru_cache
 
-# [v1.5.4] 최종 완전체: 고성능 병렬 엔진 + 시계열 가중치(Exponential Decay) 전수 분석 버전
+# [v2.8.7] 스마트 캐싱(10분 TTL) 및 스크래핑 안전 장치(Jitter) 탑재 버전
+
+CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
+if not os.path.exists(CACHE_DIR):
+    os.makedirs(CACHE_DIR)
+
+def get_cache(key, ttl_seconds):
+    """파일 기반 캐시 가져오기 (TTL 검증 포함)"""
+    cache_path = os.path.join(CACHE_DIR, f"{key}.json")
+    if os.path.exists(cache_path):
+        mtime = os.path.getmtime(cache_path)
+        if (time.time() - mtime) < ttl_seconds:
+            try:
+                with open(cache_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except: pass
+    return None
+
+def set_cache(key, data):
+    """파일 기반 캐시 저장"""
+    try:
+        cache_path = os.path.join(CACHE_DIR, f"{key}.json")
+        with open(cache_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False)
+    except: pass
+
+def get_random_user_agent():
+    """최신 브라우저 기반 User-Agent 갱신"""
+    versions = ["121.0.0.0", "122.0.0.0", "120.0.0.0"]
+    return f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random.choice(versions)} Safari/537.36"
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+    "User-Agent": get_random_user_agent()
 }
 
 # 업종 매핑 데이터 로드
@@ -116,22 +145,36 @@ def _parse_naver_xml(xml_text):
         })
     return parsed_data
 
-@lru_cache(maxsize=1024) # v2.1.0: 메모리 효율성 증대
 def fetch_stock_ohlcv(symbol, timeframe="day", count=100):
     """
     네이버 금융 FChart XML API를 통해 주가 데이터를 가져옵니다.
     """
+    # [v2.8.7] 지침에 따른 스마트 캐싱 적용
+    # 분봉(1D)은 10분(600초), 일봉(20D)은 24시간(86400초) 캐시 적용
+    ttl = 600 if timeframe == "minute" else 86400
+    cache_key = f"ohlcv_{symbol}_{timeframe}_{count}"
+    
+    cached = get_cache(cache_key, ttl)
+    if cached:
+        return cached
+
+    # 스크래핑 전 Jitter 삽입 (0.2~0.5초) - 차단 방지
+    time.sleep(random.uniform(0.2, 0.5))
+    
     url = f"https://fchart.stock.naver.com/sise.nhn?symbol={symbol}&timeframe={timeframe}&count={count}&requestType=0"
     try:
-        response = requests.get(url, timeout=10)
+        # User-Agent 주기적 갱신
+        session.headers.update({"User-Agent": get_random_user_agent()})
+        response = session.get(url, timeout=10)
         data = _parse_naver_xml(response.text)
         
         # v2.2.6: 분봉(1D) 데이터의 경우, 반드시 최신 날짜의 데이터만 추출하여 전일 데이터 침범 방지
         if timeframe == "minute" and data:
-            # 마지막 데이터의 날짜(YYYY-MM-DD) 추출
             latest_date = data[-1]["time"].split(" ")[0]
-            # 해당 날짜와 일치하는 데이터만 필터링
             data = [d for d in data if d["time"].startswith(latest_date)]
+            
+        if data:
+            set_cache(cache_key, data)
             
         return data
     except Exception as e:
@@ -140,9 +183,19 @@ def fetch_stock_ohlcv(symbol, timeframe="day", count=100):
 
 def fetch_market_heatmap(type="KOSPI", pages=1):
     sosok = 1 if type == "KOSDAQ" else 0
+    
+    # [v2.8.7] 히트맵 캐싱 (장중에는 30분, 장외에는 24시간 적용 고려 가능하나 실시간성을 위해 30분 고정)
+    cache_key = f"heatmap_{type}_{pages}"
+    cached = get_cache(cache_key, 1800) # 30분 (1800초)
+    if cached:
+        return cached
+
     stocks = []
     for p in range(1, pages + 1):
         try:
+            # 루프 간 지연 (0.3~0.7초)
+            time.sleep(random.uniform(0.3, 0.7))
+            
             url = f"https://finance.naver.com/sise/sise_market_sum.naver?sosok={sosok}&page={p}"
             resp = session.get(url, timeout=5)
             content = resp.content.decode('euc-kr', 'ignore')
@@ -153,7 +206,6 @@ def fetch_market_heatmap(type="KOSPI", pages=1):
                 if not a or len(nums) < 5: continue
                 ticker = a.get('href').split('=')[-1]
                 ch_text = nums[2].text.replace('%','').replace(',','').strip()
-                # 숫자가 아닌 경우(상장폐지 등) 예외 처리
                 try:
                     change = float(ch_text)
                 except:
@@ -166,9 +218,21 @@ def fetch_market_heatmap(type="KOSPI", pages=1):
         except Exception as e:
             print(f"Heatmap Error (v1.5.4): {e}")
             break
+            
+    if stocks:
+        set_cache(cache_key, stocks)
+        
     return stocks
 
 def fetch_news_keywords(stock_name):
+    # [v2.8.7] 뉴스 키워드 캐싱 (30분)
+    cache_key = f"news_{stock_name}"
+    cached = get_cache(cache_key, 1800)
+    if cached: return cached
+
+    # 스크래핑 전 지연
+    time.sleep(random.uniform(0.1, 0.3))
+    
     # 구글 뉴스 RSS 피드 사용 (무한루프 방지 및 안정성 확보)
     url = f"https://news.google.com/rss/search?q={stock_name}&hl=ko&gl=KR&ceid=KR:ko"
     try:
@@ -181,12 +245,17 @@ def fetch_news_keywords(stock_name):
             if " - " in title: title = " - ".join(title.split(" - ")[:-1])
             if title and clean_news_filter(title):
                 results.append({ "title": title, "date": item.pubDate.text if item.pubDate else "" })
+        
+        if results:
+            set_cache(cache_key, results[:12])
         return results[:12]
     except: return []
 
 @lru_cache(maxsize=350)
 def fetch_reports_combined(symbol, stock_name):
     sources = []
+    # [v2.8.7] Jina Reader/Naver Research 루프 간 지연 삽입
+    
     # 1. Naver Finance Research (최근 리포트 리스트)
     try:
         url = f"https://finance.naver.com/research/company_list.naver?searchType=itemCode&itemCode={symbol}&page=1"
@@ -200,6 +269,8 @@ def fetch_reports_combined(symbol, stock_name):
                 date = tds[4].text.strip()
                 if title and date: sources.append({ "text": title, "date": date })
     except: pass
+
+    time.sleep(0.5) # Jina 요청 전 지연
 
     # 2. FnGuide via Jina Reader (상세 내용 전수 분석)
     try:
@@ -221,6 +292,12 @@ def fetch_reports_combined(symbol, stock_name):
     return sources
 
 def analysis_trigger_cloud(symbol, stock_name, force_refresh=False):
+    # [v2.8.7] 분석 캐싱 (1시간)
+    cache_key = f"analysis_{symbol}"
+    if not force_refresh:
+        cached = get_cache(cache_key, 3600)
+        if cached: return cached
+
     reports = fetch_reports_combined(symbol, stock_name)
     keyword_weights = {}
     sentiment_score = 0.0
