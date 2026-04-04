@@ -684,31 +684,40 @@ export const PuzzleGame = ({
             hasMultipleFavorites={hasMultipleFavorites}
           />
 
-          {/* 퍼즐 시작 컨트롤 */}
-          <div className="w-full flex items-center justify-center gap-3 p-2 bg-black/40 rounded-[2.5rem] border border-white/10 shadow-2xl backdrop-blur-3xl z-10 sm:max-w-md mx-auto">
-            <Button 
-              onClick={(e) => { e.stopPropagation(); startPuzzle(); }} 
-              disabled={isCapturing} 
-              className="flex-1 h-14 text-base font-black bg-[#F08080] hover:bg-[#F08080]/90 hover:scale-[1.02] active:scale-95 transition-all duration-300 text-white rounded-[1.5rem] shadow-lg hover:shadow-rose-500/40"
-            >
-              {isCapturing ? <Loader2 size={20} className="animate-spin mr-3" /> : <Play size={20} className="mr-3" />}
-              {isCapturing ? "분할중..." : "퍼즐 시작"}
-            </Button>
-            <div className="relative group">
-              <select 
-                value={gridSize} 
-                onChange={(e) => setGridSize(Number(e.target.value))} 
-                className="w-24 h-14 bg-white/5 text-white text-sm font-black rounded-[1.5rem] border border-white/20 outline-none text-center appearance-none cursor-pointer hover:bg-white/10 transition-colors"
+          {/* 퍼즐 시작 컨트롤 - 트리거/뉴스 활성 시에는 숨김 처리하여 풀화면 느낌 강화 */}
+          <AnimatePresence>
+            {!isFlipped && !isNewsOpen && !isTriggerOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="w-full flex items-center justify-center gap-3 p-2 bg-black/40 rounded-[2.5rem] border border-white/10 shadow-2xl backdrop-blur-3xl z-10 sm:max-w-md mx-auto"
               >
-                <option value={2} className="bg-slate-900">2x2</option>
-                <option value={3} className="bg-slate-900">3x3</option>
-                <option value={4} className="bg-slate-900">4x4</option>
-              </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
-                <ChevronDown size={14} className="text-white" />
-              </div>
-            </div>
-          </div>
+                <Button 
+                  onClick={(e) => { e.stopPropagation(); startPuzzle(); }} 
+                  disabled={isCapturing} 
+                  className="flex-1 h-14 text-base font-black bg-[#F08080] hover:bg-[#F08080]/90 hover:scale-[1.02] active:scale-95 transition-all duration-300 text-white rounded-[1.5rem] shadow-lg hover:shadow-rose-500/40"
+                >
+                  {isCapturing ? <Loader2 size={20} className="animate-spin mr-3" /> : <Play size={20} className="mr-3" />}
+                  {isCapturing ? "분할중..." : "퍼즐 시작"}
+                </Button>
+                <div className="relative group">
+                  <select 
+                    value={gridSize} 
+                    onChange={(e) => setGridSize(Number(e.target.value))} 
+                    className="w-24 h-14 bg-white/5 text-white text-sm font-black rounded-[1.5rem] border border-white/20 outline-none text-center appearance-none cursor-pointer hover:bg-white/10 transition-colors"
+                  >
+                    <option value={2} className="bg-slate-900">2x2</option>
+                    <option value={3} className="bg-slate-900">3x3</option>
+                    <option value={4} className="bg-slate-900">4x4</option>
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+                    <ChevronDown size={14} className="text-white" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       ) : isSolved && !isQuizOpen ? (
         <AnimatePresence>
@@ -732,11 +741,20 @@ export const PuzzleGame = ({
                 hasMultipleFavorites={hasMultipleFavorites}
               />
             </div>
-            <div className="w-full max-w-sm flex flex-col gap-3 mt-[75px]">
-              <Button onClick={(e) => { e.stopPropagation(); setIsQuizOpen(true); setIsFlipped(false); }} className="w-full h-18 bg-[#A0C4FF]/40 border border-[#A0C4FF]/20 hover:bg-[#A0C4FF]/60 text-white rounded-[2rem] text-xl font-black shadow-3xl active:scale-95 flex items-center justify-center gap-3 backdrop-blur-md transition-all">
-                <Timer size={24} className="text-sky-400" /> 타임 워프 퀴즈 도전
-              </Button>
-            </div>
+            <AnimatePresence>
+              {!isFlipped && !isNewsOpen && !isTriggerOpen && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="w-full max-w-sm flex flex-col gap-3 mt-[75px]"
+                >
+                  <Button onClick={(e) => { e.stopPropagation(); setIsQuizOpen(true); setIsFlipped(false); }} className="w-full h-18 bg-[#A0C4FF]/40 border border-[#A0C4FF]/20 hover:bg-[#A0C4FF]/60 text-white rounded-[2rem] text-xl font-black shadow-3xl active:scale-95 flex items-center justify-center gap-3 backdrop-blur-md transition-all">
+                    <Timer size={24} className="text-sky-400" /> 타임 워프 퀴즈 도전
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </AnimatePresence>
       ) : (
@@ -748,11 +766,23 @@ export const PuzzleGame = ({
                 <h3 className="text-base sm:text-xl font-black text-white">{stockName}</h3>
                 <span className="text-[10px] sm:text-xs font-bold text-white/40 tracking-wider">({stockSymbol})</span>
                 
-                {/* Icons Capsule moved here */}
-                <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full backdrop-blur-md opacity-60">
-                  <img src="/icons/v17_trigger.png" alt="Trigger" className="h-5 w-5 object-cover rounded-full" />
+                {/* Icons Capsule - 게임 중에도 토글 가능하도록 버튼으로 개선 */}
+                <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full backdrop-blur-md">
+                  <button 
+                    onClick={() => setIsTriggerOpen(!isTriggerOpen)}
+                    className={`transition-all hover:scale-110 active:scale-95 ${isTriggerOpen ? "opacity-100" : "opacity-40"}`}
+                    title="Trigger Cloud"
+                  >
+                    <img src="/icons/v17_trigger.png" alt="Trigger" className="h-5 w-5 object-cover rounded-full" />
+                  </button>
                   <div className="w-px h-3 bg-white/10" />
-                  <img src="/icons/v18_pulse.png" alt="News" className="h-5 w-5 object-cover rounded-full" />
+                  <button 
+                    onClick={() => setIsNewsOpen(!isNewsOpen)}
+                    className={`transition-all hover:scale-110 active:scale-95 ${isNewsOpen ? "opacity-100" : "opacity-40"}`}
+                    title="News Pulse"
+                  >
+                    <img src="/icons/v18_pulse.png" alt="News" className="h-5 w-5 object-cover rounded-full" />
+                  </button>
                 </div>
               </div>
             )}
@@ -848,24 +878,31 @@ export const PuzzleGame = ({
               />
 
 
-              {!showResult && (
-                <div className="w-full flex gap-4 mt-2 px-2">
-                  <button 
-                    onClick={() => handleQuizSelect(true)}
-                    className="flex-1 h-20 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-3xl border border-emerald-500/20 flex flex-col items-center justify-center gap-1 transition-all group active:scale-95"
+              <AnimatePresence>
+                {!showResult && !isFlipped && !isNewsOpen && !isTriggerOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="w-full flex gap-4 mt-2 px-2"
                   >
-                    <TrendingUp size={24} className="group-hover:scale-110 transition-transform" />
-                    <span className="text-lg font-black italic tracking-widest">상승</span>
-                  </button>
-                  <button 
-                    onClick={() => handleQuizSelect(false)}
-                    className="flex-1 h-20 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-3xl border border-rose-500/20 flex flex-col items-center justify-center gap-1 transition-all group active:scale-95"
-                  >
-                    <TrendingDown size={24} className="group-hover:scale-110 transition-transform" />
-                    <span className="text-lg font-black italic tracking-widest">하락</span>
-                  </button>
-                </div>
-              )}
+                    <button 
+                      onClick={() => handleQuizSelect(true)}
+                      className="flex-1 h-20 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-3xl border border-emerald-500/20 flex flex-col items-center justify-center gap-1 transition-all group active:scale-95"
+                    >
+                      <TrendingUp size={24} className="group-hover:scale-110 transition-transform" />
+                      <span className="text-lg font-black italic tracking-widest">상승</span>
+                    </button>
+                    <button 
+                      onClick={() => handleQuizSelect(false)}
+                      className="flex-1 h-20 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-3xl border border-rose-500/20 flex flex-col items-center justify-center gap-1 transition-all group active:scale-95"
+                    >
+                      <TrendingDown size={24} className="group-hover:scale-110 transition-transform" />
+                      <span className="text-lg font-black italic tracking-widest">하락</span>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
             </motion.div>
           </motion.div>
