@@ -355,7 +355,9 @@ export const PuzzleGame = ({
   onPrevFavorite,
   onNextFavorite,
   hasMultipleFavorites = false,
-  initialFlipped = false
+  initialFlipped = false,
+  isSearchFullScreen = false,
+  onBackToSearch
 }: { 
   stockData: any[]; 
   stockName?: string; 
