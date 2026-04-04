@@ -273,6 +273,8 @@ function ProjectApp() {
 
   const [view, setView] = useState<"HOME" | "GAME" | "CHART" | "TRIGGER">("HOME");
   const [puzzleKey, setPuzzleKey] = useState(0);
+  const [miniSearchStr, setMiniSearchStr] = useState("");
+  const [isMiniSearchOpen, setIsMiniSearchOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [stockData, setStockData] = useState<any[]>(MOCK_STOCK_DATA);
   const [isLoading, setIsLoading] = useState(false);
@@ -292,9 +294,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.4.2 버전 정보 콘솔 출력
+  // v2.5.0 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.4.2 ", 
+    console.log("%c Stock Chart Puzzle %c v2.5.0 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -847,7 +849,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.4.2</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.5.0</p>
               </div>
             </motion.div>
           </>
@@ -1380,89 +1382,207 @@ function ProjectApp() {
 
           </motion.div>
         ) : view === "GAME" ? (
-          <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="w-full bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible min-h-[70vh]">
-              <div className="absolute top-4 left-4 z-7000">
-                {isSearchFullScreen && (
-                  <button 
-                    onClick={() => setView("HOME")}
-                    className="p-3 bg-white/5 hover:bg-white/20 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-90 flex items-center gap-2 border border-white/10"
-                    title="Return to Search"
-                  >
-                    <ChevronLeft size={24} />
-                    <span className="text-xs font-bold">Search</span>
-                  </button>
-                )}
+          <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-5xl flex flex-col items-center">
+            {/* Global Search Header for Game View */}
+            <div className="w-full mb-6 sticky top-0 z-[6000] px-1 group">
+               <div className="relative group">
+                 <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/50 to-blue-500/50 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+                 <div className="relative flex items-center bg-[#0d1117]/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-1 shadow-2xl">
+                    <div className="pl-4 pr-2 text-emerald-400 opacity-60">
+                      <Search size={18} />
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="분석할 종목을 입력하세요 (퍼즐판 교체)"
+                      value={miniSearchStr}
+                      onChange={(e) => setMiniSearchStr(e.target.value)}
+                      onFocus={() => setIsMiniSearchOpen(true)}
+                      className="bg-transparent border-none focus:ring-0 text-white text-sm w-full py-3 font-bold placeholder:text-gray-500 tracking-tight"
+                    />
+                    {miniSearchStr && (
+                      <button onClick={() => setMiniSearchStr("")} className="px-3 text-gray-500 hover:text-white transition-colors">
+                        <X size={16} />
+                      </button>
+                    )}
+                 </div>
+                 
+                 {/* Mini Search Dropdown */}
+                 {isMiniSearchOpen && miniSearchStr && (
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-[#0d1117] border border-white/10 rounded-3xl overflow-hidden shadow-3xl max-h-96 overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-3xl z-[7000]">
+                      <div className="p-3 border-b border-white/5 bg-white/5">
+                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">SEARCH RESULTS</span>
+                      </div>
+                      {STOCK_LIST.filter(s => s.name.includes(miniSearchStr) || s.symbol.includes(miniSearchStr)).slice(0, 10).map((s) => (
+                        <button 
+                          key={s.symbol}
+                          onClick={() => {
+                            setMiniSearchStr("");
+                            setIsMiniSearchOpen(false);
+                            navigate("GAME", s.symbol);
+                          }}
+                          className="w-full px-5 py-4 flex items-center justify-between hover:bg-emerald-500/10 transition-all border-b border-white/5 last:border-none group/item"
+                        >
+                          <div className="flex items-center gap-3">
+                             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                             <div className="text-left leading-tight">
+                                <p className="text-sm font-black text-white group-hover/item:text-emerald-400">{s.name}</p>
+                                <p className="text-[10px] text-gray-500 font-mono">{s.symbol}</p>
+                             </div>
+                          </div>
+                          <span className="text-[10px] font-black text-emerald-500/50 uppercase tracking-tighter">SELECT</span>
+                        </button>
+                      ))}
+                    </div>
+                 )}
+               </div>
+            </div>
+
+            <div className="w-full bg-[#0d1117]/60 border border-white/10 rounded-[3rem] p-4 sm:p-8 backdrop-blur-3xl relative pb-24 shadow-3xl min-h-[75vh]">
+              <div className="absolute top-6 left-6 z-[1000]">
+                <button 
+                  onClick={() => navigate("HOME")}
+                  className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-95 flex items-center gap-2 border border-white/5 shadow-xl"
+                >
+                  <ChevronLeft size={20} />
+                  <span className="text-xs font-black uppercase tracking-widest">EXIT</span>
+                </button>
               </div>
-              <PuzzleGame 
-                stockData={stockData} 
-                gridSize={2} 
-                stockName={selectedStock?.name} 
-                stockSymbol={selectedStock?.symbol} 
-                key={`${puzzleKey}-${selectedStock?.symbol}`}
-                initialFlipped={initialFlipped}
-                isSearchFullScreen={isSearchFullScreen}
-                onBackToSearch={() => setView("HOME")}
-              />
+              <div className="pt-8">
+                <PuzzleGame 
+                  stockData={stockData} 
+                  gridSize={2} 
+                  stockName={selectedStock?.name} 
+                  stockSymbol={selectedStock?.symbol} 
+                  key={`${puzzleKey}-${selectedStock?.symbol}`}
+                  initialFlipped={initialFlipped}
+                  isSearchFullScreen={isSearchFullScreen}
+                  onBackToSearch={() => setView("HOME")}
+                />
+              </div>
             </div>
           </motion.div>
         ) : view === "TRIGGER" ? (
-          <motion.div key="trigger" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="w-full bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible min-h-[70vh]">
-              <div className="absolute top-4 left-4 z-200">
-                {isSearchFullScreen && (
-                  <button 
-                    onClick={() => setView("HOME")}
-                    className="p-3 bg-white/5 hover:bg-white/20 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-90 flex items-center gap-2 border border-white/10"
-                    title="Return to Search"
-                  >
-                    <ChevronLeft size={24} />
-                    <span className="text-xs font-bold">Search</span>
-                  </button>
-                )}
+          <motion.div key="trigger" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-5xl flex flex-col items-center">
+            {/* Global Search Header for Trigger View */}
+            <div className="w-full mb-6 sticky top-0 z-[6000] px-1 group">
+               <div className="relative group">
+                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/50 to-indigo-500/50 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+                 <div className="relative flex items-center bg-[#0d1117]/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-1 shadow-2xl">
+                    <div className="pl-4 pr-2 text-blue-400 opacity-60">
+                      <Search size={18} />
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="트리거 클라우드 검색 (종목 교체)"
+                      value={miniSearchStr}
+                      onChange={(e) => setMiniSearchStr(e.target.value)}
+                      onFocus={() => setIsMiniSearchOpen(true)}
+                      className="bg-transparent border-none focus:ring-0 text-white text-sm w-full py-3 font-bold placeholder:text-gray-500 tracking-tight"
+                    />
+                 </div>
+                 {isMiniSearchOpen && miniSearchStr && (
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-[#0d1117] border border-white/10 rounded-3xl overflow-hidden shadow-3xl max-h-96 overflow-y-auto backdrop-blur-3xl z-[7000]">
+                       {STOCK_LIST.filter(s => s.name.includes(miniSearchStr) || s.symbol.includes(miniSearchStr)).slice(0, 8).map((s) => (
+                        <button 
+                          key={s.symbol}
+                          onClick={() => {
+                            setMiniSearchStr("");
+                            setIsMiniSearchOpen(false);
+                            navigate("TRIGGER", s.symbol);
+                          }}
+                          className="w-full px-5 py-4 flex items-center justify-between hover:bg-blue-500/10 transition-all border-b border-white/5 last:border-none"
+                        >
+                           <div className="text-left font-black text-white text-sm tracking-tight">{s.name} <span className="text-xs text-gray-500 font-normal">{s.symbol}</span></div>
+                           <span className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">SHOW</span>
+                        </button>
+                       ))}
+                    </div>
+                 )}
+               </div>
+            </div>
+
+            <div className="w-full bg-[#0d1117]/60 border border-white/10 rounded-[3rem] p-4 sm:p-8 backdrop-blur-3xl relative pb-24 shadow-3xl min-h-[75vh]">
+              <div className="absolute top-6 left-6 z-[1000]">
+                <button onClick={() => navigate("HOME")} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 hover:text-white transition-all border border-white/5 shadow-xl">
+                  <ChevronLeft size={20} />
+                  <span className="text-xs font-black uppercase tracking-widest">EXIT</span>
+                </button>
               </div>
-              <div className="pt-14">
+              <div className="pt-16">
                 <TriggerAnalysis />
               </div>
             </div>
           </motion.div>
         ) : (
-          <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-4xl flex flex-col items-center">
-            <div className="w-full min-h-[70vh] h-auto bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl relative pb-20 overflow-visible">
-              <div className="absolute top-4 left-4 z-200">
-                {isSearchFullScreen && (
-                  <button 
-                    onClick={() => setView("HOME")}
-                    className="p-3 bg-white/5 hover:bg-white/20 rounded-2xl text-slate-400 hover:text-white transition-all active:scale-90 flex items-center gap-2 border border-white/10"
-                    title="Return to Search"
-                  >
-                    <ChevronLeft size={24} />
-                    <span className="text-xs font-bold">Search</span>
-                  </button>
-                )}
+          <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-5xl flex flex-col items-center">
+            {/* Global Search Header for Chart View */}
+            <div className="w-full mb-6 sticky top-0 z-[6000] px-1 group">
+               <div className="relative group">
+                 <div className="absolute -inset-0.5 bg-gradient-to-r from-rose-500/50 to-orange-500/50 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+                 <div className="relative flex items-center bg-[#0d1117]/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-1 shadow-2xl">
+                    <div className="pl-4 pr-2 text-rose-400 opacity-60">
+                      <Search size={18} />
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="종목 실시간 차트 검색 (타임워프 포함)"
+                      value={miniSearchStr}
+                      onChange={(e) => setMiniSearchStr(e.target.value)}
+                      onFocus={() => setIsMiniSearchOpen(true)}
+                      className="bg-transparent border-none focus:ring-0 text-white text-sm w-full py-3 font-bold placeholder:text-gray-500 tracking-tight"
+                    />
+                 </div>
+                 {isMiniSearchOpen && miniSearchStr && (
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-[#0d1117] border border-white/10 rounded-3xl overflow-hidden shadow-3xl max-h-96 overflow-y-auto backdrop-blur-3xl z-[7000]">
+                        {STOCK_LIST.filter(s => s.name.includes(miniSearchStr) || s.symbol.includes(miniSearchStr)).slice(0, 10).map((s) => (
+                        <button 
+                          key={s.symbol}
+                          onClick={() => {
+                            setMiniSearchStr("");
+                            setIsMiniSearchOpen(false);
+                            navigate("CHART", s.symbol, isTimeWarpTriggered);
+                          }}
+                          className="w-full px-5 py-4 flex items-center justify-between hover:bg-rose-500/10 transition-all border-b border-white/5 last:border-none"
+                        >
+                           <div className="text-left font-black text-white text-sm tracking-tight">{s.name} <span className="text-xs text-gray-500 font-normal">{s.symbol}</span></div>
+                           <span className="text-[10px] text-rose-400 font-bold uppercase tracking-widest">VIEW CHART</span>
+                        </button>
+                        ))}
+                    </div>
+                 )}
+               </div>
+            </div>
+
+            <div className="w-full min-h-[75vh] h-auto bg-[#0d1117]/60 border border-white/10 rounded-[3rem] p-4 sm:p-8 backdrop-blur-3xl relative pb-24 shadow-3xl">
+              <div className="absolute top-6 left-6 z-[1000]">
+                <button onClick={() => navigate("HOME")} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 hover:text-white transition-all border border-white/5 shadow-xl">
+                  <ChevronLeft size={20} />
+                  <span className="text-xs font-black uppercase tracking-widest">EXIT</span>
+                </button>
               </div>
-              <PuzzleGame 
-                stockData={stockData} 
-                isOnlyChart={true} 
-                stockName={selectedStock?.name} 
-                stockSymbol={selectedStock?.symbol} 
-                isTimeWarpTriggered={isTimeWarpTriggered}
-                onPrevFavorite={handlePrevFavorite}
-                onNextFavorite={handleNextFavorite}
-                hasMultipleFavorites={flatFavorites.length > 1}
-                initialFlipped={initialFlipped}
-                key={`${puzzleKey}-${selectedStock?.symbol}`}
-                isSearchFullScreen={isSearchFullScreen}
-                onBackToSearch={() => setView("HOME")}
-              />
-              
+              <div className="pt-8">
+                <PuzzleGame 
+                  stockData={stockData} 
+                  isOnlyChart={true} 
+                  stockName={selectedStock?.name} 
+                  stockSymbol={selectedStock?.symbol} 
+                  isTimeWarpTriggered={isTimeWarpTriggered}
+                  onPrevFavorite={handlePrevFavorite}
+                  onNextFavorite={handleNextFavorite}
+                  hasMultipleFavorites={flatFavorites.length > 1}
+                  initialFlipped={initialFlipped}
+                  key={`${puzzleKey}-${selectedStock?.symbol}`}
+                  isSearchFullScreen={isSearchFullScreen}
+                  onBackToSearch={() => setView("HOME")}
+                />
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.4.2</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.5.0</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
