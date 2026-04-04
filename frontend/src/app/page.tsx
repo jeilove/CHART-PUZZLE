@@ -194,25 +194,42 @@ function SearchResultItem({
           {(() => {
             const p1d = intradayData[stock.symbol] || [];
             const p20d = sparklineData[stock.symbol] || [];
-            if (p1d.length < 2 || p20d.length < 2) return null;
+            
+            // v2.7.0 Skeleton UI: 데이터가 아직 없을 때 보여줄 홀더
+            if (p1d.length < 2 || p20d.length < 2) {
+              return (
+                <>
+                  <div className="flex flex-col items-center animate-pulse">
+                    <span className="text-[7px] text-gray-500 font-black opacity-10 uppercase mb-0.5">1D</span>
+                    <svg className="w-12 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
+                      <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col items-center border-l border-white/10 pl-3 animate-pulse">
+                    <span className="text-[7px] text-gray-500 font-black opacity-10 uppercase mb-0.5">20D</span>
+                    <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
+                      <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
+                    </svg>
+                  </div>
+                </>
+              );
+            }
             
             // 1D Baseline: Previous Close
             const prevClose1d = p20d.length >= 2 ? p20d[p20d.length - 2] : p1d[0];
-            const last1d = p1d[p1d.length-1];
-            const min1d = Math.min(...p1d, prevClose1d);
-            const max1d = Math.max(...p1d, prevClose1d);
-            const range1d = max1d - min1d || 1;
-            const b1d = ((max1d - prevClose1d) / range1d) * 100;
+            const maxVal1d = Math.max(...p1d, prevClose1d);
+            const minVal1d = Math.min(...p1d, prevClose1d);
+            const range1d = maxVal1d - minVal1d || 1;
+            const b1d = ((maxVal1d - prevClose1d) / range1d) * 100;
             const gId1d = `search-1d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
             const s1d = getSparklinePath(p1d);
 
             // 20D Baseline: 20 Days Ago Price
             const open20d = p20d[0];
-            const last20d = p20d[p20d.length-1];
-            const min20d = Math.min(...p20d);
-            const max20d = Math.max(...p20d);
-            const range20d = max20d - min20d || 1;
-            const b20d = ((max20d - open20d) / range20d) * 100;
+            const maxVal20d = Math.max(...p20d);
+            const minVal20d = Math.min(...p20d);
+            const range20d = maxVal20d - minVal20d || 1;
+            const b20d = ((maxVal20d - open20d) / range20d) * 100;
             const gId20d = `search-20d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
             const s20d = getSparklinePath(p20d);
 
@@ -294,9 +311,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.6.0 버전 정보 콘솔 출력
+  // v2.7.0 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.6.0 ", 
+    console.log("%c Stock Chart Puzzle %c v2.7.0 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -315,21 +332,24 @@ function ProjectApp() {
   const [sparklineData, setSparklineData] = useState<Record<string, number[]>>({});
   const [intradayData, setIntradayData] = useState<Record<string, number[]>>({});
 
-  // v1.7.6: 미니 차트(스파크라인) 및 당일 분봉 데이터 일괄 로드
+  // v2.7.0: 미니 차트(스파크라인) 및 당일 분봉 데이터 일괄 로드 (디바운싱 및 의존성 최적화)
   useEffect(() => {
-    const allSymbols = [
-      ...ungroupedStocks.map(s => s.symbol),
-      ...favoriteGroups.flatMap(g => g.stocks.map(s => s.symbol)),
-      ...filteredStocks.map(s => s.symbol)
-    ].filter((v, i, a) => a.indexOf(v) === i); // 중복 제거
-
-    if (allSymbols.length === 0) return;
-
-    // 이미 로드된 데이터 제외 (성능 최적화)
-    const missingSymbols = allSymbols.filter(s => !sparklineData[s]);
-    const missingIntraday = allSymbols.filter(s => !intradayData[s]);
-
     const fetchSparklines = async () => {
+      const allSymbols = [
+        ...ungroupedStocks.map(s => s.symbol),
+        ...favoriteGroups.flatMap(g => g.stocks.map(s => s.symbol)),
+        ...filteredStocks.map(s => s.symbol)
+      ].filter((v, i, a) => a.indexOf(v) === i); // 중복 제거
+
+      if (allSymbols.length === 0) return;
+
+      // 이미 로드된 데이터 제외 (성능 최적화)
+      const missingSymbols = allSymbols.filter(s => !sparklineData[s]);
+      const missingIntraday = allSymbols.filter(s => !intradayData[s]);
+
+      if (missingSymbols.length === 0 && missingIntraday.length === 0) return;
+
+      // Batch 20D (Sparklines)
       if (missingSymbols.length > 0) {
         try {
           const res = await fetch(`http://127.0.0.1:8000/api/stock/sparkline/batch?symbols=${missingSymbols.join(",")}&timeframe=day&count=20`);
@@ -340,9 +360,9 @@ function ProjectApp() {
         } catch (e) {}
       }
 
+      // Batch 1D (Intraday)
       if (missingIntraday.length > 0) {
         try {
-          // 분봉은 당일 흐름을 위해 약 400 포인트 확보
           const res = await fetch(`http://127.0.0.1:8000/api/stock/sparkline/batch?symbols=${missingIntraday.join(",")}&timeframe=minute&count=400`);
           if (res.ok) {
             const result = await res.json();
@@ -352,8 +372,11 @@ function ProjectApp() {
       }
     };
 
-    fetchSparklines();
-  }, [ungroupedStocks, favoriteGroups]);
+    // 타율 형 데이터인 경우 실시간 반영을 위해 0ms 딜레이, 검색 엔진인 경우 부하 방지를 위해 300ms 딜레이
+    const delay = (searchTerm && searchTerm.length > 0) ? 300 : 0;
+    const timeoutId = setTimeout(fetchSparklines, delay);
+    return () => clearTimeout(timeoutId);
+  }, [ungroupedStocks, favoriteGroups, filteredStocks, searchTerm]);
 
   // v1.7.5: 스파크라인 SVG 경로 생성 헬퍼
   const getSparklinePath = (prices: number[], width: number = 100, height: number = 20) => {
@@ -849,7 +872,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.6.0</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.7.0</p>
               </div>
             </motion.div>
           </>
@@ -1617,7 +1640,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.6.0</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.7.0</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
