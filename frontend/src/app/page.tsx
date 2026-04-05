@@ -173,15 +173,15 @@ function SearchResultItem({
         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">{stock.industry || "General Industry"}</p>
       </div>
 
-      {/* 4종 기능 아이콘 */}
-      <div className="flex items-center gap-2 sm:gap-3 mx-4">
+      {/* 4종 기능 아이콘 - 모바일에서는 차트, 워드만 노출하여 공간 확보 */}
+      <div className="flex items-center gap-1 sm:gap-3 mx-2 sm:mx-4">
         <button onClick={onSelect} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Chart">
           <img src="/icons/v3_chart.png" alt="Chart" className="w-5 h-5 object-contain" />
         </button>
-        <button onClick={onGame} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Puzzle">
+        <button onClick={onGame} className="hidden sm:flex w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Puzzle">
           <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-5 h-5 object-contain" />
         </button>
-        <button onClick={onWarp} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Time Warp">
+        <button onClick={onWarp} className="hidden sm:flex w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Time Warp">
           <img src="/icons/v3_warp.png" alt="Warp" className="w-5 h-5 object-contain" />
         </button>
         <button onClick={onCloud} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Word Cloud">
@@ -190,9 +190,9 @@ function SearchResultItem({
       </div>
 
       {/* 주가 및 즐겨찾기 */}
-      <div className="flex items-center gap-4 sm:gap-6">
-        {/* 스파크라인 (Search 전용) - v2.10.7 복구 */}
-        <div className="hidden md:flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-6">
+        {/* 스파크라인 (Search 전용) - 모바일 상시 노출 최적화 */}
+        <div className="flex items-center gap-2 sm:gap-4 ml-1 sm:ml-0">
           {(() => {
             const p1d = intradayData[stock.symbol] || [];
             const p20d = sparklineData[stock.symbol] || [];
@@ -1246,46 +1246,45 @@ function ProjectApp() {
 
                             {/* 우측 아이콘 및 정보 영역 */}
                             <div className="flex items-center gap-6">
-                              {/* 4종 숏컷 아이콘 - v2.10.8: 워드클라우드 이동 및 작동 수정 */}
-                              <div className="flex items-center gap-2">
-                                <button 
-                                  onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}
-                                  className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
-                                  title="Chart"
-                                >
-                                  <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-1.5" />
-                                </button>
-                                <button 
-                                  onClick={() => selectStock(fav.name, fav.symbol, "GAME", false, false)}
-                                  className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
-                                  title="Puzzle"
-                                >
-                                  <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-full h-full object-contain p-1.5" />
-                                </button>
-                                <button 
-                                  onClick={() => selectStock(fav.name, fav.symbol, "CHART", true, false)}
-                                  className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
-                                  title="Time Warp"
-                                >
-                                  <img src="/icons/v3_warp.png" alt="Warp" className="w-full h-full object-contain p-1.5" />
-                                </button>
-                                {/* 워드 클라우드 아이콘 - v2.10.8 타임워프 옆으로 이동 */}
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    selectStock(fav.name, fav.symbol, "CHART", false, true);
-                                  }}
-                                  className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
-                                  title="Word Cloud"
-                                >
-                                  <img src="/icons/v17_trigger.png" alt="Cloud" className="w-full h-full object-contain p-1.5 scale-[1.2]" />
-                                </button>
-                              </div>
+                                {/* 4종 숏컷 아이콘 - 모바일 최적화 (v2.10.12) */}
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                  <button 
+                                    onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}
+                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    title="Chart"
+                                  >
+                                    <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-1.5" />
+                                  </button>
+                                  <button 
+                                    onClick={() => selectStock(fav.name, fav.symbol, "GAME", false, false)}
+                                    className="hidden sm:block w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    title="Puzzle"
+                                  >
+                                    <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-full h-full object-contain p-1.5" />
+                                  </button>
+                                  <button 
+                                    onClick={() => selectStock(fav.name, fav.symbol, "CHART", true, false)}
+                                    className="hidden sm:block w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    title="Time Warp"
+                                  >
+                                    <img src="/icons/v3_warp.png" alt="Warp" className="w-full h-full object-contain p-1.5" />
+                                  </button>
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      selectStock(fav.name, fav.symbol, "CHART", false, true);
+                                    }}
+                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    title="Word Cloud"
+                                  >
+                                    <img src="/icons/v17_trigger.png" alt="Cloud" className="w-full h-full object-contain p-1.5 scale-[1.2]" />
+                                  </button>
+                                </div>
 
                               <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-4 group-hover/item:opacity-100 transition-opacity hidden sm:flex">
+                                <div className="flex items-center gap-2 sm:gap-4 group-hover/item:opacity-100 transition-opacity">
                                   {/* 차트 영역 (1D, 20D) */}
-                                  <div className="flex flex-row items-center gap-3">
+                                  <div className="flex flex-row items-center gap-2 sm:gap-3">
                                     <div className="flex flex-col items-center">
                                       <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">1D</span>
                                       {(() => {
@@ -1394,15 +1393,15 @@ function ProjectApp() {
                             <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative">
                               <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
                                 <div className="flex flex-col">
-                                  <p className="text-sm font-black text-slate-100 leading-tight group-hover/item:text-emerald-400 transition-colors">{fav.name}</p>
+                                  <p className="text-sm font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors">{fav.name}</p>
                                   <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">{fav.symbol}</p>
                                 </div>
                               </div>
 
                               {/* 우측 아이콘 및 정보 영역 */}
                               <div className="flex items-center gap-6">
-                                {/* 4종 숏컷 아이콘 - v2.10.8: 워드클라우드 이동 및 작동 수정 */}
-                                <div className="flex items-center gap-2">
+                                {/* 4종 숏컷 아이콘 - 모바일 최적화 (v2.10.12) */}
+                                <div className="flex items-center gap-1 sm:gap-2">
                                   <button 
                                     onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}
                                     className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
@@ -1412,19 +1411,18 @@ function ProjectApp() {
                                   </button>
                                   <button 
                                     onClick={() => selectStock(fav.name, fav.symbol, "GAME", false, false)}
-                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    className="hidden sm:block w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Puzzle"
                                   >
                                     <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-full h-full object-contain p-1.5" />
                                   </button>
                                   <button 
                                     onClick={() => selectStock(fav.name, fav.symbol, "CHART", true, false)}
-                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    className="hidden sm:block w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Time Warp"
                                   >
                                     <img src="/icons/v3_warp.png" alt="Warp" className="w-full h-full object-contain p-1.5" />
                                   </button>
-                                  {/* 워드 클라우드 아이콘 - v2.10.8 타임워프 옆으로 이동 */}
                                   <button 
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -1438,9 +1436,9 @@ function ProjectApp() {
                                 </div>
 
                                 <div className="flex items-center gap-4">
-                                  <div className="flex items-center gap-4 group-hover/item:opacity-100 transition-opacity hidden sm:flex">
+                                  <div className="flex items-center gap-2 sm:gap-4 group-hover/item:opacity-100 transition-opacity">
                                     {/* 차트 영역 (1D, 20D) */}
-                                    <div className="flex flex-row items-center gap-3">
+                                    <div className="flex flex-row items-center gap-2 sm:gap-3">
                                       <div className="flex flex-col items-center">
                                         <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">1D</span>
                                         {(() => {
@@ -1770,7 +1768,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.11</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.12</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
