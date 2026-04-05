@@ -234,38 +234,45 @@ const UnifiedFlipCard = ({
           className="absolute inset-0 w-full h-full bg-slate-950 border border-rose-500/40 rounded-[3rem] p-8 flex flex-col items-center justify-center shadow-3xl" 
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none", visibility: isFlipped ? "visible" : "hidden" }}
         >
-          {/* Back Header Section (Absolute for Layout Freedom) */}
-          <div className="absolute top-8 inset-x-0 !z-[250] flex flex-col items-center gap-2 px-8 pointer-events-none">
-            {stockName && !hideName && (
-              <div className="flex flex-col items-center pointer-events-auto">
-                <h3 className="text-xl font-bold text-white truncate flex items-center gap-2">
-                  {stockName}
-                  <div className="flex items-center gap-1.5 ml-1">
-                    <img src="/icons/v17_trigger.png" alt="Trigger" className="w-4 h-4 object-cover rounded-full opacity-60" />
-                    <img src="/icons/v18_pulse.png" alt="News" className="w-4 h-4 object-cover rounded-full opacity-60" />
-                  </div>
-                </h3>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-sm font-black text-white/40 tracking-wider">({stockSymbol})</span>
-                  
+          {/* Back Header Section (Optimized for Mobile/PC Overlap) */}
+          <div className="absolute top-4 sm:top-8 inset-x-0 !z-[250] pointer-events-none px-4 sm:px-8">
+            <div className="flex items-start justify-between relative">
+              {/* 1. Left Spacer for Center alignment symmetry */}
+              <div className="w-10 sm:w-12 h-10 invisible hidden sm:block" />
 
-                  {(triggerResults?.total_report_count || (triggerResults?.report_dates?.length || 0) > 0) && (
-                    <span className="text-[10px] font-black text-rose-500/80 flex items-center gap-1 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)]">
-                      <Search size={10} /> {triggerResults?.total_report_count || triggerResults?.report_dates?.length} 리포트
-                    </span>
-                  )}
-                  {triggerLoading && <Loader2 size={12} className="animate-spin text-rose-500/60" />}
-                </div>
+              {/* 2. Centered Name & Info */}
+              <div className="flex-1 flex flex-col items-center justify-center pointer-events-auto min-w-0 px-2">
+                {stockName && !hideName && (
+                  <div className="flex flex-col items-center">
+                    <h3 className="text-base sm:text-xl font-black text-white truncate max-w-full flex items-center gap-1.5">
+                      {stockName}
+                      <div className="flex items-center gap-1 ml-1 opacity-60">
+                        <img src="/icons/v17_trigger.png" alt="Trigger" className="w-3 h-3 sm:w-4 sm:h-4 object-cover rounded-full" />
+                        <img src="/icons/v18_pulse.png" alt="News" className="w-3 h-3 sm:w-4 sm:h-4 object-cover rounded-full" />
+                      </div>
+                    </h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] sm:text-sm font-black text-white/40 tracking-wider">({stockSymbol})</span>
+                      {(triggerResults?.total_report_count || (triggerResults?.report_dates?.length || 0) > 0) && (
+                        <span className="text-[9px] sm:text-[10px] font-black text-rose-500/80 flex items-center gap-1 bg-rose-500/10 px-1.5 py-0.5 rounded-full border border-rose-500/20">
+                          <Search size={8} /> {triggerResults?.total_report_count || triggerResults?.report_dates?.length}
+                        </span>
+                      )}
+                      {triggerLoading && <Loader2 size={10} className="animate-spin text-rose-500/60" />}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-            
-            <button 
-              onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }} 
-              className="absolute top-0 right-8 p-4 bg-white/5 hover:bg-white/10 text-white rounded-full transition-all active:scale-95 shadow-xl !z-[260] border border-white/10 pointer-events-auto"
-              title="차트로 돌아가기"
-            >
-              <BarChart2 size={24} className="text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
-            </button>
+
+              {/* 3. Right Chart Button */}
+              <button 
+                onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }} 
+                className="p-3 sm:p-4 bg-white/5 hover:bg-white/10 text-white rounded-full transition-all active:scale-95 shadow-xl border border-white/10 pointer-events-auto shrink-0"
+                title="차트로 돌아가기"
+              >
+                <BarChart2 size={20} className="text-rose-400 sm:w-6 sm:h-6" />
+              </button>
+            </div>
           </div>
 
           <div className="w-full flex-1 flex items-center justify-center p-6">
