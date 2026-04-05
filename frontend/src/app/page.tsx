@@ -468,10 +468,15 @@ function ProjectApp() {
           if (res.ok) {
             const data = await res.json();
             if (data.favoriteGroups.length > 0 || data.ungroupedStocks.length > 0) {
-              setFavoriteGroups(data.favoriteGroups);
-              setUngroupedStocks(data.ungroupedStocks);
-              if (data.favoriteGroups.length > 0) setTargetAddGroupId(data.favoriteGroups[0].id);
-              return; // DB 데이터 로드 성공 시 로컬스토리지 무시
+              // DB 그룹이 비어있는 깡통(stocks: [])인지, 실제 종목이 있는지 검사
+              const hasStocksInDB = data.ungroupedStocks.length > 0 || data.favoriteGroups.some((g: any) => g.stocks && g.stocks.length > 0);
+              
+              if (hasStocksInDB) {
+                setFavoriteGroups(data.favoriteGroups);
+                setUngroupedStocks(data.ungroupedStocks);
+                if (data.favoriteGroups.length > 0) setTargetAddGroupId(data.favoriteGroups[0].id);
+                return; // DB 데이터 로드 성공 시 로컬스토리지 무시
+              }
             }
           }
         } catch (e) {
