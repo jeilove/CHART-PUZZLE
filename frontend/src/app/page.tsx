@@ -503,6 +503,24 @@ function ProjectApp() {
         setUngroupedStocks(compat);
         localStorage.setItem("puzzle-ungrouped-stocks", JSON.stringify(compat));
       } else {
+        // v2.9.8: 완전 제3자(신규 비로그인 방문자)인 경우 관리자 템플릿 로컬 복제
+        try {
+          const res = await fetch("/api/market/default-favorites");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.favoriteGroups.length > 0 || data.ungroupedStocks.length > 0) {
+              const groupsToSet = data.favoriteGroups.length > 0 ? data.favoriteGroups : [{ id: "default", name: "관리자 추천 그룹", stocks: [] }];
+              setFavoriteGroups(groupsToSet);
+              if (data.ungroupedStocks) setUngroupedStocks(data.ungroupedStocks);
+              setTargetAddGroupId(groupsToSet[0].id);
+              return; // 성공 시 그대로 렌더링
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load default templates:", e);
+        }
+
+        // 모든 것에 실패한 완전 초기 텅 빈 상태
         const initialGroups: FavoriteGroup[] = [{ id: "default", name: "기본 그룹", stocks: [] }];
         setFavoriteGroups(initialGroups);
         setTargetAddGroupId("default");
