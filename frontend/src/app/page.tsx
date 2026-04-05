@@ -705,7 +705,7 @@ function ProjectApp() {
     setIsLoading(true);
     setIsDrawerOpen(false);
     try {
-      const response = await fetch(`/api/stock/${symbol}`);
+      const response = await fetch(`/api/stock/${symbol}?t=${Date.now()}`);
       if (!response.ok) throw new Error("API 실패");
       const result = await response.json();
       if (result.data) setStockData(result.data);

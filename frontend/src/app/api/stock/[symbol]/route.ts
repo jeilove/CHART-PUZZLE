@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { fetchStockOHLCV } from "@/lib/stock";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request, context: any) {
   const { params } = context;
   const symbol = params.symbol;
