@@ -312,9 +312,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.10.0 버전 정보 콘솔 출력
+  // v2.10.3 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.0 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.3 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -1729,7 +1729,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.0</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.3</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">

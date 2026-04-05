@@ -30,7 +30,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <div style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'rgba(255,255,255,0.4)', padding: '4px 10px', textAlign: 'center', fontSize: '10px', fontWeight: '700', position: 'fixed', top: '15px', right: '15px', borderRadius: '4px', zIndex: 9999, pointerEvents: 'none', border: '1px solid rgba(255,255,255,0.1)' }}>
-          v2.10.0
+          v2.10.3
         </div>
         <AuthProvider>
           {children}
