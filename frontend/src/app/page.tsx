@@ -96,7 +96,7 @@ const LiveMarketHeatmap = React.memo(function LiveMarketHeatmap({ type }: { type
     async function load() {
       try {
         setLoading(true);
-        const res = await fetch(`http://127.0.0.1:8000/api/market/heatmap?type=${type}&pages=2`);
+        const res = await fetch(`/api/market/heatmap?type=${type}&pages=2`);
         if (!res.ok) throw new Error("Fetch failed");
         const json = await res.json();
         setData(json);
@@ -371,7 +371,7 @@ function ProjectApp() {
       // Batch 20D (Sparklines)
       if (missingSymbols.length > 0) {
         try {
-          const res = await fetch(`http://127.0.0.1:8000/api/stock/sparkline/batch?symbols=${missingSymbols.join(",")}&timeframe=day&count=20`);
+          const res = await fetch(`/api/stock/sparkline/batch?symbols=${missingSymbols.join(",")}&timeframe=day&count=20`);
           if (res.ok) {
             const result = await res.json();
             setSparklineData(prev => ({ ...prev, ...result }));
@@ -382,7 +382,7 @@ function ProjectApp() {
       // Batch 1D (Intraday)
       if (missingIntraday.length > 0) {
         try {
-          const res = await fetch(`http://127.0.0.1:8000/api/stock/sparkline/batch?symbols=${missingIntraday.join(",")}&timeframe=minute&count=400`);
+          const res = await fetch(`/api/stock/sparkline/batch?symbols=${missingIntraday.join(",")}&timeframe=minute&count=400`);
           if (res.ok) {
             const result = await res.json();
             setIntradayData(prev => ({ ...prev, ...result }));
@@ -444,7 +444,7 @@ function ProjectApp() {
         setSelectedStock(found);
         const loadData = async () => {
           try {
-            const res = await fetch(`http://127.0.0.1:8000/api/stock/${s}`);
+            const res = await fetch(`/api/stock/${s}`);
             if (res.ok) {
               const result = await res.json();
               if (result.data) setStockData(result.data);
@@ -682,7 +682,7 @@ function ProjectApp() {
     setIsLoading(true);
     setIsDrawerOpen(false);
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/stock/${symbol}`);
+      const response = await fetch(`/api/stock/${symbol}`);
       if (!response.ok) throw new Error("API 실패");
       const result = await response.json();
       if (result.data) setStockData(result.data);
@@ -745,7 +745,7 @@ function ProjectApp() {
       const fetchApiSearch = async () => {
         setIsSearchLoading(true);
         try {
-          const res = await fetch(`http://127.0.0.1:8000/api/search?q=${encodeURIComponent(searchTerm)}`);
+          const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`);
           if (res.ok) {
             const data = await res.json();
             setApiResults(data.results || []);
