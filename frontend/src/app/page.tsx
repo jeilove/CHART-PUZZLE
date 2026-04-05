@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -310,9 +312,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.8.7 버전 정보 콘솔 출력
+  // v2.9.7 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.8.7 ", 
+    console.log("%c Stock Chart Puzzle %c v2.9.7 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -456,7 +458,7 @@ function ProjectApp() {
 
   const { data: session, status } = useSession();
 
-  // v2.9.2: DB 연동을 위한 즐겨찾기 로드 로직 통합
+  // v2.9.7: DB 연동 및 Vercel 404 안정화 (force-dynamic)
   useEffect(() => {
     const loadFavorites = async () => {
       // 1. 로그인 상태인 경우 DB에서 먼저 가져옴
