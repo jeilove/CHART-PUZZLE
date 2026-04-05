@@ -191,89 +191,31 @@ function SearchResultItem({
 
       {/* 주가 및 즐겨찾기 */}
       <div className="flex items-center gap-4 sm:gap-6">
-        {/* 스파크라인 (Search 전용) */}
-        <div className="hidden md:flex items-center gap-4">
-          {(() => {
-            const p1d = intradayData[stock.symbol] || [];
-            const p20d = sparklineData[stock.symbol] || [];
+        {(() => {
+          const p1d = intradayData[stock.symbol] || [];
+          const p20d = sparklineData[stock.symbol] || [];
+          const prevClose1d = p20d.length >= 2 ? p20d[p20d.length - 2] : p1d[0];
+          const latest1d = p1d[p1d.length - 1];
+          
+          // v2.10.6: undefined% 오류 방지를 위해 실시간 데이터 또는 원본 데이터 사용
+          const changeVal = latest1d !== undefined && prevClose1d !== undefined 
+            ? ((latest1d - prevClose1d) / prevClose1d * 100).toFixed(2)
+            : (stock.change !== undefined ? stock.change : "---");
             
-            // v2.7.0 Skeleton UI: 데이터가 아직 없을 때 보여줄 홀더
-            if (p1d.length < 2 || p20d.length < 2) {
-              return (
-                <>
-                  <div className="flex flex-col items-center animate-pulse">
-                    <span className="text-[7px] text-gray-500 font-black opacity-10 uppercase mb-0.5">1D</span>
-                    <svg className="w-12 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
-                      <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col items-center border-l border-white/10 pl-3 animate-pulse">
-                    <span className="text-[7px] text-gray-500 font-black opacity-10 uppercase mb-0.5">20D</span>
-                    <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
-                      <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
-                    </svg>
-                  </div>
-                </>
-              );
-            }
-            
-            // 1D Baseline: Previous Close
-            const prevClose1d = p20d.length >= 2 ? p20d[p20d.length - 2] : p1d[0];
-            const maxVal1d = Math.max(...p1d, prevClose1d);
-            const minVal1d = Math.min(...p1d, prevClose1d);
-            const range1d = maxVal1d - minVal1d || 1;
-            const b1d = ((maxVal1d - prevClose1d) / range1d) * 100;
-            const gId1d = `search-1d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
-            const s1d = getSparklinePath(p1d);
+          const isPos = changeVal === "---" ? true : Number(changeVal) >= 0;
 
-            // 20D Baseline: 20 Days Ago Price
-            const open20d = p20d[0];
-            const maxVal20d = Math.max(...p20d);
-            const minVal20d = Math.min(...p20d);
-            const range20d = maxVal20d - minVal20d || 1;
-            const b20d = ((maxVal20d - open20d) / range20d) * 100;
-            const gId20d = `search-20d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
-            const s20d = getSparklinePath(p20d);
+          return (
+            <div className="text-right min-w-[65px]">
+              <p className="text-sm font-black text-white">
+                {latest1d?.toLocaleString() || stock.price?.toLocaleString() || "---"}
+              </p>
+              <div className={`px-2 py-0.5 rounded-md mt-0.5 text-[9px] font-black inline-block ${isPos ? "bg-rose-500/20 text-rose-400" : "bg-blue-500/20 text-blue-400"}`}>
+                {isPos && changeVal !== "---" ? "+" : ""}{changeVal}{changeVal !== "---" ? "%" : ""}
+              </div>
+            </div>
+          );
+        })()}
 
-            return (
-              <>
-                <div className="flex flex-col items-center">
-                  <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5">1D</span>
-                  <svg className="w-12 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id={gId1d} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset={`${b1d}%`} stopColor="#f43f5e" stopOpacity="1" />
-                        <stop offset={`${b1d}%`} stopColor="#3b82f6" stopOpacity="1" />
-                      </linearGradient>
-                    </defs>
-                    <line x1="0" y1={b1d / 5} x2="100" y2={b1d / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.2" />
-                    <path d={s1d} fill="none" stroke={`url(#${gId1d})`} strokeWidth="2" />
-                  </svg>
-                </div>
-                <div className="flex flex-col items-center border-l border-white/10 pl-3">
-                  <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5">20D</span>
-                  <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id={gId20d} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset={`${b20d}%`} stopColor="#f43f5e" stopOpacity="1" />
-                        <stop offset={`${b20d}%`} stopColor="#3b82f6" stopOpacity="1" />
-                      </linearGradient>
-                    </defs>
-                    <line x1="0" y1={b20d / 5} x2="100" y2={b20d / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.1" />
-                    <path d={s20d} fill="none" stroke={`url(#${gId20d})`} strokeWidth="2" />
-                  </svg>
-                </div>
-              </>
-            );
-          })()}
-        </div>
-
-        <div className="text-right min-w-[65px]">
-          <p className="text-sm font-black text-white">{stock.price?.toLocaleString() || "---"}</p>
-          <div className={`px-2 py-0.5 rounded-md mt-0.5 text-[9px] font-black inline-block ${stock.change >= 0 ? "bg-rose-500/20 text-rose-400" : "bg-blue-500/20 text-blue-400"}`}>
-            {stock.change >= 0 ? `+${stock.change}%` : `${stock.change}%`}
-          </div>
-        </div>
         <button 
           onClick={onToggleFavorite}
           className="p-2 sm:p-3 bg-white/5 rounded-full text-gray-500 hover:text-yellow-500 transition-all active:scale-90"
@@ -320,6 +262,9 @@ function ProjectApp() {
   const [isTimeWarpTriggered, setIsTimeWarpTriggered] = useState(false);
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
+  const [isNewsOpen, setIsNewsOpen] = useState(false);
+  const [newsStockName, setNewsStockName] = useState("");
+  const [newsStockSymbol, setNewsStockSymbol] = useState("");
 
   // v1.1.0 홈 화면 아코디언 상태
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ "all": true });
