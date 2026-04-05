@@ -6,6 +6,7 @@
 - [x] 개인 즐겨찾기(Favorites) DB 동기화 API 구현 (`/api/user/sync`)
 - [x] 프론트엔드 로그인/로그아웃 UI 구현 및 세션 상태에 따른 데이터 동기화 로직 추가
 - [x] TypeScript 타입 오류 해결
+- [x] Vercel 배포 시 Prisma Client 생성 오류 해결 (build 스크립트 수정)
 
 ## 남은 작업 (사용자 직접 세팅 필요)
 - [ ] Google Cloud Console: Client ID, Secret 생성 및 입력

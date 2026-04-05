@@ -1,6 +1,12 @@
 # CHANGELOG
 
+## [v2.8.9] - 2026-04-05
+### Vercel 배포 오류 수정 (Prisma Client)
+- **빌드 프로세스 보완**: Vercel(pnpm) 환경에서 Prisma 클라이언트가 생성되지 않아 발생하는 `MODULE_NOT_FOUND` 오류를 해결하기 위해 `frontend/package.json`의 빌드 스크립트에 `prisma generate`를 명시적으로 추가하였습니다.
+- **배포 지원**: 기존 `"build": "next build"`를 `"build": "prisma generate && next build"`로 교체하여 빌드 직전 최신 Prisma Client 생성을 보장합니다.
+
 ## [v2.8.8] - 2026-04-04
+
 ### 개인화 서비스: Google 로그인 및 DB 동기화 구현
 - **인증 시스템 도입**: `NextAuth.js` (Auth.js) v4를 사용하여 Google OAuth 로그인 기능을 구현하였습니다.
 - **데이터베이스 동기화**: 로그인한 사용자의 경우, `localStorage` 대신 `Neon (PostgreSQL)` 호스팅 DB를 통해 즐겨찾기(Favorites) 그룹 및 종목 데이터를 실시간으로 저장하고 불러오도록 엔진을 교체하였습니다.
