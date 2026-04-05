@@ -1595,7 +1595,7 @@ function ProjectApp() {
                </div>
             </div>
 
-            <div className="w-full bg-[#0d1117]/60 border border-white/10 rounded-[3rem] p-4 sm:p-8 backdrop-blur-3xl relative pb-24 shadow-3xl min-h-[75vh]">
+            <div className="w-full bg-[#0d1117]/60 border border-white/10 rounded-[3rem] p-4 sm:p-8 backdrop-blur-3xl relative pb-24 shadow-3xl min-h-[400px] sm:min-h-[75vh]">
               <div className="absolute top-6 left-6 z-[1000]">
                 <button 
                   onClick={() => navigate("HOME")}
@@ -1674,7 +1674,7 @@ function ProjectApp() {
                </div>
             </div>
 
-            <div className="w-full bg-[#0d1117]/60 border border-white/10 rounded-[3rem] p-4 sm:p-8 backdrop-blur-3xl relative pb-24 shadow-3xl min-h-[75vh]">
+            <div className="w-full bg-[#0d1117]/60 border border-white/10 rounded-[3rem] p-4 sm:p-8 backdrop-blur-3xl relative pb-24 shadow-3xl min-h-[400px] sm:min-h-[75vh]">
               <div className="absolute top-6 left-6 z-[1000]">
                 <button onClick={() => navigate("HOME")} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 hover:text-white transition-all border border-white/5 shadow-xl">
                   <ChevronLeft size={20} />
@@ -1741,7 +1741,7 @@ function ProjectApp() {
                </div>
             </div>
 
-            <div className="w-full min-h-[75vh] h-auto bg-[#0d1117]/60 border border-white/10 rounded-[3rem] p-4 sm:p-8 backdrop-blur-3xl relative pb-24 shadow-3xl">
+            <div className="w-full min-h-[400px] sm:min-h-[75vh] h-auto bg-[#0d1117]/60 border border-white/10 rounded-[3rem] p-4 sm:p-8 backdrop-blur-3xl relative pb-24 shadow-3xl">
               <div className="absolute top-6 left-6 z-[1000]">
                 <button onClick={() => navigate("HOME")} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 hover:text-white transition-all border border-white/5 shadow-xl">
                   <ChevronLeft size={20} />

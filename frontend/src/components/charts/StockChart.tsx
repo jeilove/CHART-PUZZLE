@@ -173,7 +173,7 @@ export const StockChart = forwardRef<StockChartHandle, StockChartProps>(({
   }, [data, timeframe, backgroundColor, textColor]); // ✅ timeframe 포함
 
   return (
-    <div className="w-full h-full min-h-[500px] relative">
+    <div className="w-full h-full min-h-[350px] sm:min-h-[500px] relative">
       <div ref={chartContainerRef} className="w-full h-full" />
     </div>
   );

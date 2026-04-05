@@ -224,7 +224,7 @@ const UnifiedFlipCard = ({
             )}
           </div>
 
-          <div className="w-full h-[75vh] min-h-[650px] bg-black/40 rounded-[2.5rem] pt-20 relative mt-[76px]">
+          <div className="w-full h-[50vh] sm:h-[75vh] min-h-[400px] sm:min-h-[650px] bg-black/40 rounded-[2.5rem] pt-20 relative mt-[76px]">
             {chartContent}
           </div>
         </div>
