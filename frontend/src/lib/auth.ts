@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  pages: {
+  /* pages: {
     signIn: "/", // We'll handle sign-in via a button on the home page
-  },
+  }, */
 };

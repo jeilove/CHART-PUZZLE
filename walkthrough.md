@@ -24,8 +24,9 @@ DATABASE_URL="postgresql://user:password@hostname:port/dbname?sslmode=require"
 3. 'API 및 서비스' > '사용자 인증 정보'로 이동합니다.
 4. '사용자 인증 정보 만들기' > 'OAuth 클라이언트 ID'를 선택합니다.
 5. 승인된 리디렉션 URI에 아래 주소를 추가합니다:
-   - `http://localhost:3000/api/auth/callback/google`
-6. 생성된 Client ID와 Secret을 `.env.local`에 복사합니다.
+   - [로컬용]: `http://localhost:3000/api/auth/callback/google`
+   - [Vercel용]: `https://chart-puzzle.vercel.app/api/auth/callback/google`
+6. 생성된 Client ID와 Secret을 `.env.local` 및 Vercel 환경변수에 복사합니다.
 
 ## 3. DB 스키마 동기화 (Prisma)
 터미널(frontend 폴더)에서 아래 명령어를 실행하여 Neon DB에 테이블을 생성합니다.
