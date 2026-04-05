@@ -10,6 +10,7 @@
 - [x] Prisma 버전 안정화 (v7 -> v6.4.1 다운그레이드)
 - [x] pnpm.overrides를 통한 버전 강제 고정 (v2.9.2)
 - [x] Prisma 스키마 타입 오타 수정 (int -> Int, v2.9.4)
+- [x] Next.js 보안 취약점 해결 및 프레임워크 업그레이드 (v2.9.5)
 
 ## 남은 작업 (사용자 직접 세팅 필요)
 - [ ] Google Cloud Console: Client ID, Secret 생성 및 입력
