@@ -191,13 +191,86 @@ function SearchResultItem({
 
       {/* 주가 및 즐겨찾기 */}
       <div className="flex items-center gap-4 sm:gap-6">
+        {/* 스파크라인 (Search 전용) - v2.10.7 복구 */}
+        <div className="hidden md:flex items-center gap-4">
+          {(() => {
+            const p1d = intradayData[stock.symbol] || [];
+            const p20d = sparklineData[stock.symbol] || [];
+            
+            if (p1d.length < 2 || p20d.length < 2) {
+              return (
+                <>
+                  <div className="flex flex-col items-center animate-pulse">
+                    <span className="text-[7px] text-gray-500 font-black opacity-10 uppercase mb-0.5">1D</span>
+                    <svg className="w-12 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
+                      <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col items-center border-l border-white/10 pl-3 animate-pulse">
+                    <span className="text-[7px] text-gray-500 font-black opacity-10 uppercase mb-0.5">20D</span>
+                    <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
+                      <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
+                    </svg>
+                  </div>
+                </>
+              );
+            }
+            
+            const prevClose1d = p20d.length >= 2 ? p20d[p20d.length - 2] : p1d[0];
+            const maxVal1d = Math.max(...p1d, prevClose1d);
+            const minVal1d = Math.min(...p1d, prevClose1d);
+            const range1d = maxVal1d - minVal1d || 1;
+            const b1d = ((maxVal1d - prevClose1d) / range1d) * 100;
+            const gId1d = `search-1d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
+            const s1d = getSparklinePath(p1d);
+
+            const open20d = p20d[0];
+            const maxVal20d = Math.max(...p20d);
+            const minVal20d = Math.min(...p20d);
+            const range20d = maxVal20d - minVal20d || 1;
+            const b20d = ((maxVal20d - open20d) / range20d) * 100;
+            const gId20d = `search-20d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
+            const s20d = getSparklinePath(p20d);
+
+            return (
+              <>
+                <div className="flex flex-col items-center">
+                  <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5">1D</span>
+                  <svg className="w-12 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id={gId1d} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset={`${b1d}%`} stopColor="#f43f5e" stopOpacity="1" />
+                        <stop offset={`${b1d}%`} stopColor="#3b82f6" stopOpacity="1" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1={b1d / 5} x2="100" y2={b1d / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.2" />
+                    <path d={s1d} fill="none" stroke={`url(#${gId1d})`} strokeWidth="1.5" />
+                  </svg>
+                </div>
+                <div className="flex flex-col items-center border-l border-white/10 pl-3">
+                  <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5">20D</span>
+                  <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id={gId20d} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset={`${b20d}%`} stopColor="#f43f5e" stopOpacity="1" />
+                        <stop offset={`${b20d}%`} stopColor="#3b82f6" stopOpacity="1" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1={b20d / 5} x2="100" y2={b20d / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.1" />
+                    <path d={s20d} fill="none" stroke={`url(#${gId20d})`} strokeWidth="1.5" />
+                  </svg>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+
         {(() => {
           const p1d = intradayData[stock.symbol] || [];
           const p20d = sparklineData[stock.symbol] || [];
           const prevClose1d = p20d.length >= 2 ? p20d[p20d.length - 2] : p1d[0];
           const latest1d = p1d[p1d.length - 1];
           
-          // v2.10.6: undefined% 오류 방지를 위해 실시간 데이터 또는 원본 데이터 사용
           const changeVal = latest1d !== undefined && prevClose1d !== undefined 
             ? ((latest1d - prevClose1d) / prevClose1d * 100).toFixed(2)
             : (stock.change !== undefined ? stock.change : "---");
@@ -251,9 +324,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.6 환경 안정화 및 UI 개선 완료
+  // v2.10.7 환경 안정화 및 UI 개선 완료
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.6 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.7 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -1705,7 +1778,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.6</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.7</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
