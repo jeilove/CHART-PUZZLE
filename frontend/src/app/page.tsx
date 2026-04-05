@@ -295,7 +295,7 @@ function ProjectApp() {
   const [miniSearchStr, setMiniSearchStr] = useState("");
   const [isMiniSearchOpen, setIsMiniSearchOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
-  const [stockData, setStockData] = useState<any[]>(MOCK_STOCK_DATA);
+  const [stockData, setStockData] = useState<any[]>([]); // v2.9.10: 초기 데이터를 빈 배열로 설정하여 가상데이터 노출 방지
   const [isLoading, setIsLoading] = useState(false);
   const [favoriteGroups, setFavoriteGroups] = useState<FavoriteGroup[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -1505,7 +1505,7 @@ function ProjectApp() {
                     </div>
                     <input 
                       type="text" 
-                      placeholder="분석할 종목을 입력하세요 (퍼즐판 교체)"
+                      placeholder="분석할 종목을 입력하세요"
                       value={miniSearchStr}
                       onChange={(e) => {
                         setMiniSearchStr(e.target.value);
@@ -1590,7 +1590,7 @@ function ProjectApp() {
                     </div>
                     <input 
                       type="text" 
-                      placeholder="트리거 클라우드 검색 (종목 교체)"
+                      placeholder="트리거 클라우드 검색"
                       value={miniSearchStr}
                       onChange={(e) => {
                         setMiniSearchStr(e.target.value);
@@ -1657,7 +1657,7 @@ function ProjectApp() {
                     </div>
                     <input 
                       type="text" 
-                      placeholder="종목 실시간 차트 검색 (타임워프 포함)"
+                      placeholder="종목 실시간 차트 검색"
                       value={miniSearchStr}
                       onChange={(e) => {
                         setMiniSearchStr(e.target.value);
@@ -1746,7 +1746,6 @@ function ProjectApp() {
             <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
               <img src="/icons/v11_home.png" alt="HOME" className="w-full h-full object-contain" />
             </div>
-            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">HOME</span>
           </button>
 
           {/* 차트보기 */}
@@ -1769,7 +1768,6 @@ function ProjectApp() {
             <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
               <img src="/icons/v3_chart.png" alt="CHART" className="w-full h-full object-contain" />
             </div>
-            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">CHART</span>
           </button>
 
           {/* 차트퍼즐 */}
@@ -1794,7 +1792,6 @@ function ProjectApp() {
             <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
               <img src="/icons/v3_puzzle.png" alt="PUZZLE" className="w-full h-full object-contain" />
             </div>
-            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">PUZZLE</span>
           </button>
 
           {/* 타임워프 */}
@@ -1818,7 +1815,6 @@ function ProjectApp() {
             <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
               <img src="/icons/v3_warp.png" alt="WARP" className="w-full h-full object-contain" />
             </div>
-            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">WARP</span>
           </button>
 
           {/* 트리거 */}
@@ -1829,7 +1825,6 @@ function ProjectApp() {
             <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
               <img src="/icons/v3_trigger.png" alt="TRIGGER" className="w-full h-full object-contain" />
             </div>
-            <span className="text-[10px] font-black text-white tracking-widest mt-0.5">TRIGGER</span>
           </button>
         </motion.div>
       </div>
