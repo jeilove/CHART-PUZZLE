@@ -22,7 +22,7 @@ export function TriggerAnalysis() {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
     try {
-      const res = await fetch(`/api/market/trigger-summary${refresh ? "?refresh=true" : ""}&t=${Date.now()}`, {
+      const res = await fetch(`/api/market/trigger-summary?t=${Date.now()}${refresh ? "&refresh=true" : ""}`, {
         signal: controller.signal,
         cache: 'no-store'
       });
