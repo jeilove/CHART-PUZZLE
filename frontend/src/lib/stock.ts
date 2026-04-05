@@ -6,8 +6,7 @@ export async function fetchStockOHLCV(symbol: string, timeframe: "day" | "minute
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
       },
-      // Next.js fetch 옵션: 분봉은 10분 캐시, 일봉 이상은 24시간
-      next: { revalidate: timeframe === "minute" ? 600 : 86400 }
+      cache: "no-store", // v2.10.3: Next.js 내장 fetch 영구 캐시로 인한 404 차단 방지 (완전 실시간)
     });
 
     if (!response.ok) return [];

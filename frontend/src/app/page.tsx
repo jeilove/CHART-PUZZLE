@@ -444,7 +444,7 @@ function ProjectApp() {
         setSelectedStock(found);
         const loadData = async () => {
           try {
-            const res = await fetch(`/api/stock/${s}`);
+            const res = await fetch(`/api/stock/${s}?t=${Date.now()}`);
             if (res.ok) {
               const result = await res.json();
               if (result.data) setStockData(result.data);
