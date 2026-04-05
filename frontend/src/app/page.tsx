@@ -251,9 +251,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.5 환경 안정화 및 UI 개선 완료
+  // v2.10.6 환경 안정화 및 UI 개선 완료
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.5 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.6 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -1705,7 +1705,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.5</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.6</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
