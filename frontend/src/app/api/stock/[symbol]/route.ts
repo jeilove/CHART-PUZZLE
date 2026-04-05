@@ -3,9 +3,8 @@ import { fetchStockOHLCV } from "@/lib/stock";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request, context: any) {
-  const { params } = context;
-  const symbol = params.symbol;
+export async function GET(request: Request, { params }: { params: Promise<{ symbol: string }> }) {
+  const { symbol } = await params;
   const url = new URL(request.url);
   const timeframe = (url.searchParams.get("timeframe") as "day" | "minute") || "day";
   

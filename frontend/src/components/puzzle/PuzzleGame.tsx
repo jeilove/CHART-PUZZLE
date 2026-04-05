@@ -511,7 +511,7 @@ export const PuzzleGame = ({
       setIsQuizDataLoading(true);
       const tfMap = { "D": "day", "W": "week", "M": "month" };
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/stock/${stockSymbol}?timeframe=${tfMap[timeframe]}`);
+        const res = await fetch(`/api/stock/${stockSymbol}?timeframe=${tfMap[timeframe]}&t=${Date.now()}`);
         if (res.ok) {
           const result = await res.json();
           if (result.data) setQuizData(result.data);
@@ -525,7 +525,7 @@ export const PuzzleGame = ({
     if (!stockSymbol) return;
     setIsTriggerLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/trigger/${stockSymbol}?name=${encodeURIComponent(stockName)}&refresh=${force}&t=${Date.now()}`);
+      const res = await fetch(`/api/trigger/${stockSymbol}?name=${encodeURIComponent(stockName)}&refresh=${force}&t=${Date.now()}`);
       if (res.ok) { 
         const data = await res.json(); 
         setTriggerResults(data); 
@@ -548,7 +548,7 @@ export const PuzzleGame = ({
     const fetchNews = async () => {
       setIsNewsLoading(true);
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/news/${encodeURIComponent(stockName)}?t=${Date.now()}`, { signal: abortController.signal });
+        const res = await fetch(`/api/news/${encodeURIComponent(stockName)}?t=${Date.now()}`, { signal: abortController.signal });
         if (res.ok) { const data = await res.json(); setNewsResults(data.news || []); }
       } catch (e: any) { setNewsResults([]); } finally { setIsNewsLoading(false); }
     };
