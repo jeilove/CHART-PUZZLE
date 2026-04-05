@@ -456,7 +456,7 @@ function ProjectApp() {
 
   const { data: session, status } = useSession();
 
-  // v2.8.9: DB 연동을 위한 즐겨찾기 로드 로직 통합
+  // v2.9.0: DB 연동을 위한 즐겨찾기 로드 로직 통합
   useEffect(() => {
     const loadFavorites = async () => {
       // 1. 로그인 상태인 경우 DB에서 먼저 가져옴
