@@ -434,11 +434,12 @@ function ProjectApp() {
   };
 
   // URL 네비게이션 헬퍼: router.push만 담당하며 setView 등은 아래 useEffect에서 처리
-  const navigate = React.useCallback((v: string, s?: string, w: boolean = false) => {
+  const navigate = React.useCallback((v: string, s?: string, w: boolean = false, f: boolean = false) => {
     const params = new URLSearchParams();
     params.set("view", v);
     if (s) params.set("s", s);
     params.set("w", w ? "1" : "0");
+    params.set("f", f ? "1" : "0"); // v2.10.9: 워드클라우드 상태 연동
     setIsDrawerOpen(false);
     router.push(`${pathname}?${params.toString()}`);
   }, [pathname, router]);
@@ -448,13 +449,19 @@ function ProjectApp() {
     const v = searchParams.get("view");
     const s = searchParams.get("s");   // navigate에서 "s"로 씀
     const w = searchParams.get("w") === "1";  // navigate에서 "w"로 씀
+    const f = searchParams.get("f") === "1";  // v2.10.9: flip 상태 추가
 
     const targetView = (v && ["HOME", "GAME", "CHART", "TRIGGER"].includes(v)) ? v as "HOME" | "GAME" | "CHART" | "TRIGGER" : "HOME";
     
     setView(targetView);
     setIsTimeWarpTriggered(w);
-    // [v1.6.1] Navigation context check: keep search screen active if navigating from it
-    // if (!v || v === "HOME") setInitialFlipped(false);
+    setInitialFlipped(f); // 상태 동기화
+    
+    // [v2.10.9] 홈으로 돌아오면 상태 초기화
+    if (!v || v === "HOME") {
+      setIsTimeWarpTriggered(false);
+      setInitialFlipped(false);
+    }
 
     if (s) {
       const allStocks = [...STOCK_LIST, ...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
@@ -719,10 +726,13 @@ function ProjectApp() {
     saveGroups(newGroups);
   };
 
-  const selectStock = async (name: string, symbol: string, mode: "GAME" | "CHART" = "GAME") => {
+  const selectStock = async (name: string, symbol: string, mode: "GAME" | "CHART" = "GAME", w = false, f = false) => {
     // API 호출 및 기본적인 상태 변경 수행 후 URL 업데이트
     setIsLoading(true);
     setIsDrawerOpen(false);
+    setIsTimeWarpTriggered(w);
+    setInitialFlipped(f);
+
     try {
       const response = await fetch(`/api/stock/${symbol}?t=${Date.now()}`);
       if (!response.ok) throw new Error("API 실패");
@@ -734,8 +744,7 @@ function ProjectApp() {
       setSelectedStock({ name, symbol });
       setIsLoading(false);
       // URL 업데이트 (useEffect에서 setView 등을 최종 처리)
-      navigate(mode, symbol, mode === "CHART" && isTimeWarpTriggered);
-      if (mode === "GAME") setIsTimeWarpTriggered(false);
+      navigate(mode, symbol, w, f);
     }
   };
 
@@ -1070,10 +1079,10 @@ function ProjectApp() {
                                     key={stock.symbol} 
                                     stock={stock} 
                                     isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
-                                    onSelect={() => selectStock(stock.name, stock.symbol, "CHART")}
-                                    onGame={() => selectStock(stock.name, stock.symbol, "GAME")}
-                                    onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
-                                    onCloud={() => { setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
+                                    onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
+                                    onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
+                                    onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
+                                    onCloud={() => selectStock(stock.name, stock.symbol, "CHART", false, true)}
                                     onToggleFavorite={(e) => {
                                       smartToggleFavorite(stock, e);
                                     }}
@@ -1126,10 +1135,10 @@ function ProjectApp() {
                                             stock={stock} 
                                             isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
                                             small
-                                            onSelect={() => selectStock(stock.name, stock.symbol, "CHART")}
-                                            onGame={() => selectStock(stock.name, stock.symbol, "GAME")}
-                                            onWarp={() => { setIsTimeWarpTriggered(true); selectStock(stock.name, stock.symbol, "CHART"); }}
-                                            onCloud={() => { setInitialFlipped(true); selectStock(stock.name, stock.symbol, "CHART"); }}
+                                            onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
+                                            onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
+                                            onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
+                                            onCloud={() => selectStock(stock.name, stock.symbol, "CHART", false, true)}
                                             onToggleFavorite={(e) => {
                                               smartToggleFavorite(stock, e);
                                             }}
@@ -1228,7 +1237,7 @@ function ProjectApp() {
                       <div className="px-5 pb-4 space-y-1 border-t border-white/5">
                         {ungroupedStocks.length > 0 ? ungroupedStocks.map((fav) => (
                           <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative">
-                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART")}>
+                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
                               <div className="flex flex-col">
                                 <p className="text-sm font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors">{fav.name}</p>
                                 <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">{fav.symbol}</p>
@@ -1240,24 +1249,21 @@ function ProjectApp() {
                               {/* 4종 숏컷 아이콘 - v2.10.8: 워드클라우드 이동 및 작동 수정 */}
                               <div className="flex items-center gap-2">
                                 <button 
-                                  onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
+                                  onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}
                                   className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                   title="Chart"
                                 >
                                   <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-1.5" />
                                 </button>
                                 <button 
-                                  onClick={() => selectStock(fav.name, fav.symbol, "GAME")}
+                                  onClick={() => selectStock(fav.name, fav.symbol, "GAME", false, false)}
                                   className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                   title="Puzzle"
                                 >
                                   <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-full h-full object-contain p-1.5" />
                                 </button>
                                 <button 
-                                  onClick={() => {
-                                    setIsTimeWarpTriggered(true);
-                                    selectStock(fav.name, fav.symbol, "CHART");
-                                  }}
+                                  onClick={() => selectStock(fav.name, fav.symbol, "CHART", true, false)}
                                   className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                   title="Time Warp"
                                 >
@@ -1267,8 +1273,7 @@ function ProjectApp() {
                                 <button 
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setInitialFlipped(true);
-                                    selectStock(fav.name, fav.symbol, "CHART");
+                                    selectStock(fav.name, fav.symbol, "CHART", false, true);
                                   }}
                                   className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                   title="Word Cloud"
@@ -1387,7 +1392,7 @@ function ProjectApp() {
                         <div className="px-5 pb-4 space-y-1 border-t border-white/5">
                           {group.stocks.length > 0 ? group.stocks.map((fav) => (
                             <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative">
-                              <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART")}>
+                              <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
                                 <div className="flex flex-col">
                                   <p className="text-sm font-black text-slate-100 leading-tight group-hover/item:text-emerald-400 transition-colors">{fav.name}</p>
                                   <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">{fav.symbol}</p>
@@ -1399,24 +1404,21 @@ function ProjectApp() {
                                 {/* 4종 숏컷 아이콘 - v2.10.8: 워드클라우드 이동 및 작동 수정 */}
                                 <div className="flex items-center gap-2">
                                   <button 
-                                    onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
+                                    onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}
                                     className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Chart"
                                   >
                                     <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-1.5" />
                                   </button>
                                   <button 
-                                    onClick={() => selectStock(fav.name, fav.symbol, "GAME")}
+                                    onClick={() => selectStock(fav.name, fav.symbol, "GAME", false, false)}
                                     className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Puzzle"
                                   >
                                     <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-full h-full object-contain p-1.5" />
                                   </button>
                                   <button 
-                                    onClick={() => {
-                                      setIsTimeWarpTriggered(true);
-                                      selectStock(fav.name, fav.symbol, "CHART");
-                                    }}
+                                    onClick={() => selectStock(fav.name, fav.symbol, "CHART", true, false)}
                                     className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Time Warp"
                                   >
@@ -1426,8 +1428,7 @@ function ProjectApp() {
                                   <button 
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setInitialFlipped(true);
-                                      selectStock(fav.name, fav.symbol, "CHART");
+                                      selectStock(fav.name, fav.symbol, "CHART", false, true);
                                     }}
                                     className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Word Cloud"
@@ -1575,10 +1576,10 @@ function ProjectApp() {
                               stock={s}
                               isFavorite={ungroupedStocks.some(f => f.symbol === s.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))}
                               small
-                              onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("GAME", s.symbol); }}
-                              onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("GAME", s.symbol); }}
-                              onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setIsTimeWarpTriggered(true); navigate("CHART", s.symbol); }}
-                              onCloud={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setInitialFlipped(true); navigate("CHART", s.symbol); }}
+                              onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "GAME", false, false); }}
+                              onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "GAME", false, false); }}
+                              onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", true, false); }}
+                              onCloud={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", false, true); }}
                               onToggleFavorite={(e) => smartToggleFavorite(s, e)}
                               sparklineData={sparklineData}
                               intradayData={intradayData}
@@ -1654,10 +1655,10 @@ function ProjectApp() {
                               stock={s}
                               isFavorite={ungroupedStocks.some(f => f.symbol === s.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))}
                               small
-                              onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("TRIGGER", s.symbol); }}
-                              onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("GAME", s.symbol); }}
-                              onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setIsTimeWarpTriggered(true); navigate("CHART", s.symbol); }}
-                              onCloud={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setInitialFlipped(true); navigate("CHART", s.symbol); }}
+                              onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "TRIGGER", false, false); }}
+                              onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "GAME", false, false); }}
+                              onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", true, false); }}
+                              onCloud={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", false, true); }}
                               onToggleFavorite={(e) => smartToggleFavorite(s, e)}
                               sparklineData={sparklineData}
                               intradayData={intradayData}
@@ -1721,10 +1722,10 @@ function ProjectApp() {
                               stock={s}
                               isFavorite={ungroupedStocks.some(f => f.symbol === s.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))}
                               small
-                              onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("CHART", s.symbol, isTimeWarpTriggered); }}
-                              onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); navigate("GAME", s.symbol); }}
-                              onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setIsTimeWarpTriggered(true); navigate("CHART", s.symbol); }}
-                              onCloud={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); setInitialFlipped(true); navigate("CHART", s.symbol); }}
+                              onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", isTimeWarpTriggered, false); }}
+                              onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "GAME", false, false); }}
+                              onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", true, false); }}
+                              onCloud={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", false, true); }}
                               onToggleFavorite={(e) => smartToggleFavorite(s, e)}
                               sparklineData={sparklineData}
                               intradayData={intradayData}
@@ -1794,13 +1795,13 @@ function ProjectApp() {
               if (!selectedStock) {
                 const flatFavs = [...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
                 if (flatFavs.length > 0) {
-                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "CHART");
+                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "CHART", false, false);
                   return;
                 }
                 alert("분석할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
                 return;
               }
-              navigate("CHART", selectedStock.symbol, false);
+              navigate("CHART", selectedStock.symbol, false, false);
               setIsTimeWarpTriggered(false);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "CHART" && !isTimeWarpTriggered ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
@@ -1819,13 +1820,13 @@ function ProjectApp() {
               if (!selectedStock) {
                 const flatFavs = [...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
                 if (flatFavs.length > 0) {
-                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "GAME");
+                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "GAME", false, false);
                   return;
                 }
                 alert("퍼즐을 진행할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
                 return;
               }
-              navigate("GAME", selectedStock.symbol);
+              navigate("GAME", selectedStock.symbol, false, false);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "GAME" ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
           >
@@ -1840,15 +1841,13 @@ function ProjectApp() {
               if (!selectedStock) {
                 const flatFavs = [...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
                 if (flatFavs.length > 0) {
-                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "CHART");
-                  setIsTimeWarpTriggered(true);
-                  // selectStock 내부에서 navigate가 호출됨
+                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "CHART", true, false);
                   return;
                 }
                 alert("타임워프를 실행할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
                 return;
               }
-              navigate("CHART", selectedStock.symbol, true);
+              navigate("CHART", selectedStock.symbol, true, false);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${isTimeWarpTriggered ? "bg-white/15 ring-1 ring-white/20 shadow-lg shadow-rose-500/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
           >
