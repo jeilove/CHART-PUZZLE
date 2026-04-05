@@ -1645,7 +1645,7 @@ function ProjectApp() {
               </div>
             </div>
           </motion.div>
-        ) : (
+        ) : view === "CHART" ? (
           <motion.div key="chart" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="z-10 w-full max-w-5xl flex flex-col items-center">
             {/* Global Search Header for Chart View */}
             <div className="w-full mb-6 sticky top-0 z-[6000] px-1 group">
@@ -1725,7 +1725,7 @@ function ProjectApp() {
               </div>
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
 
 
@@ -1748,7 +1748,27 @@ function ProjectApp() {
             </div>
           </button>
 
-
+          {/* 차트보기 */}
+          <button 
+            onClick={() => {
+              if (!selectedStock) {
+                const flatFavs = [...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
+                if (flatFavs.length > 0) {
+                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "CHART");
+                  return;
+                }
+                alert("분석할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
+                return;
+              }
+              navigate("CHART", selectedStock.symbol, false);
+              setIsTimeWarpTriggered(false);
+            }}
+            className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "CHART" && !isTimeWarpTriggered ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
+          >
+            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+              <img src="/icons/v3_chart.png" alt="CHART" className="w-full h-full object-contain" />
+            </div>
+          </button>
 
           {/* 차트퍼즐 */}
           <button 
