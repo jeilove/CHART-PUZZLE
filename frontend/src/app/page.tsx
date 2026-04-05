@@ -308,17 +308,18 @@ function ProjectApp() {
   const [activeFilterGroupId, setActiveFilterGroupId] = useState<string | null>(null);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
+  
+  // v2.10.5 환경 안정화 및 UI 개선 완료
+  useEffect(() => {
+    console.log("%c Stock Chart Puzzle %c v2.10.5 ", 
+      "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
+      "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
+    );
+  }, []);
+
   const [isTimeWarpTriggered, setIsTimeWarpTriggered] = useState(false);
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
-  
-  // v2.10.4 버전 정보 콘솔 출력
-  useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.4 ", 
-      "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
-      "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
-    );
-  }, []);
 
   // v1.1.0 홈 화면 아코디언 상태
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({ "all": true });
@@ -1267,7 +1268,7 @@ function ProjectApp() {
                                         const strokePath = getSparklinePath(prices);
                                         
                                         return (
-                                          <svg className="w-16 h-10" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                          <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
                                             <defs>
                                               <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
                                                 <stop offset={`${baseline}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -1276,7 +1277,7 @@ function ProjectApp() {
                                             </defs>
                                             {/* 전일 종가 기준선 (점선) */}
                                             <line x1="0" y1={baseline / 5} x2="100" y2={baseline / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.3" />
-                                            <path d={strokePath} fill="none" stroke={`url(#${gradId})`} strokeWidth="2" />
+                                            <path d={strokePath} fill="none" stroke={`url(#${gradId})`} strokeWidth="1.5" />
                                           </svg>
                                         );
                                       })()}
@@ -1297,7 +1298,7 @@ function ProjectApp() {
                                         const strokePath20 = getSparklinePath(prices);
                                         
                                         return (
-                                          <svg className="w-16 h-10" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                          <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
                                             <defs>
                                               <linearGradient id={gradId20} x1="0%" y1="0%" x2="0%" y2="100%">
                                                 <stop offset={`${baseline20}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -1305,11 +1306,26 @@ function ProjectApp() {
                                               </linearGradient>
                                             </defs>
                                             <line x1="0" y1={baseline20 / 5} x2="100" y2={baseline20 / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.2" />
-                                            <path d={strokePath20} fill="none" stroke={`url(#${gradId20})`} strokeWidth="2" />
+                                            <path d={strokePath20} fill="none" stroke={`url(#${gradId20})`} strokeWidth="1.5" />
                                           </svg>
                                         );
                                       })()}
                                     </div>
+                                    
+                                    {/* 워드 클라우드 단축 아이콘 */}
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setNewsStockName(fav.name);
+                                        setNewsStockSymbol(fav.symbol);
+                                        setIsNewsOpen(true);
+                                      }}
+                                      className="ml-1 p-1 hover:bg-white/10 rounded-full transition-all group/btn"
+                                    >
+                                      <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 group-hover/btn:border-rose-400/50 transition-colors">
+                                        <img src="/icons/v3_trigger.png" alt="News" className="w-full h-full object-cover scale-110" />
+                                      </div>
+                                    </button>
                                   </div>
                                 </div>
                                 <div className="text-right min-w-[60px]">
@@ -1415,7 +1431,7 @@ function ProjectApp() {
                                           const strokePath = getSparklinePath(prices);
                                           
                                           return (
-                                            <svg className="w-16 h-10" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                            <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
                                               <defs>
                                                 <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
                                                   <stop offset={`${baseline}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -1423,7 +1439,7 @@ function ProjectApp() {
                                                 </linearGradient>
                                               </defs>
                                               <line x1="0" y1={baseline / 5} x2="100" y2={baseline / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.3" />
-                                              <path d={strokePath} fill="none" stroke={`url(#${gradId})`} strokeWidth="2" />
+                                              <path d={strokePath} fill="none" stroke={`url(#${gradId})`} strokeWidth="1.5" />
                                             </svg>
                                           );
                                         })()}
@@ -1442,7 +1458,7 @@ function ProjectApp() {
                                           const strokePath20 = getSparklinePath(prices);
                                           
                                           return (
-                                            <svg className="w-16 h-10" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                            <svg className="w-14 h-8" viewBox="0 0 100 20" preserveAspectRatio="none">
                                               <defs>
                                                 <linearGradient id={gradId20} x1="0%" y1="0%" x2="0%" y2="100%">
                                                   <stop offset={`${baseline20}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -1450,11 +1466,26 @@ function ProjectApp() {
                                                 </linearGradient>
                                               </defs>
                                               <line x1="0" y1={baseline20 / 5} x2="100" y2={baseline20 / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.2" />
-                                              <path d={strokePath20} fill="none" stroke={`url(#${gradId20})`} strokeWidth="2" />
+                                              <path d={strokePath20} fill="none" stroke={`url(#${gradId20})`} strokeWidth="1.5" />
                                             </svg>
                                           );
                                         })()}
                                       </div>
+                                      
+                                      {/* 워드 클라우드 단축 아이콘 */}
+                                      <button 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setNewsStockName(fav.name);
+                                          setNewsStockSymbol(fav.symbol);
+                                          setIsNewsOpen(true);
+                                        }}
+                                        className="ml-1 p-1 hover:bg-white/10 rounded-full transition-all group/btn"
+                                      >
+                                        <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 group-hover/btn:border-rose-400/50 transition-colors">
+                                          <img src="/icons/v3_trigger.png" alt="News" className="w-full h-full object-cover scale-110" />
+                                        </div>
+                                      </button>
                                     </div>
                                   </div>
                                   <div className="text-right min-w-[60px]">
@@ -1729,7 +1760,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.4</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.5</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">

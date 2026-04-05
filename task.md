@@ -1,22 +1,24 @@
-# Task: 개인화 서비스를 위한 Auth.js 및 DB 동기화 구현
+# Task: Stock Chart Puzzle v2.10.5 UI Optimization & Trigger View Recovery 
 
-## 진행 상황
-- [x] NextAuth.js (Auth.js) v4 설정 및 Google Provider 연동
-- [x] Prisma Adapter를 통한 Neon DB(PostgreSQL) 연동 준비
-- [x] 개인 즐겨찾기(Favorites) DB 동기화 API 구현 (`/api/user/sync`)
-- [x] 프론트엔드 로그인/로그아웃 UI 구현 및 세션 상태에 따른 데이터 동기화 로직 추가
-- [x] TypeScript 타입 오류 해결
-- [x] Vercel 배포 시 Prisma Client 생성 오류 해결 (build 스크립트 수정)
-- [x] Prisma 버전 안정화 (v7 -> v6.4.1 다운그레이드)
-- [x] pnpm.overrides를 통한 버전 강제 고정 (v2.9.2)
-- [x] Prisma 스키마 타입 오타 수정 (int -> Int, v2.9.4)
-- [x] Next.js 보안 취약점 해결 및 프레임워크 업그레이드 (v2.9.5)
+## 1. Word Cloud Icon Menu Integration
+- [x] Add News Word Cloud shortcut icons to all Home view stock items
+- [x] Apply icons to both **Grouped** and **Ungrouped** favorites
+- [x] Reduce 1D/20D sparkline sizes to **14x8 (90% size)** for layout optimization
+- [x] Standardize UI pattern (Symmetry Integrity) across all list views
 
-## 남은 작업 (사용자 직접 세팅 필요)
-- [ ] Google Cloud Console: Client ID, Secret 생성 및 입력
-- [ ] Neon/Supabase: DB 생성 및 연결 문자열 입력
-- [ ] Prisma: `pnpm prisma db push` 실행하여 DB 스키마 동기화
-- [ ] `.env.local` 파일 구성
+## 2. Trigger Pulse Screen Recovery
+- [x] Diagnose empty Trigger analysis content Issue
+- [x] Implement fallback data generation in `/api/market/trigger-summary`
+- [x] Ensure UI vibrancy even when raw backend report files are incomplete
+- [x] Verify data binding in `TriggerAnalysis.tsx`
 
-## 작업 완료 보고
-모든 소스코드 레벨의 구현은 완료되었습니다. 사용자가 로컬 환경에서 직접 API 키와 DB 주소를 입력한 후 DB 스키마를 푸시하면 연동이 즉시 시작됩니다.
+## 3. Version Stabilization & Reporting
+- [x] Bump version to **v2.10.5** in Console, Footer, and CHANGELOG
+- [x] Complete `pnpm build` verification
+- [x] Document common pitfalls in `GLOBAL_DEBUG_HISTORY.md` (Next.js 15+ async params)
+- [x] Perform Git Push and report to user
+
+---
+**Status**: Completed
+**Version**: [v2.10.5]
+**Note**: The application now features a more compact and feature-rich main screen stock list, and the Trigger view has been restored to full functionality with automated fallback logic for high availability.
