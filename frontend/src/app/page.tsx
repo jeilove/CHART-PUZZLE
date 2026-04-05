@@ -312,9 +312,9 @@ function ProjectApp() {
   const [isSearchFullScreen, setIsSearchFullScreen] = useState(false);
   const [initialFlipped, setInitialFlipped] = useState(false);
   
-  // v2.9.7 버전 정보 콘솔 출력
+  // v2.10.0 버전 정보 콘솔 출력
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.9.7 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.0 ", 
       "background: #fb7185; color: white; font-weight: bold; padding: 2px 4px; border-radius: 4px 0 0 4px;",
       "background: #444; color: white; font-weight: bold; padding: 2px 4px; border-radius: 0 4px 4px 0;"
     );
@@ -1729,7 +1729,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.8.7</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.0</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
@@ -1748,27 +1748,7 @@ function ProjectApp() {
             </div>
           </button>
 
-          {/* 차트보기 */}
-          <button 
-            onClick={() => {
-              if (!selectedStock) {
-                const flatFavs = [...ungroupedStocks, ...favoriteGroups.flatMap(g => g.stocks)];
-                if (flatFavs.length > 0) {
-                  selectStock(flatFavs[0].name, flatFavs[0].symbol, "CHART");
-                  return;
-                }
-                alert("분석할 종목을 선택하거나 즐겨찾기를 추가해 주세요!");
-                return;
-              }
-              navigate("CHART", selectedStock.symbol, false);
-              setIsTimeWarpTriggered(false);
-            }}
-            className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === "CHART" && !isTimeWarpTriggered ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
-          >
-            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
-              <img src="/icons/v3_chart.png" alt="CHART" className="w-full h-full object-contain" />
-            </div>
-          </button>
+
 
           {/* 차트퍼즐 */}
           <button 
