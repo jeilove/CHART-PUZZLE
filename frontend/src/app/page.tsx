@@ -710,7 +710,7 @@ function ProjectApp() {
       const result = await response.json();
       if (result.data) setStockData(result.data);
     } catch (e) {
-      setStockData(MOCK_STOCK_DATA);
+      setStockData([]); // v2.10.0: 가상데이터 노출 방지를 위해 에러 시에도 빈 데이터 세팅
     } finally {
       setSelectedStock({ name, symbol });
       setIsLoading(false);
