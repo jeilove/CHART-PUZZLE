@@ -324,9 +324,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.7 환경 안정화 및 UI 개선 완료
+  // v2.10.8 환경 안정화 및 UI 개선 완료
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.7 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.8 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -1237,7 +1237,7 @@ function ProjectApp() {
 
                             {/* 우측 아이콘 및 정보 영역 */}
                             <div className="flex items-center gap-6">
-                              {/* 3종 숏컷 아이콘 */}
+                              {/* 4종 숏컷 아이콘 - v2.10.8: 워드클라우드 이동 및 작동 수정 */}
                               <div className="flex items-center gap-2">
                                 <button 
                                   onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
@@ -1263,11 +1263,23 @@ function ProjectApp() {
                                 >
                                   <img src="/icons/v3_warp.png" alt="Warp" className="w-full h-full object-contain p-1.5" />
                                 </button>
+                                {/* 워드 클라우드 아이콘 - v2.10.8 타임워프 옆으로 이동 */}
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setInitialFlipped(true);
+                                    selectStock(fav.name, fav.symbol, "CHART");
+                                  }}
+                                  className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                  title="Word Cloud"
+                                >
+                                  <img src="/icons/v17_trigger.png" alt="Cloud" className="w-full h-full object-contain p-1.5 scale-[1.2]" />
+                                </button>
                               </div>
 
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-4 group-hover/item:opacity-100 transition-opacity hidden sm:flex">
-                                  {/* 당일 등락 (Intraday) - 시초가 기준 동적 그라데이션 */}
+                                  {/* 차트 영역 (1D, 20D) */}
                                   <div className="flex flex-row items-center gap-3">
                                     <div className="flex flex-col items-center">
                                       <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">1D</span>
@@ -1276,7 +1288,6 @@ function ProjectApp() {
                                         const dailyPrices = sparklineData[fav.symbol] || [];
                                         if (prices.length < 2) return <div className="w-16 h-8 bg-white/5 rounded-lg animate-pulse" />;
                                         
-                                        // v2.3.4: 1D 기준점은 '전일 종가' (dailyPrices의 마지막에서 두 번째 값)
                                         const prevClose = dailyPrices.length >= 2 ? dailyPrices[dailyPrices.length - 2] : prices[0];
                                         const min = Math.min(...prices, prevClose);
                                         const max = Math.max(...prices, prevClose);
@@ -1293,7 +1304,6 @@ function ProjectApp() {
                                                 <stop offset={`${baseline}%`} stopColor="#3b82f6" stopOpacity="1" />
                                               </linearGradient>
                                             </defs>
-                                            {/* 전일 종가 기준선 (점선) */}
                                             <line x1="0" y1={baseline / 5} x2="100" y2={baseline / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.3" />
                                             <path d={strokePath} fill="none" stroke={`url(#${gradId})`} strokeWidth="1.5" />
                                           </svg>
@@ -1301,13 +1311,12 @@ function ProjectApp() {
                                       })()}
                                     </div>
                                     
-                                    {/* 20일 등락 (Daily) - 첫날 거래일 대비 동적 색상 전환 */}
                                     <div className="flex flex-col items-center border-l border-white/10 pl-3">
                                       <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">20D</span>
                                       {(() => {
                                         const prices = sparklineData[fav.symbol] || [];
                                         if (prices.length < 2) return <div className="w-16 h-8 bg-white/5 rounded-lg animate-pulse" />;
-                                        const open20 = prices[0]; // 20일 전 첫 가격
+                                        const open20 = prices[0];
                                         const min20 = Math.min(...prices);
                                         const max20 = Math.max(...prices);
                                         const range20 = max20 - min20 || 1;
@@ -1329,21 +1338,6 @@ function ProjectApp() {
                                         );
                                       })()}
                                     </div>
-                                    
-                                    {/* 워드 클라우드 단축 아이콘 */}
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setNewsStockName(fav.name);
-                                        setNewsStockSymbol(fav.symbol);
-                                        setIsNewsOpen(true);
-                                      }}
-                                      className="ml-1 p-1 hover:bg-white/10 rounded-full transition-all group/btn"
-                                    >
-                                      <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 group-hover/btn:border-rose-400/50 transition-colors">
-                                        <img src="/icons/v3_trigger.png" alt="News" className="w-full h-full object-cover scale-110" />
-                                      </div>
-                                    </button>
                                   </div>
                                 </div>
                                 <div className="text-right min-w-[60px]">
@@ -1402,7 +1396,7 @@ function ProjectApp() {
 
                               {/* 우측 아이콘 및 정보 영역 */}
                               <div className="flex items-center gap-6">
-                                {/* 3종 숏컷 아이콘 */}
+                                {/* 4종 숏컷 아이콘 - v2.10.8: 워드클라우드 이동 및 작동 수정 */}
                                 <div className="flex items-center gap-2">
                                   <button 
                                     onClick={() => selectStock(fav.name, fav.symbol, "CHART")}
@@ -1428,11 +1422,23 @@ function ProjectApp() {
                                   >
                                     <img src="/icons/v3_warp.png" alt="Warp" className="w-full h-full object-contain p-1.5" />
                                   </button>
+                                  {/* 워드 클라우드 아이콘 - v2.10.8 타임워프 옆으로 이동 */}
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setInitialFlipped(true);
+                                      selectStock(fav.name, fav.symbol, "CHART");
+                                    }}
+                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    title="Word Cloud"
+                                  >
+                                    <img src="/icons/v17_trigger.png" alt="Cloud" className="w-full h-full object-contain p-1.5 scale-[1.2]" />
+                                  </button>
                                 </div>
 
                                 <div className="flex items-center gap-4">
                                   <div className="flex items-center gap-4 group-hover/item:opacity-100 transition-opacity hidden sm:flex">
-                                    {/* 당일 등락 (Intraday) 및 20일 등락 */}
+                                    {/* 차트 영역 (1D, 20D) */}
                                     <div className="flex flex-row items-center gap-3">
                                       <div className="flex flex-col items-center">
                                         <span className="text-[7px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">1D</span>
@@ -1489,21 +1495,6 @@ function ProjectApp() {
                                           );
                                         })()}
                                       </div>
-                                      
-                                      {/* 워드 클라우드 단축 아이콘 */}
-                                      <button 
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setNewsStockName(fav.name);
-                                          setNewsStockSymbol(fav.symbol);
-                                          setIsNewsOpen(true);
-                                        }}
-                                        className="ml-1 p-1 hover:bg-white/10 rounded-full transition-all group/btn"
-                                      >
-                                        <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 group-hover/btn:border-rose-400/50 transition-colors">
-                                          <img src="/icons/v3_trigger.png" alt="News" className="w-full h-full object-cover scale-110" />
-                                        </div>
-                                      </button>
                                     </div>
                                   </div>
                                   <div className="text-right min-w-[60px]">
@@ -1778,7 +1769,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.7</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.8</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">

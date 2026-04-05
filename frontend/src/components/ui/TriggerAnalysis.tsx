@@ -18,20 +18,34 @@ export function TriggerAnalysis() {
 
   const fetchSummary = async (refresh = false) => {
     setLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     try {
-      const res = await fetch(`/api/market/trigger-summary${refresh ? "?refresh=true" : ""}&t=${Date.now()}`);
+      const res = await fetch(`/api/market/trigger-summary${refresh ? "?refresh=true" : ""}&t=${Date.now()}`, {
+        signal: controller.signal,
+        cache: 'no-store'
+      });
       if (res.ok) {
         const json = await res.json();
         setData(json);
+      } else {
+        throw new Error(`HTTP Error: ${res.status}`);
       }
     } catch (e) {
       console.error("Failed to fetch trigger summary:", e);
+      // v2.10.8: 첫 시도 실패 시 1회 재시도 (Jitter 방식)
+      if (!refresh) {
+          setTimeout(() => fetchSummary(true), 500);
+      }
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // v2.10.8: 즉시 로드를 보장하기 위해 마운트 시 호출
     fetchSummary();
   }, []);
 
