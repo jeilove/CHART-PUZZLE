@@ -320,9 +320,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.29 환경 안정화 및 UI 개선 완료 (10분 자동 갱신 및 1D 진행형 그래프 정밀 보정)
+  // v2.10.30 환경 안정화 및 검색 엔진/1D 그래프 무결성 확보 (v2.10.28: 복구 완료)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.29 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.30 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -369,12 +369,15 @@ function ProjectApp() {
       return searchBaseStocks;
     }
 
+    const term = searchTerm.toLowerCase();
+    const filteredBase = STOCK_LIST.filter(s => 
+      s.name.toLowerCase().includes(term) || 
+      s.symbol.includes(term) ||
+      (s.industry && s.industry.toLowerCase().includes(term))
+    );
+
     return Array.from(new Map([
-      ...STOCK_LIST.filter(s => 
-        s.name.includes(searchTerm) || 
-        s.symbol.includes(searchTerm) ||
-        (s.industry && s.industry.includes(searchTerm))
-      ),
+      ...filteredBase,
       ...apiResults
     ].map(s => [s.symbol, s])).values()).slice(0, 40);
   }, [searchTerm, searchBaseStocks, apiResults]);
