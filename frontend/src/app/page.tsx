@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.30 환경 안정화 및 검색 엔진/1D 그래프 무결성 확보 (v2.10.28: 복구 완료)
+  // v2.10.31 전종목 검색 엔진 복구 및 STOCK_LIST 전수 실데이터로 교체 (v2.10.28: 유실 방지)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.30 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.31 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -1220,7 +1220,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.8.0</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.10.31</p>
               </div>
             </motion.div>
           </>
