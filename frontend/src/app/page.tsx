@@ -1335,21 +1335,14 @@ function ProjectApp() {
                           </div>
 
                           {/* 2. 기존 그룹별 매핑이 필요한 경우에 대비한 공간 (필요 시 확장) */}
-                        </>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center py-40 text-gray-600">
-                          <Search size={48} className="mb-4 opacity-10" />
-                          <p className="text-sm font-bold opacity-30 tracking-tight italic">
-                            {searchTerm ? "검색 결과가 없습니다" : "종목명을 입력하세요"}
-                          </p>
                         </div>
                       )}
                     </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
             {/* 2. 시장 정보 히트맵 섹션 (아코디언 적용 및 1행 3열 레이아웃) */}
             <div className="w-full mb-10 px-1">
