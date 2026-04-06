@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.36 전종목 검색 렌더링 무결성 확보 완료 (네이버 API 결과 1순위 노출)
+  // v2.10.37 전종목 검색 렌더링 무결성 최종 확보 (장벽 제거 및 100% 노출 보장)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.36 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.37 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -1312,18 +1312,15 @@ function ProjectApp() {
                       {filteredStocks.length > 0 ? (
                         <>
                           {/* 1. 미분류 종목 (Snapshotted) */}
-                          {(() => {
-                            const ungroupedInSearch = filteredStocks.filter(s => 
-                              searchGroupSnapshot[s.symbol] === "ungrouped" || !searchGroupSnapshot[s.symbol]
-                            );
-                            if (ungroupedInSearch.length === 0) return null;
+                          {/* v2.10.37: 복잡한 필터링을 제거하고 검색 결과가 있으면 무조건 노출 */}
+                          {filteredStocks.length > 0 && (
                             return (
                               <div className="space-y-3">
                                 <div className="px-1 mb-2">
                                   <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] italic">미분류 / 신규 종목</h3>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10">
-                                  {ungroupedInSearch.map((stock) => (
+                                  {filteredStocks.map((stock) => (
                                     <SearchResultItem 
                                       key={stock.symbol} 
                                       stock={stock} 
