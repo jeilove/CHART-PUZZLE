@@ -1445,7 +1445,7 @@ function ProjectApp() {
                                           const strokePath = getSparklinePath(prices);
                                           
                                           return (
-                                            <svg className="w-12 h-7" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                            <svg className="w-[45px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
                                               <defs>
                                                 <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
                                                   <stop offset={`${baseline}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -1472,7 +1472,7 @@ function ProjectApp() {
                                           const strokePath20 = getSparklinePath(prices);
                                           
                                           return (
-                                            <svg className="w-12 h-7" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                            <svg className="w-[45px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
                                               <defs>
                                                 <linearGradient id={gradId20} x1="0%" y1="0%" x2="0%" y2="100%">
                                                   <stop offset={`${baseline20}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -1487,7 +1487,7 @@ function ProjectApp() {
                                       </div>
                                     </div>
                                   </div>
-                                  <div className="text-right min-w-[60px]">
+                                  <div className="flex justify-end">
                                     {(() => {
                                       const prices = sparklineData[fav.symbol] || [];
                                       const latest = prices[prices.length - 1];
@@ -1495,7 +1495,7 @@ function ProjectApp() {
                                       const change = prev ? ((latest - prev) / prev * 100).toFixed(2) : (fav.change || 0);
                                       const isUp = Number(change) >= 0;
                                       return (
-                                        <div className={`${isUp ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"} text-[10px] font-black px-2 py-0.5 rounded-md`}>
+                                        <div className={`${isUp ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"} text-[10px] font-black px-1 py-0.5 rounded-md whitespace-nowrap`}>
                                           {isUp ? "+" : ""}{change}%
                                         </div>
                                       );
