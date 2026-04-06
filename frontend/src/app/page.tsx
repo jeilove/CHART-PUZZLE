@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.37 전종목 검색 렌더링 무결성 최종 확보 (장벽 제거 및 100% 노출 보장)
+  // v2.10.42 전종목 검색 렌더링 무결성 최종 확보 및 버전 동기화 
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.37 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.42 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
