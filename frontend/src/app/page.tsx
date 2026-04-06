@@ -173,7 +173,7 @@ function SearchResultItem({
           {stock.name}
         </p>
         {!small && stock.symbol && (
-          <span className="text-[10px] text-gray-500 font-bold opacity-50 uppercase tracking-tighter">
+          <span className="hidden sm:inline text-[10px] text-gray-500 font-bold opacity-50 uppercase tracking-tighter">
             {stock.symbol}
           </span>
         )}
@@ -298,9 +298,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.21 환경 안정화 및 UI 개선 완료 (Truncate 보강)
+  // v2.10.23 환경 안정화 및 UI 개선 완료 (모바일 종목코드 삭제)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.21 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.23 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -1209,15 +1209,15 @@ function ProjectApp() {
                 <AnimatePresence>
                   {expandedGroups["all"] && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="px-5 pb-4 space-y-1 border-t border-white/5">
+                      <div className="px-2 sm:px-5 pb-4 space-y-1 border-t border-white/5">
                         {ungroupedStocks.length > 0 ? ungroupedStocks.map((fav) => (
-                          <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative h-[72px]">
+                          <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-2 sm:-mx-5 px-2 sm:px-5 transition-colors group/item relative h-[72px]">
                              {/* 종목명 영역: flex-1 + min-w-0 으로 공간 확보 후 truncate */}
-                             <div className="flex flex-col cursor-pointer flex-1 min-w-0 pr-4" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
+                             <div className="flex flex-col cursor-pointer flex-1 min-w-0 pr-2" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
                                <p className="text-[11px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors uppercase truncate whitespace-nowrap">
                                  {fav.name}
                                </p>
-                               <span className="text-[9px] text-gray-500 font-bold opacity-40 uppercase tracking-tighter">
+                               <span className="hidden sm:inline text-[9px] text-gray-500 font-bold opacity-40 uppercase tracking-tighter">
                                  {fav.symbol}
                                </span>
                              </div>
@@ -1363,15 +1363,15 @@ function ProjectApp() {
                   <AnimatePresence>
                     {expandedGroups[group.id] && (
                       <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                        <div className="px-5 pb-4 space-y-1 border-t border-white/5">
+                        <div className="px-2 sm:px-5 pb-4 space-y-1 border-t border-white/5">
                           {group.stocks.length > 0 ? group.stocks.map((fav) => (
-                            <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative h-[72px]">
+                            <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-2 sm:-mx-5 px-2 sm:px-5 transition-colors group/item relative h-[72px]">
                               {/* 종목명 영역: flex-1 + min-w-0 으로 공간 확보 후 truncate */}
-                              <div className="flex flex-col cursor-pointer flex-1 min-w-0 pr-4" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
+                              <div className="flex flex-col cursor-pointer flex-1 min-w-0 pr-2" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
                                 <p className="text-[11px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors uppercase truncate whitespace-nowrap">
                                   {fav.name}
                                 </p>
-                                <span className="text-[9px] text-gray-500 font-bold opacity-40 uppercase tracking-tighter">
+                                <span className="hidden sm:inline text-[9px] text-gray-500 font-bold opacity-40 uppercase tracking-tighter">
                                   {fav.symbol}
                                 </span>
                               </div>
@@ -1740,7 +1740,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.21</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.23</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
