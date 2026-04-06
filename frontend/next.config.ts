@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+const nextConfig: any = {
   reactStrictMode: false,
   eslint: {
     ignoreDuringBuilds: true,

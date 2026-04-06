@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.42 전종목 검색 렌더링 무결성 최종 확보 및 버전 동기화 
+  // v2.10.45 전종목 검색 및 JSX 문법 구조 최종 무결성 확보 (빌드 에러 박멸, 잉여 div 제거)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.42 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.45 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -1345,11 +1345,10 @@ function ProjectApp() {
                         </div>
                       )}
                     </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* 2. 시장 정보 히트맵 섹션 (아코디언 적용 및 1행 3열 레이아웃) */}
             <div className="w-full mb-10 px-1">
