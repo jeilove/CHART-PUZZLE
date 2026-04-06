@@ -42,10 +42,16 @@ export async function fetchStockOHLCV(symbol: string, timeframe: "day" | "minute
       });
     }
 
-    // 분봉의 경우 최신 날짜만 추출
+    // 분봉의 경우 오늘자 데이터만 추출하여 '진행형 그래프' 무결성 확보 (v2.10.29)
     if (timeframe === "minute" && data.length > 0) {
-      const latestDate = data[data.length - 1].time.split(" ")[0];
-      return data.filter(d => d.time.startsWith(latestDate));
+      const kst = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+      const latestPointDate = data[data.length - 1].time.split(" ")[0];
+      
+      // 오늘 데이터가 존재하면 오늘 데이터만, 아니면 빈 배열 리턴 (과거 데이터가 오늘처럼 풀로 채워지는 것 방지)
+      if (latestPointDate === kst) {
+        return data.filter(d => d.time.startsWith(kst));
+      }
+      return [];
     }
 
     return data;

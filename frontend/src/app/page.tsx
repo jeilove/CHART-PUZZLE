@@ -320,9 +320,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.25 환경 안정화 및 UI 개선 완료 (10분 자동 갱신 및 1D 진행형 그래프)
+  // v2.10.29 환경 안정화 및 UI 개선 완료 (10분 자동 갱신 및 1D 진행형 그래프 정밀 보정)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.25 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.29 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
