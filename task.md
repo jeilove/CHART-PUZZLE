@@ -1,24 +1,26 @@
-# Task: Stock Chart Puzzle v2.10.5 UI Optimization & Trigger View Recovery 
+# Task: Stock Chart Puzzle v2.10.28 Favorites Sync Stabilization
 
-## 1. Word Cloud Icon Menu Integration
-- [x] Add News Word Cloud shortcut icons to all Home view stock items
-- [x] Apply icons to both **Grouped** and **Ungrouped** favorites
-- [x] Reduce 1D/20D sparkline sizes to **14x8 (90% size)** for layout optimization
-- [x] Standardize UI pattern (Symmetry Integrity) across all list views
+## 1. Favorites Sync Guard & Loading Logic
+- [x] Implement `isFavoritesLoaded` guard in `page.tsx`
+- [x] Add `setIsFavoritesLoaded(true)` to all loading paths (DB, LocalStorage, Admin Template)
+- [x] Prevent accidental empty state push to DB during initial load
 
-## 2. Trigger Pulse Screen Recovery
-- [x] Diagnose empty Trigger analysis content Issue
-- [x] Implement fallback data generation in `/api/market/trigger-summary`
-- [x] Ensure UI vibrancy even when raw backend report files are incomplete
-- [x] Verify data binding in `TriggerAnalysis.tsx`
+## 2. Default Favorites Fallback Logic
+- [x] Update `/api/market/default-favorites` to include `STOCK_LIST` fallback
+- [x] Ensure fallback is returned if Admin user is missing or DB is empty
+- [x] Handle API errors by returning fallback data instead of empty arrays
 
-## 3. Version Stabilization & Reporting
-- [x] Bump version to **v2.10.5** in Console, Footer, and CHANGELOG
-- [x] Complete `pnpm build` verification
-- [x] Document common pitfalls in `GLOBAL_DEBUG_HISTORY.md` (Next.js 15+ async params)
-- [x] Perform Git Push and report to user
+## 3. Lint & Code Cleanup
+- [x] Remove obsolete `getSparklinePath` prop from `SearchResultItem` usages (5 locations)
+- [x] Standardize import order in `default-favorites/route.ts`
+- [x] Update version to **v2.10.28** in CHANGELOG.md
+
+## 4. Deployment & Sync
+- [x] Verify local file integrity
+- [x] Perform Git Push to remote repository
+- [x] Report completion to user
 
 ---
 **Status**: Completed
-**Version**: [v2.10.5]
-**Note**: The application now features a more compact and feature-rich main screen stock list, and the Trigger view has been restored to full functionality with automated fallback logic for high availability.
+**Version**: [v2.10.28]
+**Note**: Critical fix for favorites disappearing and synchronization bugs. Added robust fallback mechanisms for unauthenticated users and fixed lint errors related to global function scope.

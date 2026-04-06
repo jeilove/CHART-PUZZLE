@@ -352,6 +352,8 @@ function ProjectApp() {
   const [intradayData, setIntradayData] = useState<Record<string, number[]>>({});
   // v1.6.3: 새 그룹 이름 입력 상태 (v2.10.26: 누락 복구)
   const [newGroupName, setNewGroupName] = useState("");
+  // v2.10.28: DB sync 안전화 - 실제 데이터 로드가 완료된 후에만 sync 허용
+  const [isFavoritesLoaded, setIsFavoritesLoaded] = useState(false);
 
   // v1.8.0: 10분 주기 자동 갱신 타이머
   useEffect(() => {
@@ -496,6 +498,7 @@ function ProjectApp() {
                 setFavoriteGroups(data.favoriteGroups);
                 setUngroupedStocks(data.ungroupedStocks);
                 if (data.favoriteGroups.length > 0) setTargetAddGroupId(data.favoriteGroups[0].id);
+                setIsFavoritesLoaded(true); // DB 로드 완료 - sync guard 해제
                 return; // DB 데이터 로드 성공 시 로컬스토리지 무시
               }
             }
@@ -528,10 +531,11 @@ function ProjectApp() {
           setUngroupedStocks(compat);
           localStorage.setItem("puzzle-ungrouped-stocks", JSON.stringify(compat));
         }
+        setIsFavoritesLoaded(true);
         return; // localStorage 데이터 로드 성공 시 template 로드 불필요
       }
 
-      // localStorage도 비어있는 완전 첫 방문자 → 관리자 템플릿 표시
+      // v2.9.8: 컴플리트 제3자(신규 비로그인 방문자)인 경우 관리자 템플릿 로드
       try {
         const res = await fetch("/api/market/default-favorites");
         if (res.ok) {
@@ -541,6 +545,7 @@ function ProjectApp() {
             setFavoriteGroups(groupsToSet);
             if (data.ungroupedStocks) setUngroupedStocks(data.ungroupedStocks);
             setTargetAddGroupId(groupsToSet[0].id);
+            setIsFavoritesLoaded(true); // 관리자 템플릿 로드 완료 - sync guard 해제
             return;
           }
         }
@@ -560,8 +565,11 @@ function ProjectApp() {
   }, [status]);
 
   // v2.8.9: 즐겨찾기 변경 시 DB와 자동 동기화 (데스크톱/모바일 동시 연동)
+  // v2.10.28: isFavoritesLoaded guard 추가 - 로딩 완료 전 빈 배열 push로 DB 데이터 소실 방지
   useEffect(() => {
     if (status !== "authenticated") return;
+    if (!isFavoritesLoaded) return; // 로드 완료 전에는 절대 push하지 않음
+    if (favoriteGroups.length === 0 && ungroupedStocks.length === 0) return; // 빈 상태 push 금지
     
     const sync = async () => {
       try {
@@ -577,7 +585,7 @@ function ProjectApp() {
 
     const timeoutId = setTimeout(sync, 1000);
     return () => clearTimeout(timeoutId);
-  }, [favoriteGroups, ungroupedStocks, status]);
+  }, [favoriteGroups, ungroupedStocks, status, isFavoritesLoaded]);
 
   const saveUngrouped = (stocks: Stock[]) => {
     setUngroupedStocks(stocks);
@@ -1090,7 +1098,6 @@ function ProjectApp() {
                                       }}
                                       sparklineData={sparklineData}
                                       intradayData={intradayData}
-                                      getSparklinePath={getSparklinePath}
                                     />
                                   ))}
                                 </div>
@@ -1146,7 +1153,6 @@ function ProjectApp() {
                                             }}
                                             sparklineData={sparklineData}
                                             intradayData={intradayData}
-                                            getSparklinePath={getSparklinePath}
                                           />
                                         ))}
                                       </div>
@@ -1582,7 +1588,6 @@ function ProjectApp() {
                               onToggleFavorite={(e) => smartToggleFavorite(s, e)}
                               sparklineData={sparklineData}
                               intradayData={intradayData}
-                              getSparklinePath={getSparklinePath}
                             />
                           ))}
                         </div>
@@ -1660,7 +1665,6 @@ function ProjectApp() {
                               onToggleFavorite={(e) => smartToggleFavorite(s, e)}
                               sparklineData={sparklineData}
                               intradayData={intradayData}
-                              getSparklinePath={getSparklinePath}
                             />
                           ))}
                         </div>
@@ -1726,7 +1730,6 @@ function ProjectApp() {
                               onToggleFavorite={(e) => smartToggleFavorite(s, e)}
                               sparklineData={sparklineData}
                               intradayData={intradayData}
-                              getSparklinePath={getSparklinePath}
                             />
                           ))}
                         </div>

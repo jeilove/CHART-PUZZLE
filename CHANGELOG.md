@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [v2.10.28] - 2026-04-06
+### Fixed
+- **DB sync 가드 강화**: `loadFavorites` 완료 시 모든 경로(DB 로드, localStorage 로드, 관리자 템플릿 로드)에서 `setIsFavoritesLoaded(true)`가 정확히 호출되도록 수정. DB 및 관리자 템플릿 로드 성공 경로에서 누락된 호출 추가.
+- **default-favorites API fallback**: 관리자 DB가 비어있거나 관리자 계정이 없을 때 빈 배열 대신 STOCK_LIST 기반 기본 종목(반도체/바이오/이차전지/자동차/IT서비스 그룹)으로 fallback 반환. API 에러 시에도 빈 배열 대신 fallback 반환하도록 개선.
+- **SearchResultItem lint 에러 해결**: `getSparklinePath`가 전역 함수로 이동된 이후 불필요해진 `getSparklinePath` prop 전달을 모든 SearchResultItem 호출부(5곳)에서 제거.
+
+## [v2.10.27] - 2026-04-06
+### Fixed
+- **비로그인 즐겨찾기 복구 실패 버그 수정**: `savedUngrouped`(미분류 데이터)가 localStorage에 있지만 `savedGroups`가 없는 경우, 코드 흐름이 `else` 블록(관리자 template 로드)으로 진입하여 `setFavoriteGroups`가 초기화되는 버그 수정. `hasLocalData` 플래그를 도입하여 하나라도 localStorage 데이터가 있으면 template 로드를 완전히 차단하고 저장된 데이터를 우선 복원하도록 개선.
+
 ## [v2.10.26] - 2026-04-06
 ### Fixed
 - **즐겨찾기 목록 렌더링 중단 긴급 복구 (Critical fix)**: 1D 데이터 갱신 시 `getSparklinePath` 함수 참조 오류(ReferenceError: scope mismatch)로 인해 즐겨찾기 종목 리스트가 사라지던 치명적인 오류를 해결했습니다. 해당 도우미 함수를 전역 스코프로 이동하여 모든 컴포넌트에서 안전하게 접근할 수 있도록 보완했습니다.
