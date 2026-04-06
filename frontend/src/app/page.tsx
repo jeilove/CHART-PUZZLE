@@ -1309,37 +1309,32 @@ function ProjectApp() {
                     </div>
                     {/* 그룹화된 검색 결과 리스트 */}
                     <div className="flex-1 overflow-y-auto no-scrollbar space-y-6 pb-20">
-                      {filteredStocks.length > 0 ? (
-                        <>
-                          {/* 1. 미분류 종목 (Snapshotted) */}
-                          {/* v2.10.37: 복잡한 필터링을 제거하고 검색 결과가 있으면 무조건 노출 */}
+                          {/* v2.10.38: 필터링 장벽 없이 검색 결과 100% 노출 */}
                           {filteredStocks.length > 0 && (
-                            return (
-                              <div className="space-y-3">
-                                <div className="px-1 mb-2">
-                                  <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] italic">미분류 / 신규 종목</h3>
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10">
-                                  {filteredStocks.map((stock) => (
-                                    <SearchResultItem 
-                                      key={stock.symbol} 
-                                      stock={stock} 
-                                      isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
-                                      onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
-                                      onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
-                                      onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
-                                      onCloud={() => selectStock(stock.name, stock.symbol, "CHART", false, true)}
-                                      onToggleFavorite={(e) => {
-                                        smartToggleFavorite(stock, e);
-                                      }}
-                                      sparklineData={sparklineData}
-                                      intradayData={intradayData}
-                                    />
-                                  ))}
-                                </div>
+                            <div className="space-y-3">
+                              <div className="px-1 mb-2">
+                                <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] italic">검색 결과</h3>
                               </div>
-                            );
-                          })()}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10">
+                                {filteredStocks.map((stock) => (
+                                  <SearchResultItem 
+                                    key={stock.symbol} 
+                                    stock={stock} 
+                                    isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
+                                    onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
+                                    onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
+                                    onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
+                                    onCloud={() => selectStock(stock.name, stock.symbol, "CHART", false, true)}
+                                    onToggleFavorite={(e) => {
+                                      smartToggleFavorite(stock, e);
+                                    }}
+                                    sparklineData={sparklineData}
+                                    intradayData={intradayData}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          )}
 
                           {/* 2. 그룹별 종목 (Snapshotted Accordions) */}
                           {favoriteGroups.map(group => {
