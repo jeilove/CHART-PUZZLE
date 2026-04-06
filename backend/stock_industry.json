@@ -1,4 +1,9 @@
 {
+  "_metadata": {
+    "status": "incomplete_sample_v2.10.36",
+    "warning": "DO NOT USE AS PRIMARY SEARCH SOURCE. Contains only 250+ KOSPI 200/KOSDAQ 150 tickers for UI indexing.",
+    "last_updated": "2026-04-06"
+  },
   "095570": {
     "name": "AJ네트웍스",
     "industry": "일반서비스"

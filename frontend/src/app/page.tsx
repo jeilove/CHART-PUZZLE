@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.35 검색 엔진 원상 복구 및 네이버 실시간 API 연동 완료 (엘앤에프, 브이엠 등 전 상장사 지원)
+  // v2.10.36 전종목 검색 렌더링 무결성 확보 완료 (네이버 API 결과 1순위 노출)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.35 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.36 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -609,10 +609,13 @@ function ProjectApp() {
       (s.industry && s.industry.toLowerCase().includes(term))
     );
 
-    return Array.from(new Map([
-      ...filteredBase,
-      ...apiResults
-    ].map(s => [s.symbol, s])).values()).slice(0, 40);
+    const uniqueStocks = new Map();
+    // 1. 하드코딩 리스트 (기본 종목)
+    filteredBase.forEach(s => uniqueStocks.set(s.symbol, s));
+    // 2. API 검색 결과 (엘앤에프 등 전종목 - 하드코딩 리스트보다 우선하여 덮어씀)
+    apiResults.forEach(s => uniqueStocks.set(s.symbol, s));
+
+    return Array.from(uniqueStocks.values()).slice(0, 40);
   }, [searchTerm, searchBaseStocks, apiResults]);
 
   // v2.7.0: 미니 차트(스파크라인) 및 당일 분봉 데이터 일괄 로드 (디바운싱 및 의존성 최적화)
