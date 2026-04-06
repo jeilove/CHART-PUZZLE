@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.48 클라이언트/Vercel 결합 캐시 좀비 완전 박멸 (엘앤에프 즉각 검색 확진)
+  // v2.10.50: 검색 엔진 전환 (네이버 API → KRX 전종목 JSON 로컬 검색)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.48 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.50 (KRX Full Search) ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -588,29 +588,6 @@ function ProjectApp() {
   // v2.10.28: DB sync 안전화 - 실제 데이터 로드가 완료된 후에만 sync 허용
   const [isFavoritesLoaded, setIsFavoritesLoaded] = useState(false);
 
-  // v2.10.46: 유실된 네이버 검색 통신 리스너 복구 (searchTerm 변경 시 자동 호출)
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(async () => {
-      if (searchTerm && searchTerm.trim().length > 0) {
-        setIsSearchLoading(true);
-        try {
-          // Vercel 좀비 캐시 박멸을 위한 timestamp 폭탄 및 no-store 보장
-          const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}&t=${Date.now()}`, { cache: 'no-store' });
-          if (res.ok) {
-            const data = await res.json();
-            setApiResults(data.results || []);
-          }
-        } catch (e) {
-          console.error("Search API Error:", e);
-        } finally {
-          setIsSearchLoading(false);
-        }
-      } else {
-        setApiResults([]);
-      }
-    }, 300);
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm]);
 
   // v1.8.0: 10분 주기 자동 갱신 타이머
   useEffect(() => {
@@ -1063,27 +1040,30 @@ function ProjectApp() {
       setSearchGroupSnapshot(prev => ({ ...newMapping, ...prev }));
     }
   }, [isSearchFullScreen, searchTerm]); // favoriteGroups 의존성 제거하여 세션 중 위치 고정
-  React.useEffect(() => {
-    if (searchTerm.length >= 1) {
-      const fetchApiSearch = async () => {
+  // v2.10.49: 검색 통신 최적화 및 Naver API 롤백 (v2.10.12 방식 복원)
+  useEffect(() => {
+    const fetchApiSearch = async () => {
+      if (searchTerm && searchTerm.trim().length > 0) {
         setIsSearchLoading(true);
         try {
-          const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`);
+          // Vercel 캐시 좀비 박멸을 위한 timestamp 추가 및 no-store 보장
+          const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}&t=${Date.now()}`, { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
             setApiResults(data.results || []);
           }
-        } catch (e) {} finally {
+        } catch (e) {
+          console.error("Search API Error:", e);
+        } finally {
           setIsSearchLoading(false);
         }
-      };
-      
-      const timeoutId = setTimeout(fetchApiSearch, 300);
-      return () => clearTimeout(timeoutId);
-    } else {
-      setApiResults([]);
-      setIsSearchLoading(false);
-    }
+      } else {
+        setApiResults([]);
+      }
+    };
+    
+    const timeoutId = setTimeout(fetchApiSearch, 300);
+    return () => clearTimeout(timeoutId);
   }, [searchTerm]);
 
 
@@ -1247,7 +1227,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.10.31</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.10.50</p>
               </div>
             </motion.div>
           </>
@@ -1773,7 +1753,7 @@ function ProjectApp() {
                       </div>
                       {filteredStocks.length > 0 ? (
                         <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
-                          {filteredStocks.slice(0, 8).map((s) => (
+                          {filteredStocks.slice(0, 30).map((s) => (
                             <SearchResultItem 
                               key={s.symbol}
                               stock={s}
@@ -1850,7 +1830,7 @@ function ProjectApp() {
                        </div>
                        {filteredStocks.length > 0 ? (
                         <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
-                          {filteredStocks.slice(0, 8).map((s) => (
+                          {filteredStocks.slice(0, 30).map((s) => (
                             <SearchResultItem 
                               key={s.symbol}
                               stock={s}
@@ -1915,7 +1895,7 @@ function ProjectApp() {
                        </div>
                        {filteredStocks.length > 0 ? (
                         <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
-                          {filteredStocks.slice(0, 8).map((s) => (
+                          {filteredStocks.slice(0, 30).map((s) => (
                             <SearchResultItem 
                               key={s.symbol}
                               stock={s}
@@ -1967,7 +1947,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.26</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.49</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
