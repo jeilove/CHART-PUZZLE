@@ -510,42 +510,48 @@ function ProjectApp() {
       const oldFavs = localStorage.getItem("puzzle-favorites");
       const savedUngrouped = localStorage.getItem("puzzle-ungrouped-stocks");
 
-      if (savedUngrouped) {
-        setUngroupedStocks(JSON.parse(savedUngrouped));
-      }
+      // localStorage에 데이터가 하나라도 있으면 로드 (v2.10.27: 흐름 버그 수정)
+      const hasLocalData = savedGroups || savedUngrouped || oldFavs;
 
-      if (savedGroups) {
-        const parsed = JSON.parse(savedGroups);
-        setFavoriteGroups(parsed);
-        if (parsed.length > 0) setTargetAddGroupId(parsed[0].id);
-      } else if (oldFavs) {
-        const parsedOld = JSON.parse(oldFavs);
-        const compat = Array.isArray(parsedOld) ? parsedOld : [];
-        setUngroupedStocks(compat);
-        localStorage.setItem("puzzle-ungrouped-stocks", JSON.stringify(compat));
-      } else {
-        // v2.9.8: 완전 제3자(신규 비로그인 방문자)인 경우 관리자 템플릿 로컬 복제
-        try {
-          const res = await fetch("/api/market/default-favorites");
-          if (res.ok) {
-            const data = await res.json();
-            if (data.favoriteGroups.length > 0 || data.ungroupedStocks.length > 0) {
-              const groupsToSet = data.favoriteGroups.length > 0 ? data.favoriteGroups : [{ id: "default", name: "관리자 추천 그룹", stocks: [] }];
-              setFavoriteGroups(groupsToSet);
-              if (data.ungroupedStocks) setUngroupedStocks(data.ungroupedStocks);
-              setTargetAddGroupId(groupsToSet[0].id);
-              return; // 성공 시 그대로 렌더링
-            }
-          }
-        } catch (e) {
-          console.error("Failed to load default templates:", e);
+      if (hasLocalData) {
+        if (savedUngrouped) {
+          setUngroupedStocks(JSON.parse(savedUngrouped));
         }
-
-        // 모든 것에 실패한 완전 초기 텅 빈 상태
-        const initialGroups: FavoriteGroup[] = [{ id: "default", name: "기본 그룹", stocks: [] }];
-        setFavoriteGroups(initialGroups);
-        setTargetAddGroupId("default");
+        if (savedGroups) {
+          const parsed = JSON.parse(savedGroups);
+          setFavoriteGroups(parsed);
+          if (parsed.length > 0) setTargetAddGroupId(parsed[0].id);
+        } else if (oldFavs) {
+          // 구버전 호환: puzzle-favorites 키를 ungrouped로 마이그레이션
+          const parsedOld = JSON.parse(oldFavs);
+          const compat = Array.isArray(parsedOld) ? parsedOld : [];
+          setUngroupedStocks(compat);
+          localStorage.setItem("puzzle-ungrouped-stocks", JSON.stringify(compat));
+        }
+        return; // localStorage 데이터 로드 성공 시 template 로드 불필요
       }
+
+      // localStorage도 비어있는 완전 첫 방문자 → 관리자 템플릿 표시
+      try {
+        const res = await fetch("/api/market/default-favorites");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.favoriteGroups.length > 0 || data.ungroupedStocks.length > 0) {
+            const groupsToSet = data.favoriteGroups.length > 0 ? data.favoriteGroups : [{ id: "default", name: "관리자 추천 그룹", stocks: [] }];
+            setFavoriteGroups(groupsToSet);
+            if (data.ungroupedStocks) setUngroupedStocks(data.ungroupedStocks);
+            setTargetAddGroupId(groupsToSet[0].id);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load default templates:", e);
+      }
+
+      // 모든 것에 실패한 완전 초기 텅 빈 상태
+      const initialGroups: FavoriteGroup[] = [{ id: "default", name: "기본 그룹", stocks: [] }];
+      setFavoriteGroups(initialGroups);
+      setTargetAddGroupId("default");
     };
 
     if (status !== "loading") {
