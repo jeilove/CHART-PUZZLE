@@ -169,7 +169,7 @@ function SearchResultItem({
     <div className={`bg-white/5 border border-white/5 rounded-3xl ${small ? "p-4" : "p-5"} flex items-center justify-between group transition-all hover:bg-white/10 hover:border-white/10 shadow-lg relative overflow-hidden`}>
       {/* 종목 기본 정보 */}
       <div className="flex flex-col gap-0.5 cursor-pointer flex-1" onClick={onSelect}>
-        <p className={`${small ? "text-xs" : "text-sm"} font-black text-white leading-tight group-hover:text-rose-400 transition-colors uppercase`}>{stock.name}</p>
+        <p className={`${small ? "text-[10px]" : "text-[12px]"} font-black text-white leading-tight group-hover:text-rose-400 transition-colors uppercase`}>{stock.name}</p>
       </div>
 
       {/* 4종 기능 아이콘 - 모바일에서는 차트, 워드만 노출하여 공간 확보 */}
@@ -201,13 +201,13 @@ function SearchResultItem({
                 <>
                   <div className="flex flex-col items-center animate-pulse">
                     <span className="text-[6px] text-gray-500 font-black opacity-10 uppercase mb-0.5">1D</span>
-                    <svg className="w-10 h-7" viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <svg className="w-[38px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
                       <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
                     </svg>
                   </div>
                   <div className="flex flex-col items-center border-l border-white/10 pl-3 animate-pulse">
                     <span className="text-[6px] text-gray-500 font-black opacity-10 uppercase mb-0.5">20D</span>
-                    <svg className="w-12 h-7" viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <svg className="w-[45px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
                       <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
                     </svg>
                   </div>
@@ -235,7 +235,7 @@ function SearchResultItem({
               <>
                 <div className="flex flex-col items-center">
                   <span className="text-[6px] text-gray-500 font-black opacity-30 uppercase mb-0.5">1D</span>
-                  <svg className="w-10 h-7" viewBox="0 0 100 20" preserveAspectRatio="none">
+                  <svg className="w-[38px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
                     <defs>
                       <linearGradient id={gId1d} x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset={`${b1d}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -248,7 +248,7 @@ function SearchResultItem({
                 </div>
                 <div className="flex flex-col items-center border-l border-white/10 pl-3">
                   <span className="text-[6px] text-gray-500 font-black opacity-30 uppercase mb-0.5">20D</span>
-                  <svg className="w-12 h-7" viewBox="0 0 100 20" preserveAspectRatio="none">
+                  <svg className="w-[45px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
                     <defs>
                       <linearGradient id={gId20d} x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset={`${b20d}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -277,8 +277,8 @@ function SearchResultItem({
           const isPos = changeVal === "---" ? true : Number(changeVal) >= 0;
 
           return (
-            <div className="text-right min-w-[65px]">
-              <div className={`px-2 py-0.5 rounded-md text-[9px] font-black inline-block ${isPos ? "bg-rose-500/20 text-rose-400" : "bg-blue-500/20 text-blue-400"}`}>
+            <div className="flex justify-end">
+              <div className={`px-1 py-0.5 rounded-md text-[9px] font-black whitespace-nowrap ${isPos ? "bg-rose-500/20 text-rose-400" : "bg-blue-500/20 text-blue-400"}`}>
                 {isPos && changeVal !== "---" ? "+" : ""}{changeVal}{changeVal !== "---" ? "%" : ""}
               </div>
             </div>
@@ -1235,7 +1235,7 @@ function ProjectApp() {
                           <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative">
                             <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
                               <div className="flex flex-col">
-                                <p className="text-[11px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors">{fav.name}</p>
+                                <p className="text-[10px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors uppercase">{fav.name}</p>
                               </div>
                             </div>
 
@@ -1296,7 +1296,7 @@ function ProjectApp() {
                                         const strokePath = getSparklinePath(prices);
                                         
                                         return (
-                                          <svg className="w-12 h-7" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                          <svg className="w-[45px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
                                             <defs>
                                               <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
                                                 <stop offset={`${baseline}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -1314,7 +1314,7 @@ function ProjectApp() {
                                       <span className="text-[6px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">20D</span>
                                       {(() => {
                                         const prices = sparklineData[fav.symbol] || [];
-                                        if (prices.length < 2) return <div className="w-14 h-7 bg-white/5 rounded-lg animate-pulse" />;
+                                        if (prices.length < 2) return <div className="w-[45px] h-[26px] bg-white/5 rounded-lg animate-pulse" />;
                                         const open20 = prices[0];
                                         const min20 = Math.min(...prices);
                                         const max20 = Math.max(...prices);
@@ -1324,7 +1324,7 @@ function ProjectApp() {
                                         const strokePath20 = getSparklinePath(prices);
                                         
                                         return (
-                                          <svg className="w-12 h-7" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                          <svg className="w-[45px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
                                             <defs>
                                               <linearGradient id={gradId20} x1="0%" y1="0%" x2="0%" y2="100%">
                                                 <stop offset={`${baseline20}%`} stopColor="#f43f5e" stopOpacity="1" />
@@ -1339,7 +1339,7 @@ function ProjectApp() {
                                     </div>
                                   </div>
                                 </div>
-                                <div className="text-right min-w-[60px]">
+                                <div className="flex justify-end">
                                   {(() => {
                                     const prices = sparklineData[fav.symbol] || [];
                                     const latest = prices[prices.length - 1];
@@ -1347,7 +1347,7 @@ function ProjectApp() {
                                     const change = prev ? ((latest - prev) / prev * 100).toFixed(2) : (fav.change || 0);
                                     const isUp = Number(change) >= 0;
                                     return (
-                                      <div className={`${isUp ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"} text-[10px] font-black px-2 py-0.5 rounded-md`}>
+                                      <div className={`${isUp ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"} text-[10px] font-black px-1 py-0.5 rounded-md whitespace-nowrap`}>
                                         {isUp ? "+" : ""}{change}%
                                       </div>
                                     );
@@ -1385,7 +1385,7 @@ function ProjectApp() {
                             <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative">
                               <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
                                 <div className="flex flex-col">
-                                  <p className="text-[11px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors">{fav.name}</p>
+                                <p className="text-[10px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors uppercase">{fav.name}</p>
                                 </div>
                               </div>
 
@@ -1435,7 +1435,7 @@ function ProjectApp() {
                                         {(() => {
                                           const prices = intradayData[fav.symbol] || [];
                                           const dailyPrices = sparklineData[fav.symbol] || [];
-                                          if (prices.length < 2) return <div className="w-14 h-7 bg-white/5 rounded-lg animate-pulse" />;
+                                          if (prices.length < 2) return <div className="w-[45px] h-[26px] bg-white/5 rounded-lg animate-pulse" />;
                                           const prevClose = dailyPrices.length >= 2 ? dailyPrices[dailyPrices.length - 2] : prices[0];
                                           const min = Math.min(...prices, prevClose);
                                           const max = Math.max(...prices, prevClose);
@@ -1462,7 +1462,7 @@ function ProjectApp() {
                                         <span className="text-[6px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">20D</span>
                                         {(() => {
                                           const prices = sparklineData[fav.symbol] || [];
-                                          if (prices.length < 2) return <div className="w-14 h-7 bg-white/5 rounded-lg animate-pulse" />;
+                                          if (prices.length < 2) return <div className="w-[45px] h-[26px] bg-white/5 rounded-lg animate-pulse" />;
                                           const open20 = prices[0];
                                           const min20 = Math.min(...prices);
                                           const max20 = Math.max(...prices);
