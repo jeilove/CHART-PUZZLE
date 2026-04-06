@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.32 서버사이드 로컬 검색 엔진(stock_industry.json) 연동 완료 (2,500+ 전종목 검색 지원)
+  // v2.10.35 검색 엔진 원상 복구 및 네이버 실시간 API 연동 완료 (엘앤에프, 브이엠 등 전 상장사 지원)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.32 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.35 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -602,7 +602,7 @@ function ProjectApp() {
       return searchBaseStocks;
     }
 
-    const term = searchTerm.toLowerCase();
+    const term = searchTerm.toLowerCase().trim();
     const filteredBase = STOCK_LIST.filter(s => 
       s.name.toLowerCase().includes(term) || 
       s.symbol.includes(term) ||

@@ -1,51 +1,34 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
 
-// [v2.10.32] 서버사이드 전종목 검색 엔진 (로컬 stock_industry.json 기반)
+// [v2.10.35] 검색 엔진 원상 복구 (네이버 금융 실시간 API 방식)
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const q = (searchParams.get("q") || "").toLowerCase().trim();
+  const q = searchParams.get("q") || "";
   
-  if (!q || q.length < 2) return NextResponse.json({ results: [] });
+  if (!q) return NextResponse.json({ results: [] });
 
   try {
-    const jsonPath = path.join(process.cwd(), "backend", "stock_industry.json");
-    if (!fs.existsSync(jsonPath)) {
-      throw new Error("stock_industry.json not found");
-    }
-
-    const fileContent = fs.readFileSync(jsonPath, "utf-8");
-    const stockData = JSON.parse(fileContent);
-
-    const results: any[] = [];
+    // 네이버 금융 자동완성 API 활용 (원래 사용하던 방식)
+    const url = `https://ac.finance.naver.com/ac?q=${encodeURIComponent(q)}&q_enc=utf-8&st=111&r_format=json&r_enc=utf-8`;
+    const res = await fetch(url);
+    const data = await res.json();
     
-    // stockData = { "005930": { "name": "삼성전자", "industry": "..." }, ... }
-    for (const [symbol, info] of Object.entries(stockData)) {
-      const { name, industry } = info as { name: string; industry: string };
-      
-      // 이름, 심볼, 업종에서 검색어 포함 여부 확인 (대소문자 무시)
-      if (
-        name.toLowerCase().includes(q) || 
-        symbol.includes(q) || 
-        (industry && industry.toLowerCase().includes(q))
-      ) {
-        results.push({
-          name,
-          symbol,
-          industry: industry || "기타",
-          price: 0,
-          change: 0
-        });
+    const results = [];
+    if (data.items && data.items.length > 0 && data.items[0].length > 0) {
+      for (const item of data.items[0]) {
+        // item = ["삼성전자", "005930", ...]
+        const name = item[0];
+        const symbol = item[1];
+        if (name && symbol) {
+          results.push({ name, symbol, industry: "기타", price: 0, change: 0 });
+        }
       }
-      
-      // 결과가 너무 많으면 상위 50개만 반환하여 부하 경감
-      if (results.length >= 50) break;
     }
     
-    return NextResponse.json({ results });
+    // 결과 범위를 충분히 확보하여 엘앤에프 등 누락 방지 (기존 10개에서 30개로 상향하여 누락 방지)
+    return NextResponse.json({ results: results.slice(0, 30) });
   } catch (error: any) {
-    console.error("Server Search error:", error);
+    console.error("Search error:", error);
     return NextResponse.json({ results: [] });
   }
 }
