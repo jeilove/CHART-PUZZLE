@@ -160,10 +160,31 @@ const STOCK_LIST: (Stock & { industry: string })[] = [
   { name: "NAVER", symbol: "035420", industry: "IT서비스" },
 ];
 
+// v1.7.5: 스파크라인 SVG 경로 생성 헬퍼 (v2.10.26: 전역 스코프로 이동하여 ReferenceError 해결)
+const getSparklinePath = (prices: number[], width: number = 100, height: number = 20, maxPoints?: number) => {
+  if (!prices || prices.length < 2) return "M0,10 L100,10";
+  
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  const range = max - min || 1;
+  
+  // maxPoints가 주어지면 (예: 1D 그래프의 경우 390분), 현재 데이터 수와 무관하게 
+  // 시간 흐름에 따라 그래프가 채워지도록 X좌표를 계산함 (v2.10.25)
+  const points = prices.map((p, i) => {
+    const divisor = maxPoints ? (maxPoints - 1) : (prices.length - 1);
+    const x = (i / divisor) * width;
+    const y = height - ((p - min) / range) * height;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  
+  return `M${points.join(" L")}`;
+};
+
+// v2.10.26 긴급 복구: 즐겨찾기 소멸 및 렌더링 중단 원인(getSparklinePath 호출 오류) 해결
 function SearchResultItem({ 
-  stock, onSelect, onGame, onWarp, onCloud, isFavorite, onToggleFavorite, sparklineData = {}, intradayData = {}, small = false, getSparklinePath 
+  stock, onSelect, onGame, onWarp, onCloud, isFavorite, onToggleFavorite, sparklineData = {}, intradayData = {}, small = false
 }: { 
-  stock: any, onSelect: () => void, onGame: () => void, onWarp: () => void, onCloud: () => void, isFavorite: boolean, onToggleFavorite: (e: any) => void, sparklineData?: any, intradayData?: any, small?: boolean, getSparklinePath: any 
+  stock: any, onSelect: () => void, onGame: () => void, onWarp: () => void, onCloud: () => void, isFavorite: boolean, onToggleFavorite: (e: any) => void, sparklineData?: any, intradayData?: any, small?: boolean
 }) {
   return (
     <div className={`bg-white/5 border border-white/5 rounded-3xl ${small ? "p-3 sm:p-4" : "p-4 sm:p-5"} flex items-center justify-between group transition-all hover:bg-white/10 hover:border-white/10 shadow-lg relative overflow-hidden h-[72px] sm:h-auto`}>
@@ -214,7 +235,7 @@ function SearchResultItem({
             const minVal1d = Math.min(...p1d, prevClose1d);
             const range1d = maxVal1d - minVal1d || 1;
             const b1d = ((maxVal1d - prevClose1d) / range1d) * 100;
-            const s1d = getSparklinePath(p1d);
+            const s1d = getSparklinePath(p1d, 100, 20, 390); // 390분 기준 진행형 그래프
 
             const open20d = p20d[0];
             const maxVal20d = Math.max(...p20d);
@@ -288,6 +309,7 @@ function ProjectApp() {
   const [isLoading, setIsLoading] = useState(false);
   const [favoriteGroups, setFavoriteGroups] = useState<FavoriteGroup[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editingGroupName, setEditingGroupName] = useState("");
   
@@ -298,9 +320,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.24 환경 안정화 및 UI 개선 완료 (개인화 서비스 문구 삭제)
+  // v2.10.25 환경 안정화 및 UI 개선 완료 (10분 자동 갱신 및 1D 진행형 그래프)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.24 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.25 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -322,11 +344,17 @@ function ProjectApp() {
   const [searchBaseStocks, setSearchBaseStocks] = useState<Stock[]>([]);
   const [searchGroupSnapshot, setSearchGroupSnapshot] = useState<Record<string, string>>({}); // symbol -> groupId
   const [newGroupInputOpen, setNewGroupInputOpen] = useState(false);
-  const [newGroupName, setNewGroupName] = useState("");
-  const [sparklineData, setSparklineData] = useState<Record<string, number[]>>({});
-  const [intradayData, setIntradayData] = useState<Record<string, number[]>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [apiResults, setApiResults] = useState<any[]>([]);
+  const [lastRefresh, setLastRefresh] = useState(Date.now());
+
+  // v1.8.0: 10분 주기 자동 갱신 타이머
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLastRefresh(Date.now());
+    }, 10 * 60 * 1000); // 10분
+    return () => clearInterval(interval);
+  }, []);
 
   const filteredStocks = useMemo(() => {
     // [v1.6.7] 검색어가 없을 때는 초기 스냅샷(searchBaseStocks)을 사용하여 리스트 안정성 확보
@@ -355,11 +383,14 @@ function ProjectApp() {
 
       if (allSymbols.length === 0) return;
 
-      // 이미 로드된 데이터 제외 (성능 최적화)
-      const missingSymbols = allSymbols.filter(s => !sparklineData[s]);
-      const missingIntraday = allSymbols.filter(s => !intradayData[s]);
-
-      if (missingSymbols.length === 0 && missingIntraday.length === 0) return;
+      // 20D 데이터는 없는 것만 로드하되, 오전 9시~9시 10분 사이에는 전수 갱신 (v2.10.25)
+      const now = new Date();
+      const is9AM = now.getHours() === 9 && now.getMinutes() <= 10;
+      const missingSymbols = is9AM ? allSymbols : allSymbols.filter(s => !sparklineData[s]);
+      
+      // 1D 데이터는 10분 주기 갱신 시 전수 재로드, 그 외엔 없는 것만 로드
+      // (lastRefresh가 변경되면 fetchSparklines가 다시 실행되므로 logic 유지)
+      const targetIntradaySymbols = allSymbols; // 10분 마다 트리거되므로 항상 최신화
 
       // Batch 20D (Sparklines)
       if (missingSymbols.length > 0) {
@@ -373,9 +404,10 @@ function ProjectApp() {
       }
 
       // Batch 1D (Intraday)
-      if (missingIntraday.length > 0) {
+      if (targetIntradaySymbols.length > 0) {
         try {
-          const res = await fetch(`/api/stock/sparkline/batch?symbols=${missingIntraday.join(",")}&timeframe=minute&count=400`);
+          // 캐시 무력화를 위해 t=Date.now() 추가 및 no-store 보장
+          const res = await fetch(`/api/stock/sparkline/batch?symbols=${targetIntradaySymbols.join(",")}&timeframe=minute&count=400&t=${Date.now()}`, { cache: 'no-store' });
           if (res.ok) {
             const result = await res.json();
             setIntradayData(prev => ({ ...prev, ...result }));
@@ -388,24 +420,8 @@ function ProjectApp() {
     const delay = (searchTerm && searchTerm.length > 0) ? 300 : 0;
     const timeoutId = setTimeout(fetchSparklines, delay);
     return () => clearTimeout(timeoutId);
-  }, [ungroupedStocks, favoriteGroups, filteredStocks, searchTerm]);
+  }, [ungroupedStocks, favoriteGroups, filteredStocks, searchTerm, lastRefresh]);
 
-  // v1.7.5: 스파크라인 SVG 경로 생성 헬퍼
-  const getSparklinePath = (prices: number[], width: number = 100, height: number = 20) => {
-    if (!prices || prices.length < 2) return "M0,10 L100,10";
-    
-    const min = Math.min(...prices);
-    const max = Math.max(...prices);
-    const range = max - min || 1;
-    
-    const points = prices.map((p, i) => {
-      const x = (i / (prices.length - 1)) * width;
-      const y = height - ((p - min) / range) * height;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    });
-    
-    return `M${points.join(" L")}`;
-  };
 
   // URL 네비게이션 헬퍼: router.push만 담당하며 setView 등은 아래 useEffect에서 처리
   const navigate = React.useCallback((v: string, s?: string, w: boolean = false, f: boolean = false) => {
@@ -1276,7 +1292,7 @@ function ProjectApp() {
                                         const range = max - min || 1;
                                         const baseline = ((max - prevClose) / range) * 100;
                                         const gradId = `grad-1d-${fav.symbol}-${Math.random().toString(36).substr(2, 4)}`;
-                                        const strokePath = getSparklinePath(prices);
+                                        const strokePath = getSparklinePath(prices, 100, 20, 390); // 390분 기준 진행형 그래프
                                         
                                         return (
                                           <svg className="w-[45px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
@@ -1440,7 +1456,7 @@ function ProjectApp() {
                                                 </linearGradient>
                                               </defs>
                                               <line x1="0" y1={baseline / 5} x2="100" y2={baseline / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.3" />
-                                              <path d={strokePath} fill="none" stroke={`url(#${gradId})`} strokeWidth="1.5" />
+                                              <path d={getSparklinePath(prices, 100, 20, 390)} fill="none" stroke={`url(#${gradId})`} strokeWidth="1.5" />
                                             </svg>
                                           );
                                         })()}
@@ -1740,7 +1756,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.24</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.26</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
