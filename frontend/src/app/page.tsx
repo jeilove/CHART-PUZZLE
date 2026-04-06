@@ -347,6 +347,11 @@ function ProjectApp() {
   const [searchTerm, setSearchTerm] = useState("");
   const [apiResults, setApiResults] = useState<any[]>([]);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
+  // v2.7.0: 스파크라인(20D 일봉) 및 당일 분봉(1D) 데이터 캐시 상태 (v2.10.26: 누락 복구)
+  const [sparklineData, setSparklineData] = useState<Record<string, number[]>>({});
+  const [intradayData, setIntradayData] = useState<Record<string, number[]>>({});
+  // v1.6.3: 새 그룹 이름 입력 상태 (v2.10.26: 누락 복구)
+  const [newGroupName, setNewGroupName] = useState("");
 
   // v1.8.0: 10분 주기 자동 갱신 타이머
   useEffect(() => {
