@@ -166,52 +166,46 @@ function SearchResultItem({
   stock: any, onSelect: () => void, onGame: () => void, onWarp: () => void, onCloud: () => void, isFavorite: boolean, onToggleFavorite: (e: any) => void, sparklineData?: any, intradayData?: any, small?: boolean, getSparklinePath: any 
 }) {
   return (
-    <div className={`bg-white/5 border border-white/5 rounded-3xl ${small ? "p-4" : "p-5"} flex items-center justify-between group transition-all hover:bg-white/10 hover:border-white/10 shadow-lg relative overflow-hidden`}>
-      {/* 종목 기본 정보 */}
-      <div className="flex flex-col gap-0.5 cursor-pointer flex-1" onClick={onSelect}>
-        <p className={`${small ? "text-[10px]" : "text-[12px]"} font-black text-white leading-tight group-hover:text-rose-400 transition-colors uppercase`}>{stock.name}</p>
+    <div className={`bg-white/5 border border-white/5 rounded-3xl ${small ? "p-3 sm:p-4" : "p-4 sm:p-5"} flex items-center justify-between group transition-all hover:bg-white/10 hover:border-white/10 shadow-lg relative overflow-hidden h-[72px] sm:h-auto`}>
+      {/* 종목 기본 정보 (좌측) */}
+      <div className="flex flex-col gap-0.5 cursor-pointer flex-1 min-w-0 pr-2 sm:pr-4" onClick={onSelect}>
+        <p className={`${small ? "text-[11px]" : "text-[13px]"} font-black text-white leading-tight group-hover:text-rose-400 transition-colors uppercase truncate whitespace-nowrap`}>
+          {stock.name}
+        </p>
+        {!small && stock.symbol && (
+          <span className="text-[10px] text-gray-500 font-bold opacity-50 uppercase tracking-tighter">
+            {stock.symbol}
+          </span>
+        )}
       </div>
 
-      {/* 4종 기능 아이콘 - 모바일에서는 차트, 워드만 노출하여 공간 확보 */}
-      <div className="flex items-center gap-1 sm:gap-3 mx-2 sm:mx-4">
-        <button onClick={onSelect} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Chart">
-          <img src="/icons/v3_chart.png" alt="Chart" className="w-5 h-5 object-contain" />
-        </button>
-        <button onClick={onGame} className="hidden sm:flex w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Puzzle">
-          <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-5 h-5 object-contain" />
-        </button>
-        <button onClick={onWarp} className="hidden sm:flex w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Time Warp">
-          <img src="/icons/v3_warp.png" alt="Warp" className="w-5 h-5 object-contain" />
-        </button>
-        <button onClick={onCloud} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Word Cloud">
-          <img src="/icons/v17_trigger.png" alt="Cloud" className="w-5 h-5 object-contain scale-[1.2]" />
-        </button>
-      </div>
+      {/* 액션 및 데이터 영역 (우측 밀착) */}
+      <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
+        {/* 기능 아이콘 (v2.10.21) */}
+        <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
+          <button onClick={onSelect} className="w-[24px] h-[24px] sm:w-[28px] sm:h-[28px] rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Chart">
+            <img src="/icons/v3_chart.png" alt="Chart" className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] object-contain" />
+          </button>
+          <button onClick={onCloud} className="w-[24px] h-[24px] sm:w-[28px] sm:h-[28px] rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Word Cloud">
+            <img src="/icons/v17_trigger.png" alt="Cloud" className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] object-contain scale-[1.1]" />
+          </button>
+          <button onClick={onWarp} className="hidden sm:flex w-[28px] h-[28px] rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 items-center justify-center transition-all hover:scale-110 active:scale-95" title="Time Warp">
+            <img src="/icons/v3_warp.png" alt="Warp" className="w-[14px] h-[14px] object-contain" />
+          </button>
+        </div>
 
-      {/* 주가 및 즐겨찾기 */}
-      <div className="flex items-center gap-2 sm:gap-6">
-        {/* 스파크라인 (Search 전용) - 모바일 상시 노출 최적화 */}
-        <div className="flex items-center gap-2 sm:gap-4 ml-1 sm:ml-0">
+        {/* 시장 지표 (Sparklines) */}
+        <div className="flex items-center gap-1.5 sm:gap-4 shrink-0 border-l border-white/5 pl-1.5 sm:pl-4 ml-0.5 sm:ml-0">
           {(() => {
             const p1d = intradayData[stock.symbol] || [];
             const p20d = sparklineData[stock.symbol] || [];
             
             if (p1d.length < 2 || p20d.length < 2) {
               return (
-                <>
-                  <div className="flex flex-col items-center animate-pulse">
-                    <span className="text-[6px] text-gray-500 font-black opacity-10 uppercase mb-0.5">1D</span>
-                    <svg className="w-[38px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
-                      <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col items-center border-l border-white/10 pl-3 animate-pulse">
-                    <span className="text-[6px] text-gray-500 font-black opacity-10 uppercase mb-0.5">20D</span>
-                    <svg className="w-[45px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
-                      <rect x="0" y="9.5" width="100" height="1" fill="white" fillOpacity="0.05" />
-                    </svg>
-                  </div>
-                </>
+                <div className="flex items-center gap-2 opacity-20">
+                  <div className="w-[30px] h-[18px] bg-white/5 rounded-sm" />
+                  <div className="w-[35px] h-[18px] bg-white/5 rounded-sm" />
+                </div>
               );
             }
             
@@ -220,7 +214,6 @@ function SearchResultItem({
             const minVal1d = Math.min(...p1d, prevClose1d);
             const range1d = maxVal1d - minVal1d || 1;
             const b1d = ((maxVal1d - prevClose1d) / range1d) * 100;
-            const gId1d = `search-1d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
             const s1d = getSparklinePath(p1d);
 
             const open20d = p20d[0];
@@ -228,35 +221,22 @@ function SearchResultItem({
             const minVal20d = Math.min(...p20d);
             const range20d = maxVal20d - minVal20d || 1;
             const b20d = ((maxVal20d - open20d) / range20d) * 100;
-            const gId20d = `search-20d-${stock.symbol}-${Math.random().toString(36).substr(2, 4)}`;
             const s20d = getSparklinePath(p20d);
 
             return (
               <>
                 <div className="flex flex-col items-center">
-                  <span className="text-[6px] text-gray-500 font-black opacity-30 uppercase mb-0.5">1D</span>
-                  <svg className="w-[38px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id={gId1d} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset={`${b1d}%`} stopColor="#f43f5e" stopOpacity="1" />
-                        <stop offset={`${b1d}%`} stopColor="#3b82f6" stopOpacity="1" />
-                      </linearGradient>
-                    </defs>
-                    <line x1="0" y1={b1d / 5} x2="100" y2={b1d / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.2" />
-                    <path d={s1d} fill="none" stroke={`url(#${gId1d})`} strokeWidth="1.5" />
+                  <span className="text-[6px] text-gray-500 font-bold opacity-30 mb-0.5">1D</span>
+                  <svg className="w-[32px] sm:w-[38px] h-[18px] sm:h-[22px]" viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <line x1="0" y1={b1d / 5} x2="100" y2={b1d / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.1" />
+                    <path d={s1d} fill="none" stroke={Number(p1d[p1d.length-1]) >= prevClose1d ? "#f43f5e" : "#3b82f6"} strokeWidth="2" />
                   </svg>
                 </div>
-                <div className="flex flex-col items-center border-l border-white/10 pl-3">
-                  <span className="text-[6px] text-gray-500 font-black opacity-30 uppercase mb-0.5">20D</span>
-                  <svg className="w-[45px] h-[26px]" viewBox="0 0 100 20" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id={gId20d} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset={`${b20d}%`} stopColor="#f43f5e" stopOpacity="1" />
-                        <stop offset={`${b20d}%`} stopColor="#3b82f6" stopOpacity="1" />
-                      </linearGradient>
-                    </defs>
+                <div className="flex flex-col items-center">
+                  <span className="text-[6px] text-gray-500 font-bold opacity-30 mb-0.5">20D</span>
+                  <svg className="w-[38px] sm:w-[45px] h-[18px] sm:h-[22px]" viewBox="0 0 100 20" preserveAspectRatio="none">
                     <line x1="0" y1={b20d / 5} x2="100" y2={b20d / 5} stroke="white" strokeWidth="0.5" strokeDasharray="1,1" opacity="0.1" />
-                    <path d={s20d} fill="none" stroke={`url(#${gId20d})`} strokeWidth="1.5" />
+                    <path d={s20d} fill="none" stroke={Number(p20d[p20d.length-1]) >= open20d ? "#f43f5e" : "#3b82f6"} strokeWidth="2" />
                   </svg>
                 </div>
               </>
@@ -264,32 +244,30 @@ function SearchResultItem({
           })()}
         </div>
 
+        {/* 주가 변동률 */}
         {(() => {
           const p1d = intradayData[stock.symbol] || [];
           const p20d = sparklineData[stock.symbol] || [];
           const prevClose1d = p20d.length >= 2 ? p20d[p20d.length - 2] : p1d[0];
           const latest1d = p1d[p1d.length - 1];
-          
           const changeVal = latest1d !== undefined && prevClose1d !== undefined 
             ? ((latest1d - prevClose1d) / prevClose1d * 100).toFixed(2)
             : (stock.change !== undefined ? stock.change : "---");
-            
           const isPos = changeVal === "---" ? true : Number(changeVal) >= 0;
 
           return (
-            <div className="flex justify-end">
-              <div className={`px-1 py-0.5 rounded-md text-[9px] font-black whitespace-nowrap ${isPos ? "bg-rose-500/20 text-rose-400" : "bg-blue-500/20 text-blue-400"}`}>
-                {isPos && changeVal !== "---" ? "+" : ""}{changeVal}{changeVal !== "---" ? "%" : ""}
-              </div>
+            <div className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black shrink-0 ${isPos ? "bg-rose-500/10 text-rose-400" : "bg-blue-500/10 text-blue-400"}`}>
+              {isPos && changeVal !== "---" ? "+" : ""}{changeVal}%
             </div>
           );
         })()}
 
+        {/* 즐겨찾기 별 */}
         <button 
           onClick={onToggleFavorite}
-          className="p-2 sm:p-3 bg-white/5 rounded-full text-gray-500 hover:text-yellow-500 transition-all active:scale-90"
+          className="p-1 sm:p-2 text-gray-600 hover:text-yellow-500 transition-all active:scale-90 shrink-0"
         >
-          <Star className={isFavorite ? "fill-yellow-500 text-yellow-500" : ""} size={small ? 16 : 20} />
+          <Star className={isFavorite ? "fill-yellow-500 text-yellow-500" : ""} size={small ? 14 : 18} />
         </button>
       </div>
     </div>
@@ -320,9 +298,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.9 환경 안정화 및 UI 개선 완료
+  // v2.10.21 환경 안정화 및 UI 개선 완료 (Truncate 보강)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.9 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.21 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -722,7 +700,7 @@ function ProjectApp() {
     saveGroups(newGroups);
   };
 
-  const selectStock = async (name: string, symbol: string, mode: "GAME" | "CHART" = "GAME", w = false, f = false) => {
+  const selectStock = async (name: string, symbol: string, mode: "GAME" | "CHART" | "TRIGGER" = "GAME", w = false, f = false) => {
     // API 호출 및 기본적인 상태 변경 수행 후 URL 업데이트
     setIsLoading(true);
     setIsDrawerOpen(false);
@@ -1070,23 +1048,25 @@ function ProjectApp() {
                                 <div className="px-1 mb-2">
                                   <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] italic">미분류 / 신규 종목</h3>
                                 </div>
-                                {ungroupedInSearch.map((stock) => (
-                                  <SearchResultItem 
-                                    key={stock.symbol} 
-                                    stock={stock} 
-                                    isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
-                                    onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
-                                    onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
-                                    onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
-                                    onCloud={() => selectStock(stock.name, stock.symbol, "CHART", false, true)}
-                                    onToggleFavorite={(e) => {
-                                      smartToggleFavorite(stock, e);
-                                    }}
-                                    sparklineData={sparklineData}
-                                    intradayData={intradayData}
-                                    getSparklinePath={getSparklinePath}
-                                  />
-                                ))}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10">
+                                  {ungroupedInSearch.map((stock) => (
+                                    <SearchResultItem 
+                                      key={stock.symbol} 
+                                      stock={stock} 
+                                      isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
+                                      onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
+                                      onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
+                                      onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
+                                      onCloud={() => selectStock(stock.name, stock.symbol, "CHART", false, true)}
+                                      onToggleFavorite={(e) => {
+                                        smartToggleFavorite(stock, e);
+                                      }}
+                                      sparklineData={sparklineData}
+                                      intradayData={intradayData}
+                                      getSparklinePath={getSparklinePath}
+                                    />
+                                  ))}
+                                </div>
                               </div>
                             );
                           })()}
@@ -1124,13 +1104,12 @@ function ProjectApp() {
                                       exit={{ height: 0, opacity: 0 }} 
                                       className="overflow-hidden"
                                     >
-                                      <div className="px-4 pb-5 space-y-2 border-t border-white/5 pt-4 bg-black/20">
+                                      <div className="px-4 pb-5 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10 border-t border-white/5 pt-4 bg-black/20">
                                         {stocksInGroup.map((stock) => (
                                           <SearchResultItem 
                                             key={stock.symbol} 
                                             stock={stock} 
                                             isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
-                                            small
                                             onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
                                             onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
                                             onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
@@ -1232,23 +1211,27 @@ function ProjectApp() {
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                       <div className="px-5 pb-4 space-y-1 border-t border-white/5">
                         {ungroupedStocks.length > 0 ? ungroupedStocks.map((fav) => (
-                          <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative">
-                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
-                              <div className="flex flex-col">
-                                <p className="text-[10px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors uppercase">{fav.name}</p>
-                              </div>
-                            </div>
+                          <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative h-[72px]">
+                             {/* 종목명 영역: flex-1 + min-w-0 으로 공간 확보 후 truncate */}
+                             <div className="flex flex-col cursor-pointer flex-1 min-w-0 pr-4" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
+                               <p className="text-[11px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors uppercase truncate whitespace-nowrap">
+                                 {fav.name}
+                               </p>
+                               <span className="text-[9px] text-gray-500 font-bold opacity-40 uppercase tracking-tighter">
+                                 {fav.symbol}
+                               </span>
+                             </div>
 
-                            {/* 우측 아이콘 및 정보 영역 */}
-                            <div className="flex items-center gap-6">
+                             {/* 우측 아이콘 및 정보 영역: shrink-0 으로 고정 크기 유지 */}
+                             <div className="flex items-center gap-1.5 sm:gap-6 shrink-0">
                                 {/* 4종 숏컷 아이콘 - 모바일 최적화 (v2.10.12) */}
-                                <div className="flex items-center gap-1 sm:gap-2">
+                                <div className="flex items-center gap-0.5 sm:gap-2 flex-shrink-0">
                                   <button 
                                     onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}
-                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    className="w-[26px] h-[26px] rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Chart"
                                   >
-                                    <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-1.5" />
+                                    <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-1" />
                                   </button>
                                   <button 
                                     onClick={() => selectStock(fav.name, fav.symbol, "GAME", false, false)}
@@ -1269,23 +1252,23 @@ function ProjectApp() {
                                       e.stopPropagation();
                                       selectStock(fav.name, fav.symbol, "CHART", false, true);
                                     }}
-                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    className="w-[26px] h-[26px] rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Word Cloud"
                                   >
-                                    <img src="/icons/v17_trigger.png" alt="Cloud" className="w-full h-full object-contain p-1.5 scale-[1.2]" />
+                                    <img src="/icons/v17_trigger.png" alt="Cloud" className="w-full h-full object-contain p-1 scale-[1.1]" />
                                   </button>
                                 </div>
 
-                              <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2 sm:gap-4 group-hover/item:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-1 sm:gap-4 flex-shrink-0">
+                                <div className="flex items-center gap-1 sm:gap-4 group-hover/item:opacity-100 transition-opacity">
                                   {/* 차트 영역 (1D, 20D) */}
-                                  <div className="flex flex-row items-center gap-2 sm:gap-3">
+                                  <div className="flex flex-row items-center gap-1 sm:gap-3">
                                     <div className="flex flex-col items-center">
                                       <span className="text-[6px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">1D</span>
                                       {(() => {
                                         const prices = intradayData[fav.symbol] || [];
                                         const dailyPrices = sparklineData[fav.symbol] || [];
-                                        if (prices.length < 2) return <div className="w-16 h-8 bg-white/5 rounded-lg animate-pulse" />;
+                                        if (prices.length < 2) return <div className="w-[45px] h-[26px] bg-white/5 rounded-lg animate-pulse" />;
                                         
                                         const prevClose = dailyPrices.length >= 2 ? dailyPrices[dailyPrices.length - 2] : prices[0];
                                         const min = Math.min(...prices, prevClose);
@@ -1339,7 +1322,7 @@ function ProjectApp() {
                                     </div>
                                   </div>
                                 </div>
-                                <div className="flex justify-end">
+                                <div className="flex justify-end flex-shrink-0">
                                   {(() => {
                                     const prices = sparklineData[fav.symbol] || [];
                                     const latest = prices[prices.length - 1];
@@ -1382,54 +1365,58 @@ function ProjectApp() {
                       <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                         <div className="px-5 pb-4 space-y-1 border-t border-white/5">
                           {group.stocks.length > 0 ? group.stocks.map((fav) => (
-                            <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative">
-                              <div className="flex items-center gap-3 cursor-pointer" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
-                                <div className="flex flex-col">
-                                <p className="text-[10px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors uppercase">{fav.name}</p>
-                                </div>
+                            <div key={fav.symbol} className="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 -mx-5 px-5 transition-colors group/item relative h-[72px]">
+                              {/* 종목명 영역: flex-1 + min-w-0 으로 공간 확보 후 truncate */}
+                              <div className="flex flex-col cursor-pointer flex-1 min-w-0 pr-4" onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}>
+                                <p className="text-[11px] font-black text-slate-100 leading-tight group-hover/item:text-rose-400 transition-colors uppercase truncate whitespace-nowrap">
+                                  {fav.name}
+                                </p>
+                                <span className="text-[9px] text-gray-500 font-bold opacity-40 uppercase tracking-tighter">
+                                  {fav.symbol}
+                                </span>
                               </div>
 
-                              {/* 우측 아이콘 및 정보 영역 */}
-                              <div className="flex items-center gap-6">
+                              {/* 우측 아이콘 및 정보 영역: shrink-0 으로 고정 크기 유지 */}
+                              <div className="flex items-center gap-1.5 sm:gap-6 shrink-0">
                                 {/* 4종 숏컷 아이콘 - 모바일 최적화 (v2.10.12) */}
-                                <div className="flex items-center gap-1 sm:gap-2">
+                                <div className="flex items-center gap-0.5 sm:gap-2 flex-shrink-0">
                                   <button 
                                     onClick={() => selectStock(fav.name, fav.symbol, "CHART", false, false)}
-                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    className="w-[24px] h-[24px] rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Chart"
                                   >
-                                    <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-1.5" />
+                                    <img src="/icons/v3_chart.png" alt="Chart" className="w-full h-full object-contain p-[3px]" />
                                   </button>
                                   <button 
                                     onClick={() => selectStock(fav.name, fav.symbol, "GAME", false, false)}
-                                    className="hidden sm:block w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    className="hidden sm:block w-7 h-7 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Puzzle"
                                   >
-                                    <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-full h-full object-contain p-1.5" />
+                                    <img src="/icons/v3_puzzle.png" alt="Puzzle" className="w-full h-full object-contain p-1" />
                                   </button>
                                   <button 
                                     onClick={() => selectStock(fav.name, fav.symbol, "CHART", true, false)}
-                                    className="hidden sm:block w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    className="hidden sm:block w-7 h-7 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Time Warp"
                                   >
-                                    <img src="/icons/v3_warp.png" alt="Warp" className="w-full h-full object-contain p-1.5" />
+                                    <img src="/icons/v3_warp.png" alt="Warp" className="w-full h-full object-contain p-1" />
                                   </button>
                                   <button 
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       selectStock(fav.name, fav.symbol, "CHART", false, true);
                                     }}
-                                    className="w-8 h-8 rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
+                                    className="w-[24px] h-[24px] rounded-lg overflow-hidden bg-white/5 hover:bg-white/10 transition-all hover:scale-110 active:scale-95 border border-white/5"
                                     title="Word Cloud"
                                   >
-                                    <img src="/icons/v17_trigger.png" alt="Cloud" className="w-full h-full object-contain p-1.5 scale-[1.2]" />
+                                    <img src="/icons/v17_trigger.png" alt="Cloud" className="w-full h-full object-contain p-[2px] scale-[1.1]" />
                                   </button>
                                 </div>
 
-                                <div className="flex items-center gap-4">
-                                  <div className="flex items-center gap-2 sm:gap-4 group-hover/item:opacity-100 transition-opacity">
+                                <div className="flex items-center gap-1 sm:gap-4 flex-shrink-0">
+                                  <div className="flex items-center gap-1 sm:gap-4 group-hover/item:opacity-100 transition-opacity">
                                     {/* 차트 영역 (1D, 20D) */}
-                                    <div className="flex flex-row items-center gap-2 sm:gap-3">
+                                    <div className="flex flex-row items-center gap-1 sm:gap-3">
                                       <div className="flex flex-col items-center">
                                         <span className="text-[6px] text-gray-500 font-black opacity-30 uppercase mb-0.5 tracking-tight">1D</span>
                                         {(() => {
@@ -1487,7 +1474,7 @@ function ProjectApp() {
                                       </div>
                                     </div>
                                   </div>
-                                  <div className="flex justify-end">
+                                  <div className="flex justify-end flex-shrink-0">
                                     {(() => {
                                       const prices = sparklineData[fav.symbol] || [];
                                       const latest = prices[prices.length - 1];
@@ -1555,13 +1542,12 @@ function ProjectApp() {
                         <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">SEARCH RESULTS</span>
                       </div>
                       {filteredStocks.length > 0 ? (
-                        <div className="p-3 space-y-2">
+                        <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
                           {filteredStocks.slice(0, 8).map((s) => (
                             <SearchResultItem 
                               key={s.symbol}
                               stock={s}
                               isFavorite={ungroupedStocks.some(f => f.symbol === s.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))}
-                              small
                               onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "GAME", false, false); }}
                               onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "GAME", false, false); }}
                               onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", true, false); }}
@@ -1634,13 +1620,12 @@ function ProjectApp() {
                          <X size={14} className="text-gray-500 cursor-pointer" onClick={() => setIsMiniSearchOpen(false)} />
                        </div>
                        {filteredStocks.length > 0 ? (
-                        <div className="p-3 space-y-2">
+                        <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
                           {filteredStocks.slice(0, 8).map((s) => (
                             <SearchResultItem 
                               key={s.symbol}
                               stock={s}
                               isFavorite={ungroupedStocks.some(f => f.symbol === s.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))}
-                              small
                               onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "TRIGGER", false, false); }}
                               onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "GAME", false, false); }}
                               onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", true, false); }}
@@ -1701,13 +1686,12 @@ function ProjectApp() {
                          <X size={14} className="text-gray-500 cursor-pointer" onClick={() => setIsMiniSearchOpen(false)} />
                        </div>
                        {filteredStocks.length > 0 ? (
-                        <div className="p-3 space-y-2">
+                        <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
                           {filteredStocks.slice(0, 8).map((s) => (
                             <SearchResultItem 
                               key={s.symbol}
                               stock={s}
                               isFavorite={ungroupedStocks.some(f => f.symbol === s.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === s.symbol))}
-                              small
                               onSelect={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", isTimeWarpTriggered, false); }}
                               onGame={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "GAME", false, false); }}
                               onWarp={() => { setMiniSearchStr(""); setIsMiniSearchOpen(false); selectStock(s.name, s.symbol, "CHART", true, false); }}
@@ -1756,7 +1740,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.12</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.21</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
