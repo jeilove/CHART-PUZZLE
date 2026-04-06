@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.31 전종목 검색 엔진 복구 및 STOCK_LIST 전수 실데이터로 교체 (v2.10.28: 유실 방지)
+  // v2.10.32 서버사이드 로컬 검색 엔진(stock_industry.json) 연동 완료 (2,500+ 전종목 검색 지원)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.31 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.32 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
