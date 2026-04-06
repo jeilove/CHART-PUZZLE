@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.46 유실된 네이버 실시간 검색 리스너(fetch) 복구 완료
+  // v2.10.48 클라이언트/Vercel 결합 캐시 좀비 완전 박멸 (엘앤에프 즉각 검색 확진)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.46 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.48 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -594,7 +594,8 @@ function ProjectApp() {
       if (searchTerm && searchTerm.trim().length > 0) {
         setIsSearchLoading(true);
         try {
-          const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`);
+          // Vercel 좀비 캐시 박멸을 위한 timestamp 폭탄 및 no-store 보장
+          const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}&t=${Date.now()}`, { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
             setApiResults(data.results || []);
