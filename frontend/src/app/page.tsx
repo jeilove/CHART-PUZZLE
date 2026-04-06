@@ -1309,90 +1309,32 @@ function ProjectApp() {
                     </div>
                     {/* 그룹화된 검색 결과 리스트 */}
                     <div className="flex-1 overflow-y-auto no-scrollbar space-y-6 pb-20">
-                          {/* v2.10.38: 필터링 장벽 없이 검색 결과 100% 노출 */}
-                          {filteredStocks.length > 0 && (
-                            <div className="space-y-3">
-                              <div className="px-1 mb-2">
-                                <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] italic">검색 결과</h3>
-                              </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10">
-                                {filteredStocks.map((stock) => (
-                                  <SearchResultItem 
-                                    key={stock.symbol} 
-                                    stock={stock} 
-                                    isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
-                                    onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
-                                    onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
-                                    onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
-                                    onCloud={() => selectStock(stock.name, stock.symbol, "CHART", false, true)}
-                                    onToggleFavorite={(e) => {
-                                      smartToggleFavorite(stock, e);
-                                    }}
-                                    sparklineData={sparklineData}
-                                    intradayData={intradayData}
-                                  />
-                                ))}
-                              </div>
+                      {filteredStocks.length > 0 ? (
+                        <>
+                          {/* 1. 검색 결과 리스트 (v2.10.39: 장벽 없이 전체 노출) */}
+                          <div className="space-y-3">
+                            <div className="px-1 mb-2">
+                              <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] italic">검색 결과</h3>
                             </div>
-                          )}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10">
+                              {filteredStocks.map((stock) => (
+                                <SearchResultItem 
+                                  key={stock.symbol} 
+                                  stock={stock} 
+                                  isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
+                                  onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
+                                  onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
+                                  onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
+                                  onCloud={() => selectStock(stock.name, stock.symbol, "CHART", false, true)}
+                                  onToggleFavorite={(e) => smartToggleFavorite(stock, e)}
+                                  sparklineData={sparklineData}
+                                  intradayData={intradayData}
+                                />
+                              ))}
+                            </div>
+                          </div>
 
-                          {/* 2. 그룹별 종목 (Snapshotted Accordions) */}
-                          {favoriteGroups.map(group => {
-                            // 현재 그룹 스냅샷에 속한 모든 종목 추출
-                            const stocksInGroup = filteredStocks.filter(s => 
-                              searchGroupSnapshot[s.symbol] === group.id
-                            );
-                            if (stocksInGroup.length === 0) return null;
-                            
-                            const isExpanded = searchExpandedGroups[group.id] ?? true;
-
-                            return (
-                              <div key={group.id} className="bg-white/5 border border-white/5 rounded-[2.5rem] overflow-hidden shadow-xl">
-                                <button 
-                                  onClick={() => setSearchExpandedGroups(prev => ({ ...prev, [group.id]: !isExpanded }))}
-                                  className="w-full px-6 py-5 flex items-center justify-between group bg-white/5 hover:bg-white/10 transition-colors"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 bg-[#F08080] rounded-full" />
-                                    <span className="text-base font-black text-white">{group.name}</span>
-                                    <span className="text-xs text-gray-500 opacity-50">({stocksInGroup.length})</span>
-                                  </div>
-                                  <div className={`p-1.5 bg-white/10 rounded-full transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}>
-                                    <ChevronDown size={14} className="text-gray-400 group-hover:text-white" />
-                                  </div>
-                                </button>
-                                <AnimatePresence>
-                                  {isExpanded && (
-                                    <motion.div 
-                                      initial={{ height: 0, opacity: 0 }} 
-                                      animate={{ height: "auto", opacity: 1 }} 
-                                      exit={{ height: 0, opacity: 0 }} 
-                                      className="overflow-hidden"
-                                    >
-                                      <div className="px-4 pb-5 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10 border-t border-white/5 pt-4 bg-black/20">
-                                        {stocksInGroup.map((stock) => (
-                                          <SearchResultItem 
-                                            key={stock.symbol} 
-                                            stock={stock} 
-                                            isFavorite={ungroupedStocks.some(f => f.symbol === stock.symbol) || favoriteGroups.some(g => g.stocks.some(gs => gs.symbol === stock.symbol))}
-                                            onSelect={() => selectStock(stock.name, stock.symbol, "CHART", false, false)}
-                                            onGame={() => selectStock(stock.name, stock.symbol, "GAME", false, false)}
-                                            onWarp={() => selectStock(stock.name, stock.symbol, "CHART", true, false)}
-                                            onCloud={() => selectStock(stock.name, stock.symbol, "CHART", false, true)}
-                                            onToggleFavorite={(e) => {
-                                              smartToggleFavorite(stock, e);
-                                            }}
-                                            sparklineData={sparklineData}
-                                            intradayData={intradayData}
-                                          />
-                                        ))}
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
-                              </div>
-                            );
-                          })}
+                          {/* 2. 기존 그룹별 매핑이 필요한 경우에 대비한 공간 (필요 시 확장) */}
                         </>
                       ) : (
                         <div className="flex flex-col items-center justify-center py-40 text-gray-600">
@@ -1402,6 +1344,7 @@ function ProjectApp() {
                           </p>
                         </div>
                       )}
+                    </div>
                     </div>
                   </motion.div>
                 )}
