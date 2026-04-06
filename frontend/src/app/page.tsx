@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.45 전종목 검색 및 JSX 문법 구조 최종 무결성 확보 (빌드 에러 박멸, 잉여 div 제거)
+  // v2.10.46 유실된 네이버 실시간 검색 리스너(fetch) 복구 완료
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.45 ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.46 ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -587,6 +587,29 @@ function ProjectApp() {
   const [newGroupName, setNewGroupName] = useState("");
   // v2.10.28: DB sync 안전화 - 실제 데이터 로드가 완료된 후에만 sync 허용
   const [isFavoritesLoaded, setIsFavoritesLoaded] = useState(false);
+
+  // v2.10.46: 유실된 네이버 검색 통신 리스너 복구 (searchTerm 변경 시 자동 호출)
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchTerm && searchTerm.trim().length > 0) {
+        setIsSearchLoading(true);
+        try {
+          const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`);
+          if (res.ok) {
+            const data = await res.json();
+            setApiResults(data.results || []);
+          }
+        } catch (e) {
+          console.error("Search API Error:", e);
+        } finally {
+          setIsSearchLoading(false);
+        }
+      } else {
+        setApiResults([]);
+      }
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
 
   // v1.8.0: 10분 주기 자동 갱신 타이머
   useEffect(() => {
