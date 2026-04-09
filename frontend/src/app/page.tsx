@@ -553,9 +553,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.50: 검색 엔진 전환 (네이버 API → KRX 전종목 JSON 로컬 검색)
+  // v2.10.51: 즐겨찾기 재선택 시 그룹 선택 메뉴 항상 노출 (그룹 변경 편의성 개선)
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.50 (KRX Full Search) ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.51 (Group Select Enhanced) ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -897,20 +897,13 @@ function ProjectApp() {
         saveGroups(favoriteGroups.map(g => g.id === inGroup.id ? { ...g, stocks: g.stocks.filter(s => s.symbol !== stock.symbol) } : g));
       }
     } else {
-      // 즐겨찾기 아님 -> 복구 혹은 신규 추가
+      // 즐겨찾기 아님 -> 항상 그룹 선택 메뉴 노출 (사용자 요청: 그룹 변경을 위해)
       const lastLocation = lastRemovedFavoriteLocation[stock.symbol];
       if (lastLocation) {
-        // 이전 위치로 복구
-        if (lastLocation === "ungrouped") {
-          saveUngrouped([...ungroupedStocks, stock]);
-        } else {
-          saveGroups(favoriteGroups.map(g => g.id === lastLocation ? { ...g, stocks: [...g.stocks, stock] } : g));
-        }
-      } else {
-        // 첫 추가 -> 그룹 드로어 열기
-        setSelectedSearchSymbols([stock.symbol]);
-        setIsGroupSelectorOpen(true);
+        setTargetAddGroupId(lastLocation);
       }
+      setSelectedSearchSymbols([stock.symbol]);
+      setIsGroupSelectorOpen(true);
     }
   };
 
@@ -1227,7 +1220,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.10.50</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.10.51</p>
               </div>
             </motion.div>
           </>
@@ -1947,7 +1940,7 @@ function ProjectApp() {
       </AnimatePresence>
 
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.49</footer>
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.51</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
