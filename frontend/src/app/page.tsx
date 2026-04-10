@@ -9,13 +9,15 @@ import { Input } from "@/components/ui/input";
 import { 
   Search, Play, ChevronLeft, ChevronRight, Loader2, Star, Menu, X, Trash2, 
   GripVertical, Plus, Edit3, Check, CheckSquare, Square, Filter, ChevronDown,
-  Bell, LayoutGrid, TrendingUp, LogIn, LogOut, User as UserIcon
+  Bell, LayoutGrid, TrendingUp, LogIn, LogOut, User as UserIcon, Settings,
+  Download, Upload
 } from "lucide-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { PuzzleGame } from "@/components/puzzle/PuzzleGame";
 import { motion, AnimatePresence } from "framer-motion";
 import StockHeatmap from "@/components/ui/StockHeatmap";
 import { TriggerAnalysis } from "@/components/ui/TriggerAnalysis";
+import { useLocalBackup } from "@/lib/hooks/useLocalBackup";
 
 // 1.1.0: TradingView 히트맵 위젯 컴포넌트 (v2.8.7: React.memo 적용)
 const TradingViewHeatmapWidget = React.memo(function TradingViewHeatmapWidget({ dataSource }: { dataSource: string }) {
@@ -553,9 +555,9 @@ function ProjectApp() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [ungroupedStocks, setUngroupedStocks] = useState<Stock[]>([]);
   
-  // v2.10.51: 즐겨찾기 재선택 시 그룹 선택 메뉴 항상 노출 (그룹 변경 편의성 개선)
+  // v2.10.53: 하단 탭바 설정 기능 및 즐겨찾기 백업/복원 기능 최종 반영
   useEffect(() => {
-    console.log("%c Stock Chart Puzzle %c v2.10.51 (Group Select Enhanced) ", 
+    console.log("%c Stock Chart Puzzle %c v2.10.53 (Final Settings & Backup) ", 
       "background:#f43f5e; color:white; font-weight:bold; padding:4px 8px; border-radius:4px 0 0 4px;",
       "background:#1c2128; color:#9ca3af; font-weight:bold; padding:4px 8px; border-radius:0 4px 4px 0;"
     );
@@ -585,8 +587,8 @@ function ProjectApp() {
   const [intradayData, setIntradayData] = useState<Record<string, number[]>>({});
   // v1.6.3: 새 그룹 이름 입력 상태 (v2.10.26: 누락 복구)
   const [newGroupName, setNewGroupName] = useState("");
-  // v2.10.28: DB sync 안전화 - 실제 데이터 로드가 완료된 후에만 sync 허용
   const [isFavoritesLoaded, setIsFavoritesLoaded] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
 
   // v1.8.0: 10분 주기 자동 갱신 타이머
@@ -836,6 +838,18 @@ function ProjectApp() {
     setFavoriteGroups(groups);
     localStorage.setItem("puzzle-favorite-groups", JSON.stringify(groups));
   };
+
+  // v2.10.53: 모듈화된 백업 훅 사용
+  const { handleExportData, handleImportData } = useLocalBackup(
+    ungroupedStocks,
+    favoriteGroups,
+    saveUngrouped,
+    saveGroups,
+    (msg) => {
+      alert(msg);
+      setIsSettingsOpen(false);
+    }
+  );
 
   const addGroup = () => {
     const newGroup: FavoriteGroup = {
@@ -1220,7 +1234,7 @@ function ProjectApp() {
               </div>
               
               <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.10.51</p>
+                <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-tighter">VIBE CODING • CHART PUZZLE v2.10.52</p>
               </div>
             </motion.div>
           </>
@@ -1939,8 +1953,223 @@ function ProjectApp() {
         ) : null}
       </AnimatePresence>
 
+    {/* 프리미엄 그룹 선택 바텀 시트 */}
+    <AnimatePresence>
+      {isGroupSelectorOpen && (
+        <>
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setIsGroupSelectorOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[5000]"
+          />
+          <motion.div 
+            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed bottom-0 inset-x-0 z-[5001] bg-slate-900/90 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] p-8 pb-12 max-w-lg mx-auto shadow-2xl"
+          >
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Star className="text-amber-400 filling-amber-400" size={24} />
+                  즐겨찾기 그룹 지정
+                </h3>
+                <p className="text-white/40 text-xs mt-1">선택한 종목을 저장할 위치를 골라주세요.</p>
+              </div>
+              <button 
+                onClick={() => setIsGroupSelectorOpen(false)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <X className="text-white/60" size={24} />
+              </button>
+            </div>
 
-      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.51</footer>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+              {/* My List (미분류) */}
+              <button 
+                onClick={() => {
+                  setTargetAddGroupId("ungrouped");
+                  handleMultiAdd();
+                }}
+                className={`w-full p-5 rounded-3xl border transition-all flex items-center justify-between group ${targetAddGroupId === "ungrouped" ? "bg-rose-500 border-rose-400 shadow-lg shadow-rose-500/20" : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${targetAddGroupId === "ungrouped" ? "bg-white/20" : "bg-white/5"}`}>
+                    <Star size={24} className={targetAddGroupId === "ungrouped" ? "text-white" : "text-white/40"} />
+                  </div>
+                  <div className="text-left">
+                    <p className={`font-semibold ${targetAddGroupId === "ungrouped" ? "text-white" : "text-white/80"}`}>My List</p>
+                    <p className={`text-[10px] ${targetAddGroupId === "ungrouped" ? "text-white/60" : "text-white/30"}`}>새 종목들을 미분류 함에 추가합니다</p>
+                  </div>
+                </div>
+                {targetAddGroupId === "ungrouped" && <Check className="text-white" size={24} />}
+              </button>
+
+              <div className="py-4 flex items-center gap-4">
+                <div className="h-px flex-1 bg-white/5" />
+                <span className="text-[10px] text-white/20 font-bold uppercase tracking-widest italic">Groups</span>
+                <div className="h-px flex-1 bg-white/5" />
+              </div>
+
+              {favoriteGroups.map(group => (
+                <button 
+                  key={group.id}
+                  onClick={() => {
+                    setTargetAddGroupId(group.id);
+                    handleMultiAdd();
+                  }}
+                  className={`w-full p-5 rounded-3xl border transition-all flex items-center justify-between group ${targetAddGroupId === group.id ? "bg-rose-500 border-rose-400 shadow-lg shadow-rose-500/20" : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"}`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${targetAddGroupId === group.id ? "bg-white/20" : "bg-white/5"}`}>
+                      <LayoutGrid size={24} className={targetAddGroupId === group.id ? "text-white" : "text-white/40"} />
+                    </div>
+                    <div className="text-left">
+                      <p className={`font-semibold ${targetAddGroupId === group.id ? "text-white" : "text-white/80"}`}>{group.name}</p>
+                      <p className={`text-[10px] ${targetAddGroupId === group.id ? "text-white/60" : "text-white/30"}`}>{group.stocks.length}개의 종목이 저장됨</p>
+                    </div>
+                  </div>
+                  {targetAddGroupId === group.id && <Check className="text-white" size={24} />}
+                </button>
+              ))}
+
+              {/* 새 그룹 만들기 */}
+              {!newGroupInputOpen ? (
+                <button 
+                  onClick={() => setNewGroupInputOpen(true)}
+                  className="w-full p-5 rounded-3xl border border-dashed border-white/10 hover:border-white/30 hover:bg-white/5 transition-all flex items-center gap-4 group"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-rose-500/20 transition-all">
+                    <Plus size={24} className="text-white/20 group-hover:text-rose-400" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-white/40 group-hover:text-white/80 transition-colors">새 그룹 만들기</p>
+                    <p className="text-[10px] text-white/20">원하는 테마의 그룹을 새로 생성합니다</p>
+                  </div>
+                </button>
+              ) : (
+                <div className="p-5 rounded-3xl bg-white/5 border border-white/20 flex gap-2">
+                  <Input 
+                    autoFocus
+                    placeholder="그룹명 입력..."
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleCreateAndSelectGroup()}
+                    className="flex-1 bg-white/5 border-white/10 text-white rounded-xl"
+                  />
+                  <Button onClick={handleCreateAndSelectGroup} className="bg-rose-500 hover:bg-rose-600 rounded-xl">생성</Button>
+                </div>
+              )}
+            </div>
+            
+            <div className="mt-8 pt-6 border-t border-white/5 flex justify-center">
+               <button 
+                onClick={() => setIsGroupSelectorOpen(false)}
+                className="px-10 py-4 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-2xl font-semibold transition-all"
+               >
+                닫기
+               </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+
+    {/* 설정 모달 (백업/복원) */}
+    <AnimatePresence>
+      {isSettingsOpen && (
+        <>
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setIsSettingsOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[6000]"
+          />
+          <motion.div 
+            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed bottom-0 inset-x-0 z-[6001] bg-slate-900/90 backdrop-blur-3xl border-t border-white/10 rounded-t-[2.5rem] p-8 pb-12 max-w-lg mx-auto shadow-2xl"
+          >
+            <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/20 flex items-center justify-center">
+                  <Settings className="text-rose-500" size={28} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white leading-tight">설정</h3>
+                  <p className="text-white/40 text-[10px] tracking-widest uppercase">System Settings & Backup</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsSettingsOpen(false)}
+                className="p-3 hover:bg-white/10 rounded-full transition-colors group"
+              >
+                <X className="text-white/60 group-hover:text-white" size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-8">
+              <div className="p-8 bg-white/5 border border-white/10 rounded-[2rem] relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-5">
+                   <Download size={120} />
+                </div>
+                <h4 className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                   <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                   Data Management
+                </h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button 
+                    onClick={handleExportData}
+                    className="flex flex-col items-center justify-center p-8 bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl transition-all group active:scale-95"
+                  >
+                    <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
+                      <Download size={32} className="text-blue-400 group-hover:scale-110 transition-transform" />
+                    </div>
+                    <span className="text-base font-bold text-white">데이터 다운로드</span>
+                    <span className="text-[10px] text-white/30 mt-2 font-mono">EXPORT TO JSON</span>
+                  </button>
+
+                  <label 
+                    className="flex flex-col items-center justify-center p-8 bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl transition-all cursor-pointer group active:scale-95"
+                  >
+                    <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4 group-hover:bg-emerald-500/20 transition-colors">
+                      <Upload size={32} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+                    </div>
+                    <span className="text-base font-bold text-white">데이터 업로드</span>
+                    <span className="text-[10px] text-white/30 mt-2 font-mono">IMPORT FROM JSON</span>
+                    <input 
+                      type="file" 
+                      accept=".json" 
+                      onChange={handleImportData}
+                      className="hidden" 
+                    />
+                  </label>
+                </div>
+
+                <div className="mt-8 flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/10 rounded-2xl">
+                  <div className="mt-0.5">
+                    <CheckSquare size={14} className="text-amber-500/60" />
+                  </div>
+                  <p className="text-[11px] text-white/40 leading-relaxed font-medium">
+                    즐겨찾기 종목 및 그룹 정보를 JSON 파일로 보관하거나 다른 기기에서 복원할 수 있습니다. <span className="text-amber-500/80">업로드 시 현재 데이터는 영구적으로 덮어씌워지므로 주의해 주세요.</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="px-4 flex justify-between items-center text-[10px] text-white/10 font-bold uppercase tracking-widest font-mono">
+                <div className="flex items-center gap-4">
+                  <span>© VIBE CODING</span>
+                  <div className="w-1 h-1 rounded-full bg-white/5" />
+                  <span>2026</span>
+                </div>
+                <span>v2.10.53</span>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+
+      <footer className="mt-48 py-20 text-[10px] text-white/20 tracking-widest font-mono uppercase z-10 text-center w-full pb-32">VIBE CODING • CHART PUZZLE v2.10.52</footer>
 
       {/* 범용 하단 탭바 (Bottom Tab Bar) */}
       <div className="fixed bottom-0 inset-x-0 z-[5000] px-4 pb-6 pointer-events-none">
@@ -2033,6 +2262,16 @@ function ProjectApp() {
           >
             <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
               <img src="/icons/v3_trigger.png" alt="TRIGGER" className="w-full h-full object-contain" />
+            </div>
+          </button>
+          
+          {/* 설정 */}
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${isSettingsOpen ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/5 opacity-50 hover:opacity-100"}`}
+          >
+            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-2xl shadow-black/40 flex items-center justify-center bg-white/10 border border-white/5 group">
+              <Settings size={22} className={`text-white/70 group-hover:text-white transition-colors ${isSettingsOpen ? 'text-white' : ''}`} />
             </div>
           </button>
         </motion.div>

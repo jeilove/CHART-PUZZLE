@@ -1,0 +1,116 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775478230038,
+  "projectRoot": "E:\\바이브코딩\\Stock Chart Puzzle",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "backend": {
+      "path": "backend",
+      "purpose": null,
+      "fileCount": 13,
+      "lastAccessed": 1775478229808,
+      "keyFiles": [
+        "batch_analyze.py",
+        "main.py",
+        "pyproject.toml",
+        "README.md",
+        "scraper.py"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 1,
+      "lastAccessed": 1775478229809,
+      "keyFiles": [
+        "UI_ICON_TOOLBAR.md"
+      ]
+    },
+    "frontend": {
+      "path": "frontend",
+      "purpose": null,
+      "fileCount": 18,
+      "lastAccessed": 1775478229810,
+      "keyFiles": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "components.json",
+        "eslint.config.mjs",
+        "let"
+      ]
+    },
+    "참조자료": {
+      "path": "참조자료",
+      "purpose": null,
+      "fileCount": 7,
+      "lastAccessed": 1775478229810,
+      "keyFiles": [
+        "PRD.md",
+        "게임플레이 화면.png",
+        "결과 화면.png",
+        "광고성 기사 필터링.md",
+        "타임워프 퀴즈 화면.png"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "frontend\\src\\components\\puzzle\\TriggerCloud.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775478445039,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\components\\ui\\TriggerAnalysis.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775478445590,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\app\\api\\market\\trigger-summary\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775478493661,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\app\\api\\trigger\\[symbol]\\route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775478494051,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1775478745956,
+      "type": "directory"
+    }
+  ],
+  "userDirectives": []
+}
